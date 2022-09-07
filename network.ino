@@ -9,21 +9,30 @@
 // connect your device to your network.
 #include "secrets.h"
 
+// Setup wifi in soft AP mode. The default is to join an
+// existing network in STATION mode.
+#define USE_SOFT_AP
+
 // Server used for logging.
 WiFiServer logServer(8000);
 WiFiClient logClient;
 
 // One-stop to set up all of the network components
 void setupNetwork() {
-  setupWiFi();
+#ifdef USE_SOFT_AP
+  setupWiFiSoftAP();
+#else
+  setupWiFiStation();
+#endif
+
   setupHTTP();
   setupMDNS();
   setupOTA();
 }
 
-// Get the device setup on the local network
-void setupWiFi() {
-  // Setup WiFi
+// Connect to an existing access point
+void setupWiFiStation() {
+  // Setup WiFi station mode
   WiFi.mode(WIFI_STA);
   WiFi.begin(SECRET_SSID, SECRET_PASSWORD);
   while (WiFi.status() != WL_CONNECTED) {
@@ -51,6 +60,18 @@ void setupWiFi() {
   Serial.println(WiFi.macAddress());
   Serial.print("Hostname: ");
   Serial.println(hostname);
+}
+
+// Create our own network using Soft AP mode
+void setupWiFiSoftAP() {
+  // Setup wifi soft AP mode
+  bool softAPStarted = WiFi.softAP("CrystalFi");
+  Serial.printf("Soft AP status: %s\n", softAPStarted ? "Ready" : "Failed");
+  Serial.printf("Soft AP IP address: %s\n", WiFi.softAPIP().toString().c_str());
+  Serial.printf("Soft AP MAC address = %s\n", WiFi.softAPmacAddress().c_str());
+  Serial.printf("Soft AP SSID = %s\n", WiFi.softAPSSID().c_str());
+  Serial.printf("Soft AP PSK = %s\n", WiFi.softAPPSK().c_str());
+  Serial.printf("Soft AP has %d stations connected\n", WiFi.softAPgetStationNum());
 }
 
 // Setup the web server and handlers
