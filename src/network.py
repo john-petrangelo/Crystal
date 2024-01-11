@@ -1,21 +1,13 @@
-import time
-
 from ipaddress import IPv4Address
 
-from adafruit_httpserver import Server, Request, JSONResponse
+from adafruit_httpserver import Server
 
 import mdns
-import microcontroller
 import wifi
 
 import socketpool
 
-running_average = 0.0
-
-
-def report_run_time(run_time):
-    global running_average
-    running_average = running_average * 0.9 + run_time * 0.1
+import handlers
 
 
 def disconnect_networks():
@@ -45,7 +37,7 @@ def connect_wifi(ssid: str, password: str) -> IPv4Address:
     return ip_address
 
 
-def setup_mdns():
+def start_mdns():
     mdns_server = mdns.Server(wifi.radio)
     mdns_server.hostname = "leds"
     mdns_server.advertise_service(service_type="_http", protocol="_tcp", port=80)
@@ -55,18 +47,9 @@ def setup_mdns():
 def start_webserver(ip_address: IPv4Address) -> Server:
     print("Creating web server")
     pool = socketpool.SocketPool(wifi.radio)
-    server = Server(pool, "/static", debug=True)
-
-    @server.route("/info", methods=["GET"])
-    def handle_request(request: Request):
-        data = {
-            "temperature": microcontroller.cpu.temperature,
-            "frequency": microcontroller.cpu.frequency,
-            "voltage": microcontroller.cpu.voltage,
-            "time": time.monotonic(),
-            "avgDuration": running_average,
-        }
-        return JSONResponse(request, data)
+    # noinspection PyTypeChecker
+    server = Server(pool, "/assets", debug=True)
+    handlers.setup_handlers(server)
 
     # Start the web server
     print("Starting web server")

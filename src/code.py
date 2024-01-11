@@ -8,12 +8,13 @@ from luminaria.models import MultiGradient, Solid
 from luminaria.animations import Rotate
 from luminaria.renderer.circuitpython_neopixel_renderer import Renderer
 
+import handlers
 import network
 
 # Setup network
 wifi_ssid = os.getenv("WIFI_SSID")
 wifi_password = os.getenv("WIFI_PASSWORD")
-network.setup_mdns()
+network.start_mdns()
 ip_address = network.connect_wifi(wifi_ssid, wifi_password)
 server = network.start_webserver(ip_address)
 
@@ -23,6 +24,7 @@ PIXELS_PIN = board.GP28
 PIXELS_COUNT = 50
 BRIGHTNESS = 1.0
 pixels = Renderer(PIXELS_PIN, PIXELS_COUNT, brightness=BRIGHTNESS)
+handlers.set_pixels(pixels)
 
 # Flash the pixels white for a short time
 pixels.model = Solid("Solid white", WHITE)
@@ -37,6 +39,7 @@ pixels.model = rotation
 
 print("Starting loop")
 running_average = 0.0
+
 while True:
     server.poll()
 
@@ -45,6 +48,6 @@ while True:
     after_time_ns = time.monotonic_ns()
 
     duration = (after_time_ns - before_time_ns) / 1000000000
-    network.report_run_time(duration)
+    handlers.report_render_time(duration)
 
     time.sleep(0.010)

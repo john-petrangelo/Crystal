@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Crystal Control</title>
+    <meta charset="UTF-8" name="viewport" content="width=device-width" initial-scale="1.0">
+    <link rel="stylesheet" href="crystal.css">
+    <script src="crystal.js"></script>
+
+    <template id="subpage-top-bar-template">
+      <div class="subpage-top-bar">
+        <div class="subpage-back" ontouchstart="">
+          <div class="subpage-back-chevron"></div>
+          <span class="subpage-back-label">Home</span>
+        </div>
+        <span class="subpage-title"></span>
+      </div>
+    </template>
+    <template id="color-speed-template">
+      <span></span>
+      <div class="color-speed-container">
+        <input type="color" value="#c00060" id="colors"/>
+        <span class="color-speed-icon">&#x1F422;</span>
+        <div class="color-speed-slider">
+          <input type="range" min="0" max="1.0" value="1.0" step="0.01" list="color-speed-tickmarks">
+          <datalist id="color-speed-tickmarks">
+            <option value="0.0"></option>
+            <option value="0.1"></option>
+            <option value="1.0"></option>
+          </datalist>
+        </div>
+        <div class="color-speed-icon">&#x1F407;</div>
+      </div>
+    </template>
+    <template id="up-down-template">
+      <span></span>
+      <div class="up-down-container">
+        <span>Down</span>
+        <div class="up-down-slider">
+          <input type="range" min="-1.0" max="1.0" value="0.3" step="0.01" list="up-down-tickmarks">
+          <datalist id="up-down-tickmarks">
+            <option value="-1.0"></option>
+            <option value="-0.1"></option>
+            <option value="0.1"></option>
+            <option value="1.0"></option>
+          </datalist>
+        </div>
+        <span>Up</span>
+      </div>
+    </template>
+  </head>
+  <body>
+    <div id="home" class="home">
+      <div class="title">
+        Dark Crystal
+      </div>
+
+      <img src="Crystal.png" class="center home-img">
+
+      <div id="brightness-box">
+        <label for="brightness">
+          Brightness
+        </label>
+        <input type="range" id="brightness" min="0.0" max="1.0" step="0.01" value="1.0" list="brightness-tickmarks">
+        <datalist id="brightness-tickmarks">
+          <option value="0.0"></option>
+          <option value="0.15"></option>
+          <option value="1.0"></option>
+        </datalist>
+      </div>
+
+      <div class="buttons-group">
+        <button id="crystal-button">Crystal</button>
+        <button id="rainbow-button" onclick="fetch('/rainbow', {method:'GET'})">Rainbow</button>
+        <button id="flame-button" onclick="fetch('/flame', {method:'GET'})">Flame</button>
+        <button id="other-button">Other</button>
+      </div>
+    </div>
+
+    <div id="crystal-subpage" class="subpage" data-buttonid="crystal-button" data-title="Crystal">
+      <div>
+        <button id="dark-crystal-button" class="center" onclick="setCrystal('ff00d0')">The Dark Crystal</button>
+      </div>
+      <div class="buttons-group">
+        <button id="ruby-button" onclick="setCrystal('9b111e')">Ruby</button>
+        <button id="emerald-button" onclick="setCrystal('10D026')">Emerald</button>
+        <button id="saphire-button" onclick="setCrystal('1020A0')">Saphire</button>
+        <button id="topaz-button" onclick="setCrystal('ffa000')">Topaz</button>
+        <button id="turquoise-button" onclick="setCrystal('00d0d0')">Turquiose</button>
+        <button id="diamond-button" onclick="setCrystal('ffffff')">Diamond</button>
+        <button id="amethyst-button" onclick="setCrystal('9966cc')">Amethyst</button>
+        <button id="jade-button" onclick="setCrystal('40A630')">Jade</button>
+        <button id="lapis-button" onclick="setCrystal('26619C')">Lapis Lazuli</button>
+      </div>
+      <br><hr>
+      <span class="section-title">Advanced Settings</span>
+      <br>
+      <div id="crystal-upper" class="color-speed" data-title="Upper section"></div>
+      <div id="crystal-middle" class="color-speed" data-title="Middle section"></div>
+      <div id="crystal-lower" class="color-speed" data-title="Lower section"></div>
+    </div>
+
+    <div id="rainbow-subpage" class="subpage" data-buttonid="rainbow-button" data-title="Rainbow">
+      <div class="rb-container">
+        <span class="section-title">Movement</span>
+        <div id="rb-movement" class="up-down"></div>
+        <div><hr></div>
+        <span class="section-title">Color Palette</span>
+        <div id="rb-buttons">
+          <button id="rb-classic-button" onclick="setRainbow('classic')">Classic</button>
+          <button id="rb-tv-button" onclick="setRainbow('tv')">Test Signal</button>
+          <button id="rb-50s-button" onclick="setRainbow('50s')">'50s</button>
+          <button id="rb-60s-button" onclick="setRainbow('60s')">'60s</button>
+          <button id="rb-70s-button" onclick="setRainbow('70s')">'70s</button>
+          <button id="rb-80s-button" onclick="setRainbow('80s')">'80s</button>
+          <button id="rb-90s-button" onclick="setRainbow('90s')">'90s</button>
+          <button id="rb-00s-button" onclick="setRainbow('00s')">'00s</button>
+          <button id="rb-10s-button" onclick="setRainbow('10s')">'10s</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="other-subpage" class="subpage" data-buttonid="other-button" data-title="Other">
+      <div class="buttons-group">
+        <button onclick="fetch('/demo1', {method:'GET'})">Demo 1</button>
+        <button onclick="fetch('/demo2', {method:'GET'})">Demo 2</button>
+        <button onclick="fetch('/demo3', {method:'GET'})">Demo 3</button>
+      </div>
+    </div>
+  </body>
+</html>

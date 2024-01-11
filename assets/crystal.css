@@ -1,0 +1,393 @@
+body {
+  background-color: #e6e6fa;
+  color: purple;
+  font-family: 'Tahoma', sans-serif;
+}
+.title {
+  font-family: 'Brush Script MT', cursive;
+  font-size: x-large;
+  font-weight: bold;
+  text-align: center;
+}
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+button {
+  width: calc(33% - 6px);
+  height: 60px;
+  color: white;
+  text-shadow: 0px 0px 4px #000000;
+  font-size : medium;
+  background-color: #606060;
+  text-align: center;
+  border-radius: 15px;
+  border:1px solid darkslategray;
+}
+.buttons-group {
+  display: flex;
+  flex-flow: row wrap;
+}
+.buttons-group > button {
+  margin: 3px;
+}
+
+#crystal-button {
+  background: radial-gradient(ellipse 100% 80%, purple, lightgray);
+}
+#rainbow-button {
+  background-color: #87cefa !important;
+  background: radial-gradient(circle at bottom left, rgba(0, 0, 0, 0) 35%,
+    rgba(75, 0, 130, 0.7) 40%,
+    rgba(0, 0, 255, 0.7),
+    rgba(0, 128, 0, 0.7),
+    rgba(255, 255, 0, 0.7),
+    rgba(255, 165, 0, 0.7),
+    rgba(255, 0, 0, 0.7) 65%,
+    rgba(0, 0, 0, 0) 70%);
+  }
+#flame-button {
+    background: radial-gradient(ellipse at bottom, #ff8000, orange, yellow 90%);
+}
+#other-button {
+  background: #303030;
+}
+
+#dark-crystal-button {
+  width: 60%;
+  background: radial-gradient(ellipse 100% 80%, purple, white);
+  margin-bottom: 3px;
+}
+#ruby-button {
+  background: radial-gradient(ellipse 100% 80%, #9b111e, white);
+}
+#emerald-button {
+  background: radial-gradient(ellipse 100% 80%, #10D026, white);
+}
+#saphire-button {
+  background: radial-gradient(ellipse 100% 80%, #1020A0, white);
+}
+#topaz-button {
+  background: radial-gradient(ellipse 100% 80%, #ffa000, white);
+}
+#turquoise-button {
+  background: radial-gradient(ellipse 100% 80%, #00d0d0, white);
+}
+#diamond-button {
+  background: radial-gradient(ellipse 100% 80%, white,#b0b0b0);
+}
+#amethyst-button {
+  background: radial-gradient(ellipse 100% 80%, #9966cc, white);
+}
+#jade-button {
+  background: radial-gradient(ellipse 100% 80%, #40A630, white);
+}
+#lapis-button {
+  background: radial-gradient(ellipse 100% 80%, #26619c, white);
+}
+
+.home-img {
+  width: 128px;
+  height 128px;
+  border: 1px solid gray;
+  background-color: lightgray;
+  padding: 5px;
+}
+
+#brightness-box {
+  display: flex;
+  flex-flow: row nowrap;
+  padding: 10px;
+  flex-grow: 1;
+  visibility: hidden;
+}
+#brightness-box > input[type="range"] {
+  margin-left: 20px;
+  width: 100%;
+}
+
+.homepage-page {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  left: 0%;
+  transition: all 0.3s ease-out;
+}
+.homepage-out {
+  left: -25%;
+  transition: all 0.3s ease-out;
+}
+
+.subpage {
+  position: fixed;
+  z-index: 1;
+  overflow: auto;
+  background-color: lavender;
+  top: 0%;
+  width: 100%;
+  height: 100%;
+  left: 100%;
+  transition: left 0.3s ease-out;
+}
+.subpage-top-bar {
+  padding-bottom: 20px;
+}
+.subpage-back-chevron {
+  position: absolute;
+  border-left: 2px solid;
+  border-bottom: 2px solid;
+  left: 10px;
+  top: 10px;
+  height: 8px;
+  width: 8px;
+  transform: rotate(45deg);
+}
+.subpage-back-label {
+  font-size: medium;
+  position: absolute;
+  left: 20px;
+  top: 5px;
+}
+.subpage-back:hover,
+.subpage-back:focus {
+  cursor: pointer;
+}
+.subpage-back:active>.subpage-back-chevron {
+  border-color: rgba(139,0,139, 0.4);
+}
+.subpage-back:active>.subpage-back-label {
+  color: rgba(139,0,139, 0.4);
+}
+.subpage-title {
+  display: table;
+  margin: 0 auto;
+  padding-top: 5px;
+  font-size: xx-large;
+}
+.subpage-is-open {
+  left: 0%;
+  transition: left 0.3s ease-out;
+}
+
+.section-title {
+  display: table;
+  margin: 0 auto;
+  padding-top: 10px;
+  font-size: x-large;
+}
+
+.color-speed-container {
+  display: flex;
+  flex-flow: row nowrap;
+}
+.color-speed > span {
+  padding: 10px 0px 0px 0px;
+  display: block;
+  text-align: center;
+  font-size: small;
+}
+.color-speed input[type="color"] {
+  height: 36px;
+  width: 48;
+}
+.color-speed-icon {
+  padding: 5px;
+}
+.color-speed input[type="range"] {
+  flex-grow: 1;
+  width: 100%;
+  height: 35px;
+}
+.color-speed-slider {
+  width: 100%;
+}
+#rb-classic-button {
+  background: radial-gradient(circle at bottom left,
+    rgba(0,0,0,0.0) 35%,
+    indigo 40%,
+    purple,
+    blue,
+    green,
+    yellow,
+    orange,
+    red 65%,
+    rgba(255,0,0,0.0) 70%);
+}
+#rb-tv-button {
+  background: linear-gradient(to right,
+    rgb(0,0,191) 0% 12.5%,
+    rgb(191,0,1) 12.5% 25%,
+    rgb(191,0,192) 25% 37.5%,
+    rgb(0,191,0) 37.5% 50%,
+    rgb(0,191,190) 50% 62.5%,
+    rgb(191,191,0) 62.5% 75%,
+    rgb(191,191,191) 75% 87.5%,
+    rgb(102,102,102) 87.5% 100%);
+}
+#rb-50s-button {
+  background: radial-gradient(circle at bottom left,
+    rgba(246,204,208,0.0) 35%,
+    #F6CCD0 40%,
+    #BBDCCB,
+    #B4DCE3,
+    #FDEEB3,
+    #D9CBC2 65%,
+    rgba(217,203,194,0.0) 70%);
+}
+#rb-60s-button {
+  background: radial-gradient(circle at bottom left,
+    rgba(252,213,58,0.0) 35%,
+    #FCD53A 40%,
+    #BFC847,
+    #F7790B,
+    #DC4E80,
+    #7BD0EC 65%,
+    rgba(123,208,236,0.0) 70%);
+}
+#rb-70s-button {
+  background: radial-gradient(circle at bottom left,
+    rgba(229,159,35,0.0) 35%,
+    #E59F23 40%,
+    #925E18,
+    #758C32,
+    #CE985A,
+    #E15623 65%,
+    rgba(225,86,35,0.0) 70%);
+}
+#rb-80s-button {
+  background: radial-gradient(circle at bottom left,
+    rgba(254,104,168,0.0) 35%,
+    #FE68A8 40%,
+    #3869C8,
+    #51DDDF,
+    #FFDA58,
+    #CF95FB 65%,
+    rgba(207,149,251,0.0) 70%);
+}
+#rb-90s-button {
+  background: radial-gradient(circle at bottom left,
+    rgba(176,106,119,0.0) 35%,
+    #B06A77 40%,
+    #DEB041,
+    #066466,
+    #6B2C58,
+    #940E1D 65%,
+    rgba(148,14,29,0.0) 70%);
+}
+#rb-00s-button {
+  background: radial-gradient(circle at bottom left,
+    rgba(166,193,214,0.0) 35%,
+    #A6C1D6 40%,
+    #DFDEDC,
+    #C4B28C,
+    #8F625D,
+    #7F9392 65%,
+    rgba(127,147,146,0.0) 70%);
+}
+#rb-10s-button {
+  background: radial-gradient(circle at bottom left,
+    rgba(248,202,202,0.0) 35%,
+    #F8CACA 40%,
+    #969AA5,
+    #C1A059,
+    #D4C9C3,
+    #96C14D 65%,
+    rgba(150,193,77,0.0) 70%);
+}
+#rb-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+#rb-buttons button {
+  width: 30vw;
+  place-self: center;
+  background-color: #87cefa;
+}
+.rb-container {
+  display: grid;
+  gap: 10px;
+}
+.up-down-container {
+  display: flex;
+  flex-flow: row nowrap;
+}
+.up-down-slider, .up-down input[type="range"] {
+  flex-grow: 1;
+  width: 100%;
+  height: 35px;
+}
+.up-down span {
+  display: block;
+  text-align: center;
+  font-size: small;
+  padding: 1em;
+}
+
+/***** Toggle switch *****/
+
+/*
+.toggle-box {
+  display: flex;
+  padding-right: 25px;
+}
+.toggle {
+  --width: 25px;
+  --height: 15px;
+
+  position: relative;
+  display: inline-block;
+  width: var(--width);
+  height: var(--height);
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3);
+  border-radius: var(--height);
+  cursor: pointer;
+  align-items: right;
+}
+.toggle input {
+  display: none;
+}
+.toggle .slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--height);
+  background-color:#ccc;
+  transition: all 0.4s;
+}
+.toggle input:checked + .slider {
+  background-color:#8ce196;
+}
+.toggle .slider::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(var(--height));
+  height: calc(var(--height));
+  border-radius: calc(var(--height) / 2);
+  background-color: #fff;
+  box-shadow: 0px, 1px, 3px, rgba(0, 0, 0, 0.3);
+  transition: all 0.4s ease;
+}
+.toggle input:checked + .slider::before {
+  transform: translateX(calc(var(--width) - var(--height)));
+}
+ */
+
+/*
+EXAMPLE HTML FOR TOGGLE
+<!-- <div class="toggle-box">
+<label class="control-label" for="onoff">
+  On/Off
+</label>
+<label class="toggle">
+  <input type="checkbox" id="onoff"/>
+  <div class="slider"></div>
+</label>
+</div> -->
+*/
