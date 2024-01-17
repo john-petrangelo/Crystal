@@ -23,19 +23,19 @@ print("Initializing pixels")
 PIXELS_PIN = board.GP28
 PIXELS_COUNT = 50
 BRIGHTNESS = 1.0
-pixels = Renderer(PIXELS_PIN, PIXELS_COUNT, brightness=BRIGHTNESS)
-handlers.set_pixels(pixels)
+renderer = Renderer(PIXELS_PIN, PIXELS_COUNT, brightness=BRIGHTNESS)
+handlers.set_renderer(renderer)
 
 # Flash the pixels white for a short time
-pixels.model = Solid("Solid white", WHITE)
-pixels.render()
+renderer.model = Solid("Solid white", WHITE)
+renderer.render()
 time.sleep(0.2)
 
 # Set up the model for the pixels
 print("Setting up lighting model")
 gradient = MultiGradient("Gradient rainbow", [RED, ORANGE, YELLOW, GREEN, BLUE, VIOLET, RED])
 rotation = Rotate("Rotation", 2500, gradient)
-pixels.model = rotation
+renderer.model = rotation
 
 print("Starting loop")
 running_average = 0.0
@@ -44,7 +44,7 @@ while True:
     server.poll()
 
     before_time_ns = time.monotonic_ns()
-    pixels.render()
+    renderer.render()
     after_time_ns = time.monotonic_ns()
 
     duration = (after_time_ns - before_time_ns) / 1000000000

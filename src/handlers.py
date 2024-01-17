@@ -14,9 +14,9 @@ def report_render_time(render_time):
     running_average = running_average * 0.9 + render_time * 0.1
 
 
-def set_pixels(pixels_in):
-    global pixels
-    pixels = pixels_in
+def set_renderer(pixels_in):
+    global renderer
+    renderer = pixels_in
 
 
 def setup_handlers(server: Server):

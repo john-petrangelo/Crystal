@@ -45,14 +45,12 @@ def start_mdns():
 
 
 def start_webserver(ip_address: IPv4Address) -> Server:
-    print("Creating web server")
     pool = socketpool.SocketPool(wifi.radio)
     # noinspection PyTypeChecker
     server = Server(pool, "/assets", debug=True)
     handlers.setup_handlers(server)
 
     # Start the web server
-    print("Starting web server")
     server.start(str(ip_address))
 
     return server
