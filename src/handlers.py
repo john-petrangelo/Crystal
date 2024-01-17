@@ -2,9 +2,12 @@ import time
 
 import microcontroller
 from adafruit_httpserver import Request, JSONResponse, FileResponse, Server, Route, GET, PUT, Response
+from luminaria.models import Flame
 from luminaria.renderer.circuitpython_neopixel_renderer import Renderer
 
-pixels: Renderer
+from utils import hex_to_color, map_value, make_crystal_model
+
+renderer: Renderer
 
 running_average = 0.0
 
@@ -20,12 +23,21 @@ def set_renderer(pixels_in):
 
 
 def setup_handlers(server: Server):
+    """
+    Set up request handlers for the server.
+
+    :param server: The server instance.
+
+    :return: None
+    """
     server.add_routes([
         Route("/", GET, handle_root),
         Route("/crystal.css", GET, handle_css),
         Route("/crystal.js", GET, handle_js),
         Route("/brightness", GET, handle_get_brightness),
         Route("/brightness", PUT, handle_set_brightness),
+        Route("/crystal", PUT, handle_crystal),
+        Route("/flame", GET, handle_flame),
         Route("/info", GET, handle_info),
     ])
 
@@ -44,7 +56,7 @@ def handle_js(request: Request):
 
 def handle_get_brightness(request: Request):
     return JSONResponse(request, {
-        "value": pixels.brightness,
+        "value": renderer.brightness,
     })
 
 
@@ -59,49 +71,42 @@ def handle_set_brightness(request: Request):
     # Apply gamma correction
     float_value = float_value * float_value
 
-    pixels.brightness = float_value
+    renderer.brightness = float_value
 
     return Response(request)
 
 
-# void handleNotFound() {
-#   String message = "File Not Found\n\n";
-#   message += "URI: " + server.uri();
-#   message += "\nMethod: "+ (server.method() == HTTP_GET) ? "GET" : "POST";
-#   message += String("\nArguments: ") + server.args() + "\n";
-#   for (uint8_t i = 0; i < server.args(); i++) {
-#     message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
-#   }
-#   server.send(404, "text/plain", message);
-# }
-#
-# void handleCrystal() {
-#   StaticJsonDocument<384> doc;
-#   DeserializationError error = deserializeJson(doc, server.arg("plain"));
-#   if (error) {
-#     Logger::logf("handleCrystal failed to parse JSON: %s\n", error.c_str());
-#     server.send(400, "text/plain", error.c_str());
-#     return;
-#   }
-#
-#   Color upperColor = strtol(doc["upper"]["color"], 0, 16);
-#   Color middleColor = strtol(doc["middle"]["color"], 0, 16);
-#   Color lowerColor = strtol(doc["lower"]["color"], 0, 16);
-#   float upperSpeed = doc["upper"]["speed"];
-#   float middleSpeed = doc["middle"]["speed"];
-#   float lowerSpeed = doc["lower"]["speed"];
-#
-#   float upperPeriodSec = fmap(upperSpeed, 0.0, 1.0, 11.0, 1.0);
-#   float middlePeriodSec = fmap(middleSpeed, 0.0, 1.0, 11.0, 1.0);
-#   float lowerPeriodSec = fmap(lowerSpeed, 0.0, 1.0, 11.0, 1.0);
-#
-#   renderer.setModel(makeCrystal(
-#     upperColor, upperPeriodSec,
-#     middleColor, middlePeriodSec,
-#     lowerColor, lowerPeriodSec));
-#   server.send(200, "text/plain", "");
-# }
-#
+def handle_crystal(request: Request):
+    if not request.json():
+        return
+
+    upper_color = hex_to_color(request.json()["upper"]["color"])
+    upper_speed = float(request.json()["upper"]["speed"])
+
+    middle_color = hex_to_color(request.json()["middle"]["color"])
+    middle_speed = float(request.json()["middle"]["speed"])
+
+    lower_color = hex_to_color(request.json()["lower"]["color"])
+    lower_speed = float(request.json()["lower"]["speed"])
+
+    upper_period_sec = map_value(upper_speed, 0.0, 1.0, 11.0, 1.0)
+    middle_period_sec = map_value(middle_speed, 0.0, 1.0, 11.0, 1.0)
+    lower_period_sec = map_value(lower_speed, 0.0, 1.0, 11.0, 1.0)
+
+    print(f"crystal upper_sec={upper_period_sec}")
+
+    renderer.model = make_crystal_model(upper_color, upper_period_sec,
+                                        middle_color, middle_period_sec,
+                                        lower_color, lower_period_sec)
+
+    return Response(request)
+
+
+def handle_flame(request: Request):
+    renderer.model = Flame("flame")
+
+    return Response(request)
+
 # void handleFlame() {
 #   renderer.setModel(std::make_shared<Flame>());
 #   server.send(200, "text/plain", "");
@@ -197,6 +202,17 @@ def handle_set_brightness(request: Request):
 # void handleDemo3() {
 #   renderer.setModel(makeDemo3());
 #   server.send(200, "text/plain", "");
+# }
+#
+# void handleNotFound() {
+#   String message = "File Not Found\n\n";
+#   message += "URI: " + server.uri();
+#   message += "\nMethod: "+ (server.method() == HTTP_GET) ? "GET" : "POST";
+#   message += String("\nArguments: ") + server.args() + "\n";
+#   for (uint8_t i = 0; i < server.args(); i++) {
+#     message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
+#   }
+#   server.send(404, "text/plain", message);
 # }
 
 
