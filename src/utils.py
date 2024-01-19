@@ -18,6 +18,21 @@ def hex_to_color(s: str):
             )
 
 
+def int24_to_color(value: int):
+    """
+    Create a color tuple from a 24-bit integer.
+
+    :param value: The 24-bit integer to extract bytes from.
+
+    :return: An RGB color tuple.
+    """
+    red = (value >> 16) & 255
+    green = (value >> 8) & 255
+    blue = value & 255
+    color = (red, green, blue)
+    return color
+
+
 def map_value(value, from_min, from_max, to_min, to_max):
     """
     Map a value from one range to another.
