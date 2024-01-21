@@ -4,9 +4,10 @@ import microcontroller
 from adafruit_httpserver import Request, JSONResponse, FileResponse, Server, Route, GET, PUT, Response
 from luminaria.animations import Rotate, Flame
 from luminaria.colors import RED, VIOLET, BLUE, GREEN, YELLOW, ORANGE
-from luminaria.models import MultiGradient
+from luminaria.models import MultiGradient, Solid
 from luminaria.renderer.circuitpython_neopixel_renderer import Renderer
 
+from demos import make_demo1, make_demo2, make_demo3
 from utils import hex_to_color, map_value, make_crystal_model, int24_to_color
 
 renderer: Renderer
@@ -41,7 +42,11 @@ def setup_handlers(server: Server):
         Route("/crystal", PUT, handle_crystal),
         Route("/rainbow", PUT, handle_rainbow),
         Route("/flame", GET, handle_flame),
+        Route("/solid", GET, handle_solid),
         Route("/info", GET, handle_info),
+        Route("/demo1", GET, handle_demo1),
+        Route("/demo2", GET, handle_demo2),
+        Route("/demo3", GET, handle_demo3),
     ])
 
 
@@ -64,9 +69,10 @@ def handle_get_brightness(request: Request):
 
 
 def handle_set_brightness(request: Request):
+    if not request.query_params or "value" not in request.query_params:
+        return Response(request, status=(401, "Invalid Request"), body='Missing query parameter: value',
+                        content_type="text/plain")
     value = request.query_params["value"]
-    if not value:
-        return
 
     # Convert from string to float
     float_value = float(value)
@@ -81,7 +87,8 @@ def handle_set_brightness(request: Request):
 
 def handle_crystal(request: Request):
     if not request.json():
-        return
+        return Response(request, status=(401, "Invalid Request"), body='Expected JSON body',
+                        content_type="text/plain")
 
     upper_color = hex_to_color(request.json()["upper"]["color"])
     upper_speed = float(request.json()["upper"]["speed"])
@@ -113,7 +120,8 @@ def handle_flame(request: Request):
 
 def handle_rainbow(request: Request):
     if not request.json():
-        return
+        return Response(request, status=(401, "Invalid Request"), body='Expected JSON body',
+                        content_type="text/plain")
 
     mode = request.json()["mode"]
     speed = float(request.json()["speed"])
@@ -172,20 +180,31 @@ def handle_rainbow(request: Request):
     return Response(request)
 
 
-# void handleSolid() {
-#   if(!server.hasArg("color")) {
-#     server.send(400, "text/plain", "Color parameter missing\n");
-#     return;
-#   }
-#
-#   String colorStr = server.arg("color");
-#   Color color = strtol(colorStr.c_str(), 0, 16);
-#   renderer.setModel(std::make_shared<SolidModel>("net solid model", color));
-#
-#   server.send(200, "text/plain", "");
-# }
-#
-#
+def handle_solid(request: Request):
+    if not request.query_params or "color" not in request.query_params:
+        return Response(request, status=(401, "Invalid Request"), body='Missing query parameter: color',
+                        content_type="text/plain")
+
+    color = hex_to_color(request.query_params["color"])
+    renderer.model = Solid("solid model", color)
+
+    return Response(request)
+
+
+def handle_demo1(request: Request):
+    renderer.model = make_demo1()
+    return Response(request)
+
+
+def handle_demo2(request: Request):
+    renderer.model = make_demo2()
+    return Response(request)
+
+
+def handle_demo3(request: Request):
+    renderer.model = make_demo3()
+    return Response(request)
+
 # void handleDemo1() {
 #   renderer.setModel(makeDemo1());
 #   server.send(200, "text/plain", "");
@@ -199,17 +218,6 @@ def handle_rainbow(request: Request):
 # void handleDemo3() {
 #   renderer.setModel(makeDemo3());
 #   server.send(200, "text/plain", "");
-# }
-#
-# void handleNotFound() {
-#   String message = "File Not Found\n\n";
-#   message += "URI: " + server.uri();
-#   message += "\nMethod: "+ (server.method() == HTTP_GET) ? "GET" : "POST";
-#   message += String("\nArguments: ") + server.args() + "\n";
-#   for (uint8_t i = 0; i < server.args(); i++) {
-#     message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
-#   }
-#   server.send(404, "text/plain", message);
 # }
 
 

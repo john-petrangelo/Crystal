@@ -4,7 +4,7 @@ from luminaria.models import Triangle, Add
 
 def hex_to_color(s: str):
     """
-    Converts a given hexadecimal color code string (e.g., "0xABCDEF") to an RGB tuple containing three
+    Converts a given hexadecimal color code string (e.g., "ABCDEF") to an RGB tuple containing three
     integer values representing the red, green, and blue components of that color in that order. If the
     provided input is not a valid hexadecimal color code string, returns None instead.
 
