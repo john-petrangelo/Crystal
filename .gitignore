@@ -1,6 +1,13 @@
 src/lumos-arduino
+src/Crystal2.png
 .vscode
 commands.sed
 compile
 sketch.json
 
+build
+
+CMakeLists.txt
+cmake-build-debug
+
+.idea
