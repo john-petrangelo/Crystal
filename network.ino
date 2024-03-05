@@ -3,6 +3,7 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 #include <LittleFS.h>
+#include "src/lumos-arduino/lumos-arduino/Logger.h"
 
 // Secrets are defined in another file called "secrets.h" to avoid commiting secrets
 // into a public repo. You will need to change the secret values in secrets.h to
@@ -11,7 +12,11 @@
 
 // Setup wifi in soft AP mode. The default is to join an
 // existing network in STATION mode.
-#define USE_SOFT_AP
+// #define USE_SOFT_AP
+
+// Event handlers for soft AP connect and disconnect events
+WiFiEventHandler stationConnectedHandler;
+WiFiEventHandler stationDisconnectedHandler;
 
 // Server used for logging.
 WiFiServer logServer(8000);
@@ -19,6 +24,15 @@ WiFiClient logClient;
 
 // One-stop to set up all of the network components
 void setupNetwork() {
+  String macAddress = WiFi.macAddress();
+  if (macAddress == "E8:DB:84:98:7F:C3") {
+    hostname = "shard";
+  } else if (macAddress = "84:CC:A8:81:0A:53") {
+    hostname = "crystal";
+  } else {
+    hostname = WiFi.hostname();
+  }
+
 #ifdef USE_SOFT_AP
   setupWiFiSoftAP();
 #else
@@ -26,7 +40,7 @@ void setupNetwork() {
 #endif
 
   setupHTTP();
-  setupMDNS();
+//  setupMDNS();
   setupOTA();
 }
 
@@ -44,14 +58,6 @@ void setupWiFiStation() {
   logServer.begin();
 
   // If we recognize the MAC address, use a different hostname specific to that MAC address
-  String macAddress = WiFi.macAddress();
-  if (macAddress == "E8:DB:84:98:7F:C3") {
-    hostname = "shard";
-  } else if (macAddress = "84:CC:A8:81:0A:53") {
-    hostname = "crystal";
-  } else {
-    hostname = WiFi.hostname();
-  }
   Serial.print("Network: ");
   Serial.println(SECRET_SSID);
   Serial.print("IP address: ");
@@ -65,7 +71,12 @@ void setupWiFiStation() {
 // Create our own network using Soft AP mode
 void setupWiFiSoftAP() {
   // Setup wifi soft AP mode
-  bool softAPStarted = WiFi.softAP("CrystalFi");
+  bool softAPStarted = WiFi.softAP(hostname);
+  // Call "onStationConnected" each time a station connects
+  stationConnectedHandler = WiFi.onSoftAPModeStationConnected(&onStationConnected);
+  // Call "onStationDisconnected" each time a station disconnects
+  stationDisconnectedHandler = WiFi.onSoftAPModeStationDisconnected(&onStationDisconnected);
+
   Serial.printf("Soft AP status: %s\n", softAPStarted ? "Ready" : "Failed");
   Serial.printf("Soft AP IP address: %s\n", WiFi.softAPIP().toString().c_str());
   Serial.printf("Soft AP MAC address = %s\n", WiFi.softAPmacAddress().c_str());
@@ -120,8 +131,8 @@ void setupOTA() {
 
     Serial.println("OTA Start");
 
-    Patterns::setSolidColor(strip, pixels, BLACK);
-    Patterns::setSolidColor(pixels, strip.numPixels()-1, strip.numPixels(), WHITE);
+    Patterns::setSolidColor(pixels, 0, strip.PixelCount(), BLACK);
+    Patterns::setSolidColor(pixels, strip.PixelCount()-1, strip.PixelCount(), WHITE);
     Patterns::applyPixels(strip, pixels);
     strip.show();
   });
@@ -129,7 +140,7 @@ void setupOTA() {
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
     Serial.printf("OTA Progress: %u%%\r", (progress / (total / 100)));
 
-    int otaPixels = progress / (total / strip.numPixels());
+    int otaPixels = progress / (total / strip.PixelCount());
     Serial.printf("progress: %u  total: %u  otaPixels: %u\r", progress, total, otaPixels);
     Patterns::setSolidColor(pixels, 0, otaPixels, GREEN);
     Patterns::applyPixels(strip, pixels);
@@ -161,6 +172,14 @@ void setupOTA() {
   Serial.println("OTA ready");
 }
 
+void onStationConnected(const WiFiEventSoftAPModeStationConnected& evt) {
+  Logger::logf("Station connected: %s\n", macToString(evt.mac).c_str());
+}
+
+void onStationDisconnected(const WiFiEventSoftAPModeStationDisconnected& evt) {
+  Logger::logf("Station disconnected: %s\n", macToString(evt.mac).c_str());
+}
+
 void loopNetwork() {
   // Check for network activity.
   server.handleClient();
@@ -185,4 +204,10 @@ void loopLogger() {
     Logger::setStream(&Serial);
     logClient.stop();
   }
+}
+
+String macToString(const unsigned char* mac) {
+  char buf[20];
+  snprintf(buf, sizeof(buf), "%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+  return String(buf);
 }
