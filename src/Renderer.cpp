@@ -39,3 +39,13 @@ void Renderer::setModel(std::shared_ptr<Model> newModel) {
   // Reset time
   // startTimeMS = millis();
 }
+
+// TODO Doc
+void Renderer2::render() {
+    ; // TODO
+}
+
+// TODO Doc
+void Renderer2::reset() {
+    ; // TODO
+}
