@@ -1,6 +1,6 @@
 #include <math.h>
 
-#include "lumos-arduino/lumos-arduino/Colors.h"
+#include "lumos-arduino/Colors.h"
 
 #include "Animations.h"
 #include "Combinations.h"

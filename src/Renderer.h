@@ -4,7 +4,7 @@
 #include <NeoPixelBus.h>
 
 #include "Model.h"
-//#include "lumos-arduino/lumos-arduino/Colors.h"
+//#include "lumos-arduino/Colors.h"
 
 //class Renderer {
 //  private:
@@ -28,10 +28,11 @@ protected:
 public:
     virtual void render() = 0;
     virtual void reset() { _startTime_ms = millis(); };
-    // TODO Get info
 
+    // TODO Get info
     // TODO Get/set brightness
-    // TODO Get model
+
+    std::shared_ptr<Model> & getModel() { return _model; }
     void setModel(std::shared_ptr<Model> & model) { _model = model; reset(); }
 };
 

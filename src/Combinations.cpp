@@ -1,7 +1,7 @@
 #include <math.h>
 
-#include "lumos-arduino/lumos-arduino/Colors.h"
-#include "lumos-arduino/lumos-arduino/Logger.h"
+#include "lumos-arduino/Colors.h"
+#include "lumos-arduino/Logger.h"
 
 #include "Combinations.h"
 #include "utils.h"

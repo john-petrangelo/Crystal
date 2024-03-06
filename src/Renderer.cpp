@@ -1,5 +1,6 @@
-#include <functional>
-
+// TODO Remove?
+//#include <functional>
+//
 #include "Renderer.h"
 
 //void Renderer::loop(int numPixels, std::function<void(int, Color)> setPixel) {
@@ -38,7 +39,7 @@ Esp8266_NeoPixelBus_Renderer::Esp8266_NeoPixelBus_Renderer(int pixelsPin, int pi
         _pixelsCount(pixelsCount),
         _strip(pixelsCount, pixelsPin) {
     _strip.Begin();
-    _strip.SetBrightness(255);
+//    _strip.SetBrightness(255);
     _strip.Show();  // Initialize all pixels to 'off'
 }
 
@@ -56,14 +57,14 @@ void Esp8266_NeoPixelBus_Renderer::render() {
     _model->update(timeStamp);
 
     // Set the color of each pixel
-    for (auto i = 0; i < numPixels; ++i) {
+    for (auto i = 0; i < _pixelsCount; ++i) {
         // TODO Do I need to cast to force pos to be a float?
-        float pos = i / (numPixels - 1);
+        float pos = i / (_pixelsCount - 1);
         auto color = _model->render(pos);
         RgbColor pixelColor(Colors::getRed(color), Colors::getGreen(color), Colors::getBlue(color));
         _strip.SetPixelColor(i, pixelColor);
     }
 
     // Write the colors to the LED strip
-    _strip.Show()
+    _strip.Show();
 }

@@ -3,7 +3,7 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 #include <LittleFS.h>
-#include "src/lumos-arduino/lumos-arduino/Logger.h"
+#include "src/lumos-arduino/Logger.h"
 
 // Secrets are defined in another file called "secrets.h" to avoid commiting secrets
 // into a public repo. You will need to change the secret values in secrets.h to
@@ -131,28 +131,31 @@ void setupOTA() {
 
     Serial.println("OTA Start");
 
-    Patterns::setSolidColor(pixels, 0, strip.PixelCount(), BLACK);
-    Patterns::setSolidColor(pixels, strip.PixelCount()-1, strip.PixelCount(), WHITE);
-    Patterns::applyPixels(strip, pixels);
-    strip.show();
+    // TODO Fix
+//    Patterns::setSolidColor(pixels, 0, strip.PixelCount(), BLACK);
+//    Patterns::setSolidColor(pixels, strip.PixelCount()-1, strip.PixelCount(), WHITE);
+//    Patterns::applyPixels(strip, pixels);
+//    strip.show();
   });
   
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
     Serial.printf("OTA Progress: %u%%\r", (progress / (total / 100)));
 
-    int otaPixels = progress / (total / strip.PixelCount());
-    Serial.printf("progress: %u  total: %u  otaPixels: %u\r", progress, total, otaPixels);
-    Patterns::setSolidColor(pixels, 0, otaPixels, GREEN);
-    Patterns::applyPixels(strip, pixels);
-    strip.show();
+      // TODO Fix
+//    int otaPixels = progress / (total / strip.PixelCount());
+//    Serial.printf("progress: %u  total: %u  otaPixels: %u\r", progress, total, otaPixels);
+//    Patterns::setSolidColor(pixels, 0, otaPixels, GREEN);
+//    Patterns::applyPixels(strip, pixels);
+//    strip.show();
   });
   
   ArduinoOTA.onEnd([]() {
     Serial.println("\nOTA End");
 
-    Patterns::setSolidColor(strip, pixels, BLACK);
-    Patterns::applyPixels(strip, pixels);
-    strip.show();
+    // TODO Fix
+//    Patterns::setSolidColor(strip, pixels, BLACK);
+//    Patterns::applyPixels(strip, pixels);
+//    strip.show();
   });
   
   ArduinoOTA.onError([](ota_error_t error) {
@@ -163,9 +166,10 @@ void setupOTA() {
     else if (error == OTA_RECEIVE_ERROR) Serial.println("OTA Receive Failed");
     else if (error == OTA_END_ERROR) Serial.println("OTA End Failed");
 
-    Patterns::setSolidColor(strip, pixels, RED);
-    Patterns::applyPixels(strip, pixels);
-    strip.show();
+    // TODO Fix
+//    Patterns::setSolidColor(strip, pixels, RED);
+//    Patterns::applyPixels(strip, pixels);
+//    strip.show();
   });
   
   ArduinoOTA.begin();

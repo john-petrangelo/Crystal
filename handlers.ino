@@ -4,8 +4,8 @@
 #include <ESP8266WebServer.h>
 #include <LittleFS.h>
 
-#include "src/lumos-arduino/lumos-arduino/Colors.h"
-#include "src/lumos-arduino/lumos-arduino/Patterns.h"
+#include "src/lumos-arduino/Colors.h"
+#include "src/lumos-arduino/Patterns.h"
 
 #include "src/Animations.h"
 #include "src/Combinations.h"
@@ -249,15 +249,18 @@ void handleCrystal() {
   float middlePeriodSec = fmap(middleSpeed, 0.0, 1.0, 11.0, 1.0);
   float lowerPeriodSec = fmap(lowerSpeed, 0.0, 1.0, 11.0, 1.0);
 
-  renderer.setModel(makeCrystal(
+  auto model = makeCrystal(
     upperColor, upperPeriodSec,
     middleColor, middlePeriodSec,
-    lowerColor, lowerPeriodSec));
+    lowerColor, lowerPeriodSec);
+  renderer.setModel(model);
+
   server.send(200, "text/plain", "");
 }
 
 void handleFlame() {
-  renderer.setModel(std::make_shared<Flame>());
+  std::shared_ptr<Model> model = std::make_shared<Flame>();
+  renderer.setModel(model);
   server.send(200, "text/plain", "");
 }
 
@@ -318,7 +321,7 @@ void handleRainbow() {
     }
   }
 
-  auto rm = std::make_shared<Rotate>("rainbow-rotate", speed, gm);
+  std::shared_ptr<Model> rm = std::make_shared<Rotate>("rainbow-rotate", speed, gm);
   renderer.setModel(rm);
 
   server.send(200, "text/plain", "");
@@ -332,23 +335,27 @@ void handleSolid() {
 
   String colorStr = server.arg("color");
   Color color = strtol(colorStr.c_str(), 0, 16);
-  renderer.setModel(std::make_shared<SolidModel>("net solid model", color));
+  std::shared_ptr<Model> model = std::make_shared<SolidModel>("net solid model", color);
+  renderer.setModel(model);
 
   server.send(200, "text/plain", "");
 }
 
 
 void handleDemo1() {
-  renderer.setModel(makeDemo1());
+  auto model = makeDemo1();
+  renderer.setModel(model);
   server.send(200, "text/plain", "");
 }
 
 void handleDemo2() {
-  renderer.setModel(makeDemo2());
+  auto model = makeDemo2();
+  renderer.setModel(model);
   server.send(200, "text/plain", "");
 }
 
 void handleDemo3() {
-  renderer.setModel(makeDemo3());
+  auto model = makeDemo3();
+  renderer.setModel(model);
   server.send(200, "text/plain", "");
 }

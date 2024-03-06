@@ -3,9 +3,9 @@
 
 #include <memory>
 
-#include "lumos-arduino/lumos-arduino/defs.h"
-#include "lumos-arduino/lumos-arduino/Colors.h"
-#include "lumos-arduino/lumos-arduino/Logger.h"
+#include "lumos-arduino/defs.h"
+#include "lumos-arduino/Colors.h"
+#include "lumos-arduino/Logger.h"
 
 class Model {
   public:
@@ -35,7 +35,7 @@ class Model {
 class SolidModel : public Model {
   public:
     SolidModel(char const *name, Color color) : Model(name), color(color) {}
-    Color render(float pos) { return color; }
+    Color render(float pos) override { return color; }
 
   private:
     Color color;

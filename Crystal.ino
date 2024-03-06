@@ -9,8 +9,8 @@
 //#include <Adafruit_NeoPixel.h>
 #include <NeoPixelBus.h>
 
-#include "src/lumos-arduino/lumos-arduino/Colors.h"
-#include "src/lumos-arduino/lumos-arduino/Logger.h"
+#include "src/lumos-arduino/Colors.h"
+#include "src/lumos-arduino/Logger.h"
 
 #include "src/Animations.h"
 #include "src/Model.h"

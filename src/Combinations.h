@@ -3,9 +3,9 @@
 
 #include <memory>
 
-#include "lumos-arduino/lumos-arduino/defs.h"
-#include "lumos-arduino/lumos-arduino/Colors.h"
-#include "lumos-arduino/lumos-arduino/Logger.h"
+#include "lumos-arduino/defs.h"
+#include "lumos-arduino/Colors.h"
+#include "lumos-arduino/Logger.h"
 
 #include "Model.h"
 

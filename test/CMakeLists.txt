@@ -19,7 +19,7 @@ enable_testing()
 add_executable(
   crystal_tests
   Model_test.cc
-  ../src/lumos-arduino/lumos-arduino/Colors.cpp
+        ../old-lumos-arduino/Colors.cpp
 )
 target_link_libraries(
   crystal_tests
