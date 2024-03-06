@@ -1,11 +1,10 @@
-#ifndef RENDERER
-#define RENDERER
-//#pragma once
+#pragma once
 
 #include <memory>
+#include <NeoPixelBus.h>
 
 #include "Model.h"
-#include "lumos-arduino/lumos-arduino/Colors.h"
+//#include "lumos-arduino/lumos-arduino/Colors.h"
 
 //class Renderer {
 //  private:
@@ -23,17 +22,25 @@
 //};
 
 class Renderer {
-private:
-    unsigned long const startTime_ms; // = millis();
-    std::shared_ptr<Model> model;
+protected:
+    unsigned long _startTime_ms = millis();
+    std::shared_ptr<Model> _model;
 public:
-    void render();
-    void reset();
+    virtual void render() = 0;
+    virtual void reset() { _startTime_ms = millis(); };
     // TODO Get info
 
     // TODO Get/set brightness
     // TODO Get model
-
+    void setModel(std::shared_ptr<Model> & model) { _model = model; reset(); }
 };
 
-#endif // RENDERER
+class Esp8266_NeoPixelBus_Renderer : public Renderer {
+private:
+    int _pixelsPin;
+    int _pixelsCount;
+    NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1Ws2812xMethod> _strip;
+public:
+    Esp8266_NeoPixelBus_Renderer(int pixelsPin, int pixelsCount);
+    void render() override;
+};
