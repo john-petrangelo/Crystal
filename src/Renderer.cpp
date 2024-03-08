@@ -39,7 +39,9 @@ Esp8266_NeoPixelBus_Renderer::Esp8266_NeoPixelBus_Renderer(int pixelsPin, int pi
         _pixelsCount(pixelsCount),
         _strip(pixelsCount, pixelsPin) {
     _strip.Begin();
+    // TODO Try brightness NeoPixelBus class
 //    _strip.SetBrightness(255);
+
     _strip.Show();  // Initialize all pixels to 'off'
 }
 

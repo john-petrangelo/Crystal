@@ -137,7 +137,7 @@ void setupOTA() {
 //    Patterns::applyPixels(strip, pixels);
 //    strip.show();
   });
-  
+
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
     Serial.printf("OTA Progress: %u%%\r", (progress / (total / 100)));
 
@@ -148,7 +148,7 @@ void setupOTA() {
 //    Patterns::applyPixels(strip, pixels);
 //    strip.show();
   });
-  
+
   ArduinoOTA.onEnd([]() {
     Serial.println("\nOTA End");
 
@@ -157,7 +157,7 @@ void setupOTA() {
 //    Patterns::applyPixels(strip, pixels);
 //    strip.show();
   });
-  
+
   ArduinoOTA.onError([](ota_error_t error) {
     Serial.printf("OTA Error[%u]: ", error);
     if (error == OTA_AUTH_ERROR) Serial.println("OTA Auth Failed");
@@ -171,7 +171,7 @@ void setupOTA() {
 //    Patterns::applyPixels(strip, pixels);
 //    strip.show();
   });
-  
+
   ArduinoOTA.begin();
   Serial.println("OTA ready");
 }
@@ -188,7 +188,7 @@ void loopNetwork() {
   // Check for network activity.
   server.handleClient();
   MDNS.update();
-  ArduinoOTA.handle();  
+  ArduinoOTA.handle();
 }
 
 // Check to see if the network logger needs to be setup or torn down

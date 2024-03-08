@@ -253,14 +253,14 @@ void handleCrystal() {
     upperColor, upperPeriodSec,
     middleColor, middlePeriodSec,
     lowerColor, lowerPeriodSec);
-  renderer.setModel(model);
+  renderer->setModel(model);
 
   server.send(200, "text/plain", "");
 }
 
 void handleFlame() {
   std::shared_ptr<Model> model = std::make_shared<Flame>();
-  renderer.setModel(model);
+  renderer->setModel(model);
   server.send(200, "text/plain", "");
 }
 
@@ -310,7 +310,7 @@ void handleRainbow() {
       8, RED, VIOLET, INDIGO, BLUE, GREEN, YELLOW, ORANGE, RED);
   }
 
-  auto model = renderer.getModel();
+  auto model = renderer->getModel();
   if (model->getName() == "rainbow-rotate") {
     auto rainbowModel = static_cast<Rotate*>(model.get());
     if (rainbowModel != NULL) {
@@ -322,7 +322,7 @@ void handleRainbow() {
   }
 
   std::shared_ptr<Model> rm = std::make_shared<Rotate>("rainbow-rotate", speed, gm);
-  renderer.setModel(rm);
+  renderer->setModel(rm);
 
   server.send(200, "text/plain", "");
 }
@@ -336,7 +336,7 @@ void handleSolid() {
   String colorStr = server.arg("color");
   Color color = strtol(colorStr.c_str(), 0, 16);
   std::shared_ptr<Model> model = std::make_shared<SolidModel>("net solid model", color);
-  renderer.setModel(model);
+  renderer->setModel(model);
 
   server.send(200, "text/plain", "");
 }
@@ -344,18 +344,18 @@ void handleSolid() {
 
 void handleDemo1() {
   auto model = makeDemo1();
-  renderer.setModel(model);
+  renderer->setModel(model);
   server.send(200, "text/plain", "");
 }
 
 void handleDemo2() {
   auto model = makeDemo2();
-  renderer.setModel(model);
+  renderer->setModel(model);
   server.send(200, "text/plain", "");
 }
 
 void handleDemo3() {
   auto model = makeDemo3();
-  renderer.setModel(model);
+  renderer->setModel(model);
   server.send(200, "text/plain", "");
 }
