@@ -146,10 +146,6 @@ void setupOTA() {
         renderer->setPixel(i, GREEN);
     }
     renderer->show();
-
-//    Patterns::setSolidColor(pixels, 0, otaPixels, GREEN);
-//    Patterns::applyPixels(strip, pixels);
-//    strip.show();
   });
 
   ArduinoOTA.onEnd([]() {
