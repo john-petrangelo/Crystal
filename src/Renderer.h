@@ -6,12 +6,17 @@
 #include "Model.h"
 
 class Renderer {
-protected:
+private:
     unsigned long _startTime_ms = millis();
     std::shared_ptr<Model> _model;
+
+    virtual void setPixel(int i, Color c) = 0;
+    virtual void show() = 0;
+    virtual int pixelsCount() = 0;
+
 public:
-    virtual void render() = 0;
-    virtual void reset() { _startTime_ms = millis(); };
+    void render();
+    void reset() { _startTime_ms = millis(); };
 
     // TODO Get info
     // TODO Get/set brightness
@@ -22,10 +27,9 @@ public:
 
 class Esp8266_NeoPixelBus_Renderer : public Renderer {
 private:
-    int _pixelsPin;
-    int _pixelsCount;
     NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1Ws2812xMethod> _strip;
-public:
     Esp8266_NeoPixelBus_Renderer(int pixelsPin, int pixelsCount);
-    void render() override;
+    void setPixel(int i, Color c) override;
+    void show() override;
+    int pixelsCount() override { return _strip.PixelCount(); }
 };

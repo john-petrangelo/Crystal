@@ -1,17 +1,7 @@
 #include "Renderer.h"
 
 // TODO Doc
-Esp8266_NeoPixelBus_Renderer::Esp8266_NeoPixelBus_Renderer(int pixelsPin, int pixelsCount) :
-        Renderer(),
-        _pixelsPin(pixelsPin),
-        _pixelsCount(pixelsCount),
-        _strip(pixelsCount, pixelsPin) {
-    _strip.Begin();
-    _strip.Show();  // Initialize all pixels to 'off'
-}
-
-// TODO Doc
-void Esp8266_NeoPixelBus_Renderer::render() {
+void Renderer::render() {
     // If there is no model, we're done.
     if (_model == nullptr) {
         return;
@@ -24,13 +14,29 @@ void Esp8266_NeoPixelBus_Renderer::render() {
     _model->update(timeStamp);
 
     // Set the color of each pixel
-    for (auto i = 0; i < _pixelsCount; ++i) {
-        float pos = (float)i / float(_pixelsCount - 1);
+    for (auto i = 0; i < pixelsCount(); ++i) {
+        float pos = (float)i / float(pixelsCount() - 1);
         auto color = _model->render(pos);
-        RgbColor pixelColor(Colors::getRed(color), Colors::getGreen(color), Colors::getBlue(color));
-        _strip.SetPixelColor(i, pixelColor);
+        setPixel(i, color);
     }
 
     // Write the colors to the LED strip
+    show();
+}
+
+// TODO Doc
+Esp8266_NeoPixelBus_Renderer::Esp8266_NeoPixelBus_Renderer(int pixelsPin, int pixelsCount) :
+        Renderer(),
+        _strip(pixelsCount, pixelsPin) {
+    _strip.Begin();
+    _strip.Show();  // Initialize all pixels to 'off'
+}
+
+void Esp8266_NeoPixelBus_Renderer::setPixel(int i, Color c) {
+    RgbColor rgbColor(Colors::getRed(c), Colors::getGreen(c), Colors::getBlue(c));
+    _strip.SetPixelColor(i, rgbColor);
+}
+
+void Esp8266_NeoPixelBus_Renderer::show() {
     _strip.Show();
 }
