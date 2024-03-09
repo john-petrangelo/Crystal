@@ -18,7 +18,6 @@
 
 // Configuration information about the NeoPixel strip we are using.
 int const PIXELS_COUNT = 24;
-int8_t const PIXELS_PIN = 2;
 Esp8266_NeoPixelBus_Renderer *renderer = nullptr;
 
 String hostname = "crystal";
@@ -81,6 +80,7 @@ void loop() {
                  ESP.getFreeHeap());
 
     Logger::logMsg(getStatus().c_str());
+    Logger::logMsg("\n");
     WiFi.printDiag(Serial);
     Serial.println("");
   }

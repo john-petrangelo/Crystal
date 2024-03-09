@@ -28,7 +28,7 @@ public:
 class Esp8266_NeoPixelBus_Renderer : public Renderer {
 private:
     // The NeoPixelBusLg class with the UART1 method always uses Pin2.
-    NeoPixelBusLg<NeoGrbFeature, NeoEsp8266Uart1Ws2812xMethod, NeoGammaCieLabEquationMethod> _strip;
+    NeoPixelBusLg<NeoGrbFeature, NeoEsp8266Uart1Ws2812xMethod, NeoGammaTableMethod> _strip;
 
 public:
     explicit Esp8266_NeoPixelBus_Renderer(int pixelsCount);

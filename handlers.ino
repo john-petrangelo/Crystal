@@ -181,6 +181,7 @@ String getStatus() {
 
   String output;
   serializeJsonPretty(doc, output);
+  output += "\n";
 
   return output;
 }
