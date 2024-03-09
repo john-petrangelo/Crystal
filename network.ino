@@ -131,19 +131,22 @@ void setupOTA() {
 
     Logger::logf("OTA Start\n");
 
-    // TODO Fix
-//    Patterns::setSolidColor(pixels, 0, strip.PixelCount(), BLACK);
-//    Patterns::setSolidColor(pixels, strip.PixelCount()-1, strip.PixelCount(), WHITE);
-//    Patterns::applyPixels(strip, pixels);
-//    strip.show();
+      for (int i = 0; i < renderer->pixelsCount() - 1; ++i) {
+          renderer->setPixel(i, BLACK);
+      }
+      renderer->setPixel(renderer->pixelsCount()-1, WHITE);
+      renderer->show();
   });
 
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-    Logger::logf("OTA Progress: %u%%\r", (progress / (total / 100)));
+//    Logger::logf("OTA Progress: %u%%\r", (progress / (total / 100)));
 
-      // TODO Fix
-//    int otaPixels = progress / (total / strip.PixelCount());
-//    Serial.printf("progress: %u  total: %u  otaPixels: %u\r", progress, total, otaPixels);
+    int otaPixels = progress / (total / renderer->pixelsCount());
+    for (int i = 0; i < otaPixels; ++i) {
+        renderer->setPixel(i, GREEN);
+    }
+    renderer->show();
+
 //    Patterns::setSolidColor(pixels, 0, otaPixels, GREEN);
 //    Patterns::applyPixels(strip, pixels);
 //    strip.show();
@@ -155,10 +158,10 @@ void setupOTA() {
       Logger::setStream(&Serial);
       logClient.stop();
 
-    // TODO Fix
-//    Patterns::setSolidColor(strip, pixels, BLACK);
-//    Patterns::applyPixels(strip, pixels);
-//    strip.show();
+      for (int i = 0; i < renderer->pixelsCount(); ++i) {
+          renderer->setPixel(i, BLACK);
+      }
+      renderer->show();
   });
 
   ArduinoOTA.onError([](ota_error_t error) {
@@ -169,10 +172,10 @@ void setupOTA() {
     else if (error == OTA_RECEIVE_ERROR) Logger::logMsg("OTA Receive Failed\n");
     else if (error == OTA_END_ERROR) Logger::logMsg("OTA End Failed\n");
 
-    // TODO Fix
-//    Patterns::setSolidColor(strip, pixels, RED);
-//    Patterns::applyPixels(strip, pixels);
-//    strip.show();
+    for (int i = 0; i < renderer->pixelsCount(); ++i) {
+        renderer->setPixel(i, RED);
+    }
+    renderer->show();
   });
 
   ArduinoOTA.begin();
