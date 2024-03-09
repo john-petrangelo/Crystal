@@ -129,7 +129,7 @@ void setupOTA() {
   ArduinoOTA.onStart([]() {
     LittleFS.end();
 
-    Serial.println("OTA Start");
+    Logger::logf("OTA Start\n");
 
     // TODO Fix
 //    Patterns::setSolidColor(pixels, 0, strip.PixelCount(), BLACK);
@@ -139,7 +139,7 @@ void setupOTA() {
   });
 
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-    Serial.printf("OTA Progress: %u%%\r", (progress / (total / 100)));
+    Logger::logf("OTA Progress: %u%%\r", (progress / (total / 100)));
 
       // TODO Fix
 //    int otaPixels = progress / (total / strip.PixelCount());
@@ -150,7 +150,10 @@ void setupOTA() {
   });
 
   ArduinoOTA.onEnd([]() {
-    Serial.println("\nOTA End");
+    Logger::logf("\nOTA End\n");
+
+      Logger::setStream(&Serial);
+      logClient.stop();
 
     // TODO Fix
 //    Patterns::setSolidColor(strip, pixels, BLACK);
@@ -159,12 +162,12 @@ void setupOTA() {
   });
 
   ArduinoOTA.onError([](ota_error_t error) {
-    Serial.printf("OTA Error[%u]: ", error);
-    if (error == OTA_AUTH_ERROR) Serial.println("OTA Auth Failed");
-    else if (error == OTA_BEGIN_ERROR) Serial.println("OTA Begin Failed");
-    else if (error == OTA_CONNECT_ERROR) Serial.println("OTA Connect Failed");
-    else if (error == OTA_RECEIVE_ERROR) Serial.println("OTA Receive Failed");
-    else if (error == OTA_END_ERROR) Serial.println("OTA End Failed");
+    Logger::logf("OTA Error[%u]: ", error);
+    if (error == OTA_AUTH_ERROR) Logger::logMsg("OTA Auth Failed\n");
+    else if (error == OTA_BEGIN_ERROR) Logger::logMsg("OTA Begin Failed\n");
+    else if (error == OTA_CONNECT_ERROR) Logger::logMsg("OTA Connect Failed\n");
+    else if (error == OTA_RECEIVE_ERROR) Logger::logMsg("OTA Receive Failed\n");
+    else if (error == OTA_END_ERROR) Logger::logMsg("OTA End Failed\n");
 
     // TODO Fix
 //    Patterns::setSolidColor(strip, pixels, RED);
@@ -173,7 +176,7 @@ void setupOTA() {
   });
 
   ArduinoOTA.begin();
-  Serial.println("OTA ready");
+    Logger::logMsg("OTA ready\n");
 }
 
 void onStationConnected(const WiFiEventSoftAPModeStationConnected& evt) {
