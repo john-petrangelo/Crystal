@@ -139,7 +139,7 @@ void setupOTA() {
   });
 
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-//    Logger::logf("OTA Progress: %u%%\r", (progress / (total / 100)));
+    Logger::logf("OTA Progress: %u%%\r", (progress / (total / 100)));
 
     int otaPixels = progress / (total / renderer->pixelsCount());
     for (int i = 0; i < otaPixels; ++i) {
