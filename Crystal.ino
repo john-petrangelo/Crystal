@@ -45,7 +45,7 @@ void setup() {
   Serial.println("Network setup");
 
   Serial.println("Creating renderer");
-  renderer = new Esp8266_NeoPixelBus_Renderer(PIXELS_PIN, PIXELS_COUNT);
+  renderer = new Esp8266_NeoPixelBus_Renderer(PIXELS_COUNT);
 
   std::shared_ptr<Model> model = makeDarkCrystal();
   renderer->setModel(model);

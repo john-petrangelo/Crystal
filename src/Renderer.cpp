@@ -25,9 +25,9 @@ void Renderer::render() {
 }
 
 // TODO Doc
-Esp8266_NeoPixelBus_Renderer::Esp8266_NeoPixelBus_Renderer(int pixelsPin, int pixelsCount) :
+Esp8266_NeoPixelBus_Renderer::Esp8266_NeoPixelBus_Renderer(int pixelsCount) :
         Renderer(),
-        _strip(pixelsCount, pixelsPin) {
+        _strip(pixelsCount) {
     _strip.Begin();
     _strip.Show();  // Initialize all pixels to 'off'
 }

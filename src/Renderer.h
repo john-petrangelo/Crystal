@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <NeoPixelBus.h>
+#include <NeoPixelBusLg.h>
 
 #include "Model.h"
 
@@ -27,8 +27,12 @@ public:
 
 class Esp8266_NeoPixelBus_Renderer : public Renderer {
 private:
-    NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1Ws2812xMethod> _strip;
-    Esp8266_NeoPixelBus_Renderer(int pixelsPin, int pixelsCount);
+    // The NeoPixelBusLg class with the UART1 method always uses Pin2.
+    NeoPixelBusLg<NeoGrbFeature, NeoEsp8266Uart1Ws2812xMethod, NeoGammaCieLabEquationMethod> _strip;
+
+public:
+    explicit Esp8266_NeoPixelBus_Renderer(int pixelsCount);
+
     void setPixel(int i, Color c) override;
     void show() override;
     int pixelsCount() override { return _strip.PixelCount(); }
