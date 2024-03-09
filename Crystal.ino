@@ -66,7 +66,7 @@ void loop() {
   yield();
   long afterYieldMS = millis();
 
-//  loopLogger();
+  loopLogger();
   long afterAllMS = millis();
 
   if (beforeMS - lastUpdateMS >= logDurationIntervalMS) {
@@ -79,8 +79,8 @@ void loop() {
                  afterYieldMS - afterRenderMS,
                  afterAllMS - afterYieldMS,
                  ESP.getFreeHeap());
-//
-//    Logger::logMsg(getStatus().c_str());
+
+    Logger::logMsg(getStatus().c_str());
     WiFi.printDiag(Serial);
     Serial.println("");
   }
