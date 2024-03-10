@@ -9,7 +9,20 @@
 
 String getStatus() {
   StaticJsonDocument<512> doc;
-  doc["time"] = millis() / 1000.0;
+  auto now = millis();
+  auto days = now / (24*60*60*1000);
+  now %= 24*60*60*1000;
+  auto hours = now / (1000*60*60);
+  now %= 1000*60*60;
+  auto mins = now / (1000*60);
+  now %= 1000*60;
+  auto secs = now / 1000;
+  auto millisecs = now % 1000;
+  std::string xtime = std::to_string(days) + "d " +
+                      std::to_string(hours) + "h " +
+                      std::to_string(mins) + "m " +
+                      std::to_string(secs) + "." + std::to_string(millisecs) + "s";
+  doc["time"] = xtime;
 
   JsonObject memory = doc.createNestedObject("memory");
   memory["freeHeapBytes"] = ESP.getFreeHeap();
