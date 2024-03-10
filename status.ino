@@ -24,8 +24,16 @@ String getStatus() {
                       std::to_string(secs) + "." + std::to_string(millisecs) + "s";
   doc["time"] = xtime;
 
-  JsonObject memory = doc.createNestedObject("memory");
-  memory["freeHeapBytes"] = ESP.getFreeHeap();
+  JsonObject system = doc.createNestedObject("system");
+  system["freeHeapBytes"] = ESP.getFreeHeap();
+  system["heapFragmentation"] = ESP.getHeapFragmentation();
+  system["maxFreeBlockSize"] = ESP.getMaxFreeBlockSize();
+  system["sketchUsedBytes"] = ESP.getSketchSize();
+  system["sketchFreeBytes"] = ESP.getFreeSketchSpace();
+  system["lastResetReason"] = ESP.getResetReason();
+  system["cpuFreqMHz"] = ESP.getCpuFreqMHz();
+  system["flashChipSize"] = ESP.getFlashChipSize();
+  system["realFlashChipSize"] = ESP.getFlashChipRealSize();
 
   JsonObject fs = doc.createNestedObject("filesystem");
   FSInfo fsInfo;
