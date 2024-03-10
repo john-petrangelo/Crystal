@@ -3,6 +3,7 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 #include <LittleFS.h>
+#include "src/lumos-arduino/Colors.h"
 #include "src/lumos-arduino/Logger.h"
 
 // Secrets are defined in another file called "secrets.h" to avoid commiting secrets
@@ -139,12 +140,20 @@ void setupOTA() {
   });
 
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-    Logger::logf("OTA Progress: %u%%\r", (progress / (total / 100)));
+    Logger::logf("OTA Progress: %u%%\r", 100 * progress / total);
 
-    int otaPixels = progress / (total / renderer->pixelsCount());
-    for (int i = 0; i < otaPixels; ++i) {
+    float pixelBucket = (float)total / renderer->pixelsCount();
+    int fullColorPixels = progress / pixelBucket;
+    int partialProgress = progress - fullColorPixels * pixelBucket;
+    float progressRatio = partialProgress / pixelBucket;
+    int colorRatio = 100.0 * progressRatio;
+    Color c = Colors::fade(GREEN, colorRatio);
+
+    for (int i = 0; i < fullColorPixels; ++i) {
         renderer->setPixel(i, GREEN);
     }
+    renderer->setPixel(fullColorPixels-1, c);
+
     renderer->show();
   });
 
