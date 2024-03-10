@@ -18,7 +18,7 @@
 
 // Configuration information about the NeoPixel strip we are using.
 int const PIXELS_COUNT = 24;
-Esp8266_NeoPixelBus_Renderer *renderer = nullptr;
+Renderer *renderer = nullptr;
 
 String hostname = "crystal";
 ESP8266WebServer server(80);

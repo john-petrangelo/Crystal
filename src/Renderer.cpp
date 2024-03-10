@@ -36,7 +36,3 @@ void Esp8266_NeoPixelBus_Renderer::setPixel(int i, Color c) {
     RgbColor rgbColor(Colors::getRed(c), Colors::getGreen(c), Colors::getBlue(c));
     _strip.SetPixelColor(i, rgbColor);
 }
-
-void Esp8266_NeoPixelBus_Renderer::show() {
-    _strip.Show();
-}

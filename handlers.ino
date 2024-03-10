@@ -187,15 +187,9 @@ String getStatus() {
 }
 
 void handleGetBrightness() {
-//  uint8_t value = strip.getBrightness();
-  uint8_t value = 255;
-
-  // Un-apply gamma correction
-  uint8_t uncorrectedValue = sqrt(value * 255);
-
   // Create the response.
   StaticJsonDocument<200> doc;
-  doc["value"] = uncorrectedValue;
+  doc["value"] = renderer->getBrightness();
   String output;
   serializeJsonPretty(doc, output);
 
@@ -211,10 +205,7 @@ void handleSetBrightness() {
   String valueStr = server.arg("value");
   uint8_t value = strtol(valueStr.c_str(), 0, 10);
 
-  // Apply gamma correction
-  uint8_t correctedValue = value * value / 255;
-
-//  strip.setBrightness(correctedValue);
+  renderer->setBrightness(value);
 
   server.send(200, "text/plain", "");
 }
