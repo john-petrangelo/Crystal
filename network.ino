@@ -3,6 +3,7 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 #include <LittleFS.h>
+#include "src/Animations.h"
 #include "src/lumos-arduino/Colors.h"
 #include "src/lumos-arduino/Logger.h"
 
@@ -23,8 +24,9 @@ WiFiEventHandler stationDisconnectedHandler;
 WiFiServer logServer(8000);
 WiFiClient logClient;
 
-// One-stop to set up all of the network components
+// One-stop to set up all the network components
 void setupNetwork() {
+  // If we recognize the MAC address, use a different hostname specific to that MAC address
   String macAddress = WiFi.macAddress();
   if (macAddress == "E8:DB:84:98:7F:C3") {
     hostname = "shard";
@@ -47,18 +49,22 @@ void setupNetwork() {
 
 // Connect to an existing access point
 void setupWiFiStation() {
+  // Set up the renderer with a strobing model for while we connect
+  std::shared_ptr<Model> triangle = std::make_shared<Triangle>("triangle", 0.0, 1.0, WHITE);
+  std::shared_ptr<Model> pulsate = std::make_shared<Pulsate>("pulsate", 0.2, 1.0, 0.1, 0.9, triangle);
+  renderer->setModel(pulsate);
+
   // Setup WiFi station mode
   WiFi.mode(WIFI_STA);
   WiFi.begin(SECRET_SSID, SECRET_PASSWORD);
   while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
+    renderer->render();
+    delay(10);
   }
   Serial.println("");
 
   logServer.begin();
 
-  // If we recognize the MAC address, use a different hostname specific to that MAC address
   Serial.print("Network: ");
   Serial.println(SECRET_SSID);
   Serial.print("IP address: ");

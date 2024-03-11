@@ -6,7 +6,6 @@
 
 #include <LittleFS.h>
 
-//#include <Adafruit_NeoPixel.h>
 #include <NeoPixelBus.h>
 
 #include "src/lumos-arduino/Colors.h"
@@ -31,6 +30,9 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Serial started");
 
+  Serial.println("Creating renderer");
+  renderer = new Esp8266_NeoPixelBus_Renderer(PIXELS_COUNT);
+
 #ifdef ENABLE_GDB_STUB
   gdbstub_init();
 #endif
@@ -41,10 +43,7 @@ void setup() {
   Serial.println("Started LittleFS");
 
   setupNetwork();
-  Serial.println("Network setup");
-
-  Serial.println("Creating renderer");
-  renderer = new Esp8266_NeoPixelBus_Renderer(PIXELS_COUNT);
+  Serial.println("Network set up");
 
   std::shared_ptr<Model> model = makeDarkCrystal();
   renderer->setModel(model);
