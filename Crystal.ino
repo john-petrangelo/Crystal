@@ -26,6 +26,8 @@ Color pixels[PIXELS_COUNT];
 
 long const logDurationIntervalMS = 5000;
 
+std::shared_ptr<Gauge> gauge = std::make_shared<Gauge>("gauge", 24, BLUE);
+
 void setup() {
   Serial.begin(115200);
   Serial.println("Serial started");
@@ -47,6 +49,9 @@ void setup() {
 
   std::shared_ptr<Model> model = makeDarkCrystal();
   renderer->setModel(model);
+
+  std::shared_ptr<Model> gaugeModel = gauge;
+  renderer->setModel(gaugeModel);
 }
 
 void loop() {
@@ -59,6 +64,8 @@ void loop() {
   long afterNetworkMS = millis();
 
   // Update and render the LEDs
+  gauge->setValue(millis() % 10000 / 10000.0);
+
   renderer->render();
   long afterRenderMS = millis();
   yield();
@@ -70,7 +77,7 @@ void loop() {
   if (beforeMS - lastUpdateMS >= logDurationIntervalMS) {
     lastUpdateMS = beforeMS;
     Logger::logf("%0.3f Completed loop, total %dms(network %dms, render %dms, yield %dms, logger %dms), free heap %d bytes\n",
-                 afterAllMS / 1000.0,
+                 (float)afterAllMS / 1000.0,
                  afterAllMS - beforeMS,
                  afterNetworkMS - beforeMS,
                  afterRenderMS - afterNetworkMS,

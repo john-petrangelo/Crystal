@@ -10,7 +10,7 @@
 class Model {
   public:
     Model(char const *name) : name(name) { }
-    virtual ~Model() { }
+    virtual ~Model() = default;
 
     // Updates the model to the current timestamp. Models that change with time (animations)
     // will need to implement this function. A default implementation is provided for static
@@ -49,7 +49,7 @@ class SolidModel : public Model {
 class GradientModel : public Model {
   public:
     GradientModel(char const *name, Color a, Color b) : Model(name), a(a), b(b) { }
-    Color render(float pos) { return Colors::blend(a, b, 100 * pos); }
+    Color render(float pos) override { return Colors::blend(a, b, 100 * pos); }
 
   private:
     Color a, b;
@@ -63,7 +63,7 @@ class GradientModel : public Model {
 class MultiGradientModel : public Model {
   public:
     MultiGradientModel(char const *name, int count, ...);
-    Color render(float pos);
+    Color render(float pos) override;
 
   private:
     static int const MAX_COLORS = 10;
@@ -82,8 +82,8 @@ class MapModel : public Model {
         std::shared_ptr<Model> model)
       : Model(name), inRangeMin(inRangeMin), inRangeMax(inRangeMax),
         outRangeMin(outRangeMin), outRangeMax(outRangeMax), model(model) { }
-    void update(float timeStamp) { model->update(timeStamp); }
-    Color render(float pos);
+    void update(float timeStamp) override { model->update(timeStamp); }
+    Color render(float pos) override;
 
     void setInRange(float inRangeMin, float inRangeMax) {
       this->inRangeMin = inRangeMin;
@@ -100,8 +100,8 @@ class MapModel : public Model {
 class ReverseModel : public Model {
   public:
     ReverseModel(std::shared_ptr<Model> model) : Model("ReverseModel"), model(model) { }
-    void update(float timeStamp) { model->update(timeStamp); }
-    Color render(float pos) { return model->render(1.0 - pos); }
+    void update(float timeStamp) override { model->update(timeStamp); }
+    Color render(float pos) override { return model->render(1.0 - pos); }
 
   private:
     std::shared_ptr<Model> model;
@@ -110,14 +110,33 @@ class ReverseModel : public Model {
 /***** TRIANGLE *****/
 
 class Triangle : public Model {
-  public: Triangle(char const *name, float rangeMin, float rangeMax, Color color) 
-    : Model(name), rangeMin(rangeMin), rangeMax(rangeMax), color(color) { }
-  Color render(float pos);
+public: Triangle(char const *name, float rangeMin, float rangeMax, Color color)
+            : Model(name), rangeMin(rangeMin), rangeMax(rangeMax), color(color) { }
+    Color render(float pos) override;
 
-  private:
+private:
     float const rangeMin;
     float const rangeMax;
     Color const color;
+};
+
+/***** GAUGE *****/
+
+class Gauge : public Model {
+public: Gauge(char const *name, uint16_t pixelsCount, Color color, float value = 0.0)
+            : Model(name), pixelsCount(pixelsCount), color(color) { setValue(value); }
+    Color render(float pos) override;
+    float getValue() { return value; }
+    void setValue(float value);
+
+private:
+    float const pixelsCount;
+    Color const color;
+    float value = 0.0;
+    float fullColorPixels = 0.0;
+    float remainder = 0.0;
+    float colorRatio = 0.0;
+    Color dimmedColor = BLACK;
 };
 
 /***** IDEAS *****/
