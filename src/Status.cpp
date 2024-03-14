@@ -1,11 +1,7 @@
-#include <memory>
-#include <string>
-
 #include <ArduinoJson.h>
-#include <ESP8266WebServer.h>
 #include <LittleFS.h>
 
-//#include "src/utils.h"
+#include "Status.h"
 
 String getStatus() {
   StaticJsonDocument<512> doc;
@@ -18,11 +14,10 @@ String getStatus() {
   now %= 1000*60;
   auto secs = now / 1000;
   auto millisecs = now % 1000;
-  std::string xtime = std::to_string(days) + "d " +
-                      std::to_string(hours) + "h " +
-                      std::to_string(mins) + "m " +
-                      std::to_string(secs) + "." + std::to_string(millisecs) + "s";
-  doc["time"] = xtime;
+
+  char buffer[32];
+  snprintf(buffer, sizeof(buffer),"%dd %dh %dm %d.%0.3ds", days, hours, mins, secs, millisecs);
+  doc["time"] = String(buffer);
 
   JsonObject system = doc.createNestedObject("system");
   system["freeHeapBytes"] = ESP.getFreeHeap();

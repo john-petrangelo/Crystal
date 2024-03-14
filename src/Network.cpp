@@ -1,65 +1,56 @@
 #include <ArduinoOTA.h>
 #include <ESP8266WiFi.h>
-#include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 #include <LittleFS.h>
-#include "src/Animations.h"
-#include "src/lumos-arduino/Colors.h"
-#include "src/lumos-arduino/Logger.h"
+#include "Animations.h"
+#include "Handlers.h"
+#include "Network.h"
+#include "lumos-arduino/Colors.h"
+#include "lumos-arduino/Logger.h"
 
 // Secrets are defined in another file called "secrets.h" to avoid commiting secrets
 // into a public repo. You will need to change the secret values in secrets.h to
 // connect your device to your network.
-#include "secrets.h"
+#include "../secrets.h"
+
+String hostname = "crystal";
 
 // Setup wifi in soft AP mode. The default is to join an
 // existing network in STATION mode.
 // #define USE_SOFT_AP
 
 // Event handlers for soft AP connect and disconnect events
-WiFiEventHandler stationConnectedHandler;
-WiFiEventHandler stationDisconnectedHandler;
+static WiFiEventHandler stationConnectedHandler;
+static WiFiEventHandler stationDisconnectedHandler;
+
+// Server used for HTTP requests
+ESP8266WebServer server(80);
 
 // Server used for logging.
-WiFiServer logServer(8000);
-WiFiClient logClient;
+static WiFiServer logServer(8000);
+static WiFiClient logClient;
 
-// One-stop to set up all the network components
-void setupNetwork() {
-  // If we recognize the MAC address, use a different hostname specific to that MAC address
-  String macAddress = WiFi.macAddress();
-  if (macAddress == "E8:DB:84:98:7F:C3") {
-    hostname = "shard";
-  } else if (macAddress = "84:CC:A8:81:0A:53") {
-    hostname = "crystal";
-  } else {
-    hostname = WiFi.hostname();
-  }
+static Renderer *networkRenderer = nullptr;
 
-#ifdef USE_SOFT_AP
-  setupWiFiSoftAP();
-#else
-  setupWiFiStation();
-#endif
-
-  setupHTTP();
-//  setupMDNS();
-  setupOTA();
+static String macToString(const unsigned char* mac) {
+  char buf[20];
+  snprintf(buf, sizeof(buf), "%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+  return String(buf);
 }
 
 // Connect to an existing access point
-void setupWiFiStation() {
+static void setupWiFiStation() {
   // Set up the renderer with a strobing model for while we connect
   Color c = Colors::makeColor(95, 95, 255);
   std::shared_ptr<Model> triangle = std::make_shared<Triangle>("triangle", 0.0, 1.0, c);
   std::shared_ptr<Model> pulsate = std::make_shared<Pulsate>("pulsate", 0.2, 1.0, 0.1, 0.9, triangle);
-  renderer->setModel(pulsate);
+  networkRenderer->setModel(pulsate);
 
   // Setup WiFi station mode
   WiFi.mode(WIFI_STA);
   WiFi.begin(SECRET_SSID, SECRET_PASSWORD);
   while (WiFi.status() != WL_CONNECTED) {
-    renderer->render();
+    networkRenderer->render();
     delay(10);
   }
   Serial.println("");
@@ -76,14 +67,26 @@ void setupWiFiStation() {
   Serial.println(hostname);
 }
 
+static void onStationConnected(const WiFiEventSoftAPModeStationConnected& evt) {
+  Logger::logf("Station connected: %s\n", macToString(evt.mac).c_str());
+}
+
+static void onStationDisconnected(const WiFiEventSoftAPModeStationDisconnected& evt) {
+  Logger::logf("Station disconnected: %s\n", macToString(evt.mac).c_str());
+}
+
+Renderer* getNetworkRenderer() {
+  return networkRenderer;
+}
+
 // Create our own network using Soft AP mode
-void setupWiFiSoftAP() {
+static void setupWiFiSoftAP() {
   // Setup wifi soft AP mode
   bool softAPStarted = WiFi.softAP(hostname);
   // Call "onStationConnected" each time a station connects
   stationConnectedHandler = WiFi.onSoftAPModeStationConnected(&onStationConnected);
   // Call "onStationDisconnected" each time a station disconnects
-  stationDisconnectedHandler = WiFi.onSoftAPModeStationDisconnected(&onStationDisconnected);
+  WiFi.onSoftAPModeStationDisconnected(&onStationDisconnected);
 
   Serial.printf("Soft AP status: %s\n", softAPStarted ? "Ready" : "Failed");
   Serial.printf("Soft AP IP address: %s\n", WiFi.softAPIP().toString().c_str());
@@ -94,7 +97,7 @@ void setupWiFiSoftAP() {
 }
 
 // Setup the web server and handlers
-void setupHTTP() {
+static void setupHTTP() {
   server.on("/", HTTP_GET, handleRoot);
   server.on("/crystal.css", HTTP_GET, handleCSS);
   server.on("/crystal.js", HTTP_GET, handleJS);
@@ -117,14 +120,14 @@ void setupHTTP() {
 }
 
 // Setup an MDNS responder so we can be found by <host>.local instead of IP address
-void setupMDNS() {
+static void setupMDNS() {
   if (MDNS.begin("hostname")) {
     Serial.println("MDNS responder started: crystal.local");
   }
 }
 
 // Setup OTA updates
-void setupOTA() {
+static void setupOTA() {
   // Port defaults to 8266
   // ArduinoOTA.setPort(8266);
 
@@ -139,17 +142,17 @@ void setupOTA() {
 
     Logger::logf("OTA Start\n");
 
-      for (int i = 0; i < renderer->pixelsCount() - 1; ++i) {
-          renderer->setPixel(i, BLACK);
+      for (int i = 0; i < networkRenderer->pixelsCount() - 1; ++i) {
+        networkRenderer->setPixel(i, BLACK);
       }
-      renderer->setPixel(renderer->pixelsCount()-1, WHITE);
-      renderer->show();
+      networkRenderer->setPixel(networkRenderer->pixelsCount()-1, WHITE);
+      networkRenderer->show();
   });
 
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
     Logger::logf("OTA Progress: %u%%\r", 100 * progress / total);
 
-    float pixelBucket = (float)total / renderer->pixelsCount();
+    float pixelBucket = (float)total / networkRenderer->pixelsCount();
     int fullColorPixels = progress / pixelBucket;
     int partialProgress = progress - fullColorPixels * pixelBucket;
     float progressRatio = partialProgress / pixelBucket;
@@ -157,11 +160,11 @@ void setupOTA() {
     Color c = Colors::fade(GREEN, colorRatio);
 
     for (int i = 0; i < fullColorPixels; ++i) {
-        renderer->setPixel(i, GREEN);
+      networkRenderer->setPixel(i, GREEN);
     }
-    renderer->setPixel(fullColorPixels-1, c);
+      networkRenderer->setPixel(fullColorPixels-1, c);
 
-    renderer->show();
+      networkRenderer->show();
   });
 
   ArduinoOTA.onEnd([]() {
@@ -170,10 +173,10 @@ void setupOTA() {
       Logger::setStream(&Serial);
       logClient.stop();
 
-      for (int i = 0; i < renderer->pixelsCount(); ++i) {
-          renderer->setPixel(i, BLACK);
+      for (int i = 0; i < networkRenderer->pixelsCount(); ++i) {
+        networkRenderer->setPixel(i, BLACK);
       }
-      renderer->show();
+      networkRenderer->show();
   });
 
   ArduinoOTA.onError([](ota_error_t error) {
@@ -184,22 +187,42 @@ void setupOTA() {
     else if (error == OTA_RECEIVE_ERROR) Logger::logMsg("OTA Receive Failed\n");
     else if (error == OTA_END_ERROR) Logger::logMsg("OTA End Failed\n");
 
-    for (int i = 0; i < renderer->pixelsCount(); ++i) {
-        renderer->setPixel(i, RED);
+    for (int i = 0; i < networkRenderer->pixelsCount(); ++i) {
+      networkRenderer->setPixel(i, RED);
     }
-    renderer->show();
+      networkRenderer->show();
   });
 
   ArduinoOTA.begin();
     Logger::logMsg("OTA ready\n");
 }
 
-void onStationConnected(const WiFiEventSoftAPModeStationConnected& evt) {
-  Logger::logf("Station connected: %s\n", macToString(evt.mac).c_str());
-}
+// One-stop to set up all the network components
+void setupNetwork(Renderer *renderer) {
+  // Use this renderer if we ever want to use the LEDs for network status
+  networkRenderer = renderer;
 
-void onStationDisconnected(const WiFiEventSoftAPModeStationDisconnected& evt) {
-  Logger::logf("Station disconnected: %s\n", macToString(evt.mac).c_str());
+  // If we recognize the MAC address, use a different hostname specific to that MAC address
+  String macAddress = WiFi.macAddress();
+  if (macAddress == "E8:DB:84:98:7F:C3") {
+    hostname = "shard";
+  } else if (macAddress = "84:CC:A8:81:0A:53") {
+    hostname = "crystal";
+  } else {
+    hostname = WiFi.hostname();
+  }
+
+#ifdef USE_SOFT_AP
+  setupWiFiSoftAP();
+#else
+  setupWiFiStation();
+#endif
+
+  setupHTTP();
+
+  // No need to set up MDNS if using OTA, the OTA library already sets it up
+  //  setupMDNS();
+  setupOTA();
 }
 
 void loopNetwork() {
@@ -226,10 +249,4 @@ void loopLogger() {
     Logger::setStream(&Serial);
     logClient.stop();
   }
-}
-
-String macToString(const unsigned char* mac) {
-  char buf[20];
-  snprintf(buf, sizeof(buf), "%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-  return String(buf);
 }

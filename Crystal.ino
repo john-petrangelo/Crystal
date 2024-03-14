@@ -14,13 +14,12 @@
 #include "src/Animations.h"
 #include "src/Model.h"
 #include "src/Renderer.h"
+#include "src/Network.h"
+#include "src/Status.h"
 
 // Configuration information about the NeoPixel strip we are using.
 int const PIXELS_COUNT = 24;
 Renderer *renderer = nullptr;
-
-String hostname = "crystal";
-ESP8266WebServer server(80);
 
 Color pixels[PIXELS_COUNT];
 
@@ -44,7 +43,7 @@ void setup() {
   }
   Serial.println("Started LittleFS");
 
-  setupNetwork();
+  setupNetwork(renderer);
   Serial.println("Network set up");
 
   std::shared_ptr<Model> model = makeDarkCrystal();
