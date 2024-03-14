@@ -9,7 +9,9 @@ class Renderer {
 private:
     unsigned long _startTime_ms = millis();
     std::shared_ptr<Model> _model;
-
+    float updateDuration = 0.0;
+    float renderDuration = 0.0;
+    float showDuration = 0.0;
 
 public:
     void render();
@@ -26,6 +28,10 @@ public:
 
     virtual uint8_t getBrightness() = 0;
     virtual void setBrightness(uint8_t brightness) = 0;
+
+    float getUpdateDuration() { return updateDuration; }
+    float getRenderDuration() { return renderDuration; }
+    float getShowDuration() { return showDuration; }
 };
 
 class Esp8266_NeoPixelBus_Renderer : public Renderer {

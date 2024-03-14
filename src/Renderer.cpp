@@ -7,21 +7,29 @@ void Renderer::render() {
         return;
     }
 
+    // Get the current time in milliseconds, then convert to decimal seconds
+    auto absoluteNow_ms = millis();
+    auto relativeNow_ms = absoluteNow_ms - _startTime_ms;
+    auto now_sec = float(relativeNow_ms) / 1000.0;
+
     // Update the current state of the model to match the current time
-    unsigned long absoluteNow_ms = millis();
-    unsigned long relativeNow_ms = absoluteNow_ms - _startTime_ms;
-    auto timeStamp = float(float(relativeNow_ms) / 1000.0);
-    _model->update(timeStamp);
+    auto before_update_ms = millis();
+    _model->update(now_sec);
+    updateDuration = float((millis()) - before_update_ms) / 1000.0;
 
     // Set the color of each pixel
+    auto before_render_ms = millis();
     for (auto i = 0; i < pixelsCount(); ++i) {
         float pos = (float)i / float(pixelsCount() - 1);
         auto color = _model->render(pos);
         setPixel(i, color);
     }
+  renderDuration = float((millis()) - before_render_ms) / 1000.0;
 
     // Write the colors to the LED strip
+    auto before_show_ms = millis();
     show();
+  showDuration = float((millis()) - before_show_ms) / 1000.0;
 }
 
 // TODO Doc
