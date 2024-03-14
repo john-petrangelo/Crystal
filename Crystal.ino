@@ -23,8 +23,6 @@ Renderer *renderer = nullptr;
 
 long const logDurationIntervalMS = 5000;
 
-std::shared_ptr<GaugeModel> gauge = std::make_shared<GaugeModel>("gauge", 24, BLUE);
-
 void setup() {
   Serial.begin(115200);
   Serial.println("Serial started");
@@ -46,9 +44,6 @@ void setup() {
 
   std::shared_ptr<Model> model = makeDarkCrystal();
   renderer->setModel(model);
-
-  std::shared_ptr<Model> gaugeModel = gauge;
-  renderer->setModel(gaugeModel);
 }
 
 void loop() {
@@ -59,9 +54,6 @@ void loop() {
   // Check for network activity.
   loopNetwork();
   long afterNetworkMS = millis();
-
-  // Update and render the LEDs
-  gauge->setValue(millis() % 10000 / 10000.0);
 
   renderer->render();
   long afterRenderMS = millis();
