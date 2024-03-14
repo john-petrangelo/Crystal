@@ -9,7 +9,7 @@
 
 class Model {
   public:
-    Model(char const *name) : name(name) { }
+    explicit Model(char const *name) : name(name) { }
     virtual ~Model() = default;
 
     // Updates the model to the current timestamp. Models that change with time (animations)
@@ -26,6 +26,7 @@ class Model {
   private:
     char const *name;
 };
+typedef std::shared_ptr<Model> ModelPtr;
 
 /***** SOLID *****/
 
@@ -122,8 +123,8 @@ private:
 
 /***** GAUGE *****/
 
-class Gauge : public Model {
-public: Gauge(char const *name, uint16_t pixelsCount, Color color, float value = 0.0)
+class GaugeModel : public Model {
+public: GaugeModel(char const *name, uint16_t pixelsCount, Color color, float value = 0.0)
             : Model(name), pixelsCount(pixelsCount), color(color) { setValue(value); }
     Color render(float pos) override;
     float getValue() { return value; }

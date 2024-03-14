@@ -71,7 +71,7 @@ Color Triangle::render(float pos) {
 
 /***** GAUGE *****/
 
-void Gauge::setValue(float valueIn) {
+void GaugeModel::setValue(float valueIn) {
   value = valueIn;
   fullColorPixels = int(value * pixelsCount);
   remainder = value - fullColorPixels / pixelsCount;
@@ -81,7 +81,7 @@ void Gauge::setValue(float valueIn) {
 //               value, fullColorPixels, remainder, colorRatio, dimmedColor);
 }
 
-Color Gauge::render(float pos) {
+Color GaugeModel::render(float pos) {
   // Figure out which is the last pixel we should light.
   float posPixel = int(pos * pixelsCount);
   //  Logger::logf("gauge pos=%f posPixel=%f", pos, posPixel);

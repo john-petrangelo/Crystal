@@ -142,29 +142,21 @@ static void setupOTA() {
 
     Logger::logf("OTA Start\n");
 
-      for (int i = 0; i < networkRenderer->pixelsCount() - 1; ++i) {
-        networkRenderer->setPixel(i, BLACK);
-      }
-      networkRenderer->setPixel(networkRenderer->pixelsCount()-1, WHITE);
-      networkRenderer->show();
+    ModelPtr gauge = std::make_shared<GaugeModel>("gauge", 24, GREEN);
+    networkRenderer->setModel(gauge);
+    networkRenderer->render();
   });
 
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
     Logger::logf("OTA Progress: %u%%\r", 100 * progress / total);
 
-    float pixelBucket = (float)total / networkRenderer->pixelsCount();
-    int fullColorPixels = progress / pixelBucket;
-    int partialProgress = progress - fullColorPixels * pixelBucket;
-    float progressRatio = partialProgress / pixelBucket;
-    int colorRatio = 100.0 * progressRatio;
-    Color c = Colors::fade(GREEN, colorRatio);
+      std::shared_ptr<GaugeModel> gauge = std::static_pointer_cast<GaugeModel>(networkRenderer->getModel());
+      if (gauge != nullptr) {
+        gauge->setValue((float)progress / (float)total);
+        networkRenderer->render();
+      }
 
-    for (int i = 0; i < fullColorPixels; ++i) {
-      networkRenderer->setPixel(i, GREEN);
-    }
-      networkRenderer->setPixel(fullColorPixels-1, c);
 
-      networkRenderer->show();
   });
 
   ArduinoOTA.onEnd([]() {
@@ -173,10 +165,9 @@ static void setupOTA() {
       Logger::setStream(&Serial);
       logClient.stop();
 
-      for (int i = 0; i < networkRenderer->pixelsCount(); ++i) {
-        networkRenderer->setPixel(i, BLACK);
-      }
-      networkRenderer->show();
+      ModelPtr model = std::make_shared<SolidModel>("solid", BLACK);
+      networkRenderer->setModel(model);
+      networkRenderer->render();
   });
 
   ArduinoOTA.onError([](ota_error_t error) {

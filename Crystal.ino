@@ -21,11 +21,9 @@
 int const PIXELS_COUNT = 24;
 Renderer *renderer = nullptr;
 
-Color pixels[PIXELS_COUNT];
-
 long const logDurationIntervalMS = 5000;
 
-std::shared_ptr<Gauge> gauge = std::make_shared<Gauge>("gauge", 24, BLUE);
+std::shared_ptr<GaugeModel> gauge = std::make_shared<GaugeModel>("gauge", 24, BLUE);
 
 void setup() {
   Serial.begin(115200);
