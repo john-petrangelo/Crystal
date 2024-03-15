@@ -1,3 +1,4 @@
+#include "Network.h"
 #include "Renderer.h"
 
 // TODO Doc
@@ -30,6 +31,13 @@ void Renderer::render() {
     auto before_show_ms = millis();
     show();
   showDuration = float((millis()) - before_show_ms) / 1000.0;
+}
+
+void Renderer::getStatus(JsonObject obj) const {
+  obj["updateDuration"] = getNetworkRenderer()->getUpdateDuration();
+  obj["renderDuration"] = getNetworkRenderer()->getRenderDuration();
+  obj["showDuration"] = getNetworkRenderer()->getShowDuration();
+  obj["model"] = _model->getName();
 }
 
 // TODO Doc

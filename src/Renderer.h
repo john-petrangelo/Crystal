@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <ArduinoJson.h>
 #include <NeoPixelBusLg.h>
 
 #include "Model.h"
@@ -24,14 +25,16 @@ public:
 
     virtual void setPixel(int i, Color c) = 0;
     virtual void show() = 0;
-    virtual int pixelsCount() = 0;
+    virtual int pixelsCount() const = 0;
 
-    virtual uint8_t getBrightness() = 0;
+    virtual uint8_t getBrightness() const = 0;
     virtual void setBrightness(uint8_t brightness) = 0;
 
-    float getUpdateDuration() { return updateDuration; }
-    float getRenderDuration() { return renderDuration; }
-    float getShowDuration() { return showDuration; }
+    float getUpdateDuration() const { return updateDuration; }
+    float getRenderDuration() const { return renderDuration; }
+    float getShowDuration() const { return showDuration; }
+
+    void getStatus(JsonObject obj) const;
 };
 
 class Esp8266_NeoPixelBus_Renderer : public Renderer {
@@ -44,8 +47,8 @@ public:
 
     void setPixel(int i, Color c) override;
     void show() override { _strip.Show(); }
-    int pixelsCount() override { return _strip.PixelCount(); }
+    int pixelsCount() const override { return _strip.PixelCount(); }
 
-    uint8_t getBrightness() override { return _strip.GetLuminance(); }
+    uint8_t getBrightness() const override { return _strip.GetLuminance(); }
     void setBrightness(uint8_t brightness) override { _strip.SetLuminance(brightness); }
 };

@@ -19,10 +19,7 @@ String getStatus() {
   snprintf(buffer, sizeof(buffer),"%dd %dh %dm %d.%0.3ds", days, hours, mins, secs, millisecs);
   doc["time"] = String(buffer);
 
-  JsonObject renderer = doc.createNestedObject("renderer");
-  renderer["updateDuration"] = getNetworkRenderer()->getUpdateDuration();
-  renderer["renderDuration"] = getNetworkRenderer()->getRenderDuration();
-  renderer["showDuration"] = getNetworkRenderer()->getShowDuration();
+  getNetworkRenderer()->getStatus(doc.createNestedObject("renderer"));
 
   JsonObject system = doc.createNestedObject("system");
   system["freeHeapBytes"] = ESP.getFreeHeap();
