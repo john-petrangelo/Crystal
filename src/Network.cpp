@@ -214,6 +214,8 @@ void setupNetwork(Renderer *renderer) {
   // No need to set up MDNS if using OTA, the OTA library already sets it up
   //  setupMDNS();
   setupOTA();
+
+  Logger::logMsgLn("Network set up complete");
 }
 
 void loopNetwork() {

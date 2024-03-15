@@ -1,5 +1,3 @@
-#include <ESP8266WebServer.h>
-
 #ifdef ENABLE_GDB_STUB
 #include <GDBStub.h>
 #endif
@@ -40,7 +38,6 @@ void setup() {
   Serial.println("Started LittleFS");
 
   setupNetwork(renderer);
-  Serial.println("Network set up");
 
   std::shared_ptr<Model> model = makeDarkCrystal();
   renderer->setModel(model);
