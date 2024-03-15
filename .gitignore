@@ -4,7 +4,7 @@ src/Crystal2.png
 commands.sed
 compile
 sketch.json
-
+secrets.h
 build
 
 CMakeLists.txt
