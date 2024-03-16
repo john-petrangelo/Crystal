@@ -34,7 +34,7 @@ public:
     float getRenderDuration() const { return renderDuration; }
     float getShowDuration() const { return showDuration; }
 
-    void getStatus(JsonObject obj) const;
+    virtual void getStatus(JsonObject obj) const;
 };
 
 class Esp8266_NeoPixelBus_Renderer : public Renderer {
@@ -51,4 +51,5 @@ public:
 
     uint8_t getBrightness() const override { return _strip.GetLuminance(); }
     void setBrightness(uint8_t brightness) override { _strip.SetLuminance(brightness); }
+    void getStatus(JsonObject obj) const override;
 };
