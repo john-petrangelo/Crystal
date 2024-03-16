@@ -1,8 +1,8 @@
 #include <ArduinoOTA.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
-#include <LittleFS.h>
 #include "Animations.h"
+#include "Filesystem.h"
 #include "Handlers.h"
 #include "Network.h"
 #include "lumos-arduino/Colors.h"
@@ -138,7 +138,7 @@ static void setupOTA() {
   // ArduinoOTA.setPassword((const char *)"123");
 
   ArduinoOTA.onStart([]() {
-    LittleFS.end();
+    Filesystem::end();
 
     Logger::logf("OTA Start\n");
 

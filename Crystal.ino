@@ -3,17 +3,16 @@
 #endif
 
 #include <Arduino.h>
-#include <LittleFS.h>
-
 #include <NeoPixelBus.h>
 
 #include "src/lumos-arduino/Colors.h"
 #include "src/lumos-arduino/Logger.h"
 
 #include "src/Animations.h"
+#include "src/Filesystem.h"
 #include "src/Model.h"
-#include "src/Renderer.h"
 #include "src/Network.h"
+#include "src/Renderer.h"
 #include "src/Status.h"
 
 // Configuration information about the NeoPixel strip we are using.
@@ -33,11 +32,7 @@ void setup() {
   gdbstub_init();
 #endif
 
-  if (!LittleFS.begin()) {
-    Serial.println("Failed to start LittleFS");
-  }
-  Serial.println("Started LittleFS");
-
+  Filesystem::setup();
   setupNetwork(renderer);
 
   std::shared_ptr<Model> model = makeDarkCrystal();
@@ -72,8 +67,7 @@ void loop() {
                  afterAllMS - afterYieldMS,
                  EspClass::getFreeHeap());
 
-    Logger::logMsg(getStatus().c_str());
-    Logger::logMsg("\n");
+    Logger::logMsgLn(getStatus().c_str());
     WiFi.printDiag(Serial);
     Serial.println("");
   }

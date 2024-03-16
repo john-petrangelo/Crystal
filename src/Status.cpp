@@ -1,10 +1,12 @@
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 
+#include "Filesystem.h"
+#include "Network.h"
 #include "Status.h"
 
 String getStatus() {
-  StaticJsonDocument<512> doc;
+  JsonDocument doc;
   auto now = millis();
   auto days = now / (24*60*60*1000);
   now %= 24*60*60*1000;
@@ -13,11 +15,11 @@ String getStatus() {
   auto mins = now / (1000*60);
   now %= 1000*60;
   auto secs = now / 1000;
-  auto millisecs = now % 1000;
+  auto milliSecs = now % 1000;
 
   char buffer[32];
-  snprintf(buffer, sizeof(buffer),"%dd %dh %dm %d.%0.3ds", days, hours, mins, secs, millisecs);
-  doc["time"] = String(buffer);
+  snprintf(buffer, sizeof(buffer),"%lud %luh %lum %lu.%0.3lus", days, hours, mins, secs, milliSecs);
+  doc["time"] = buffer;
 
   getNetworkRenderer()->getStatus(doc.createNestedObject("renderer"));
 
@@ -32,17 +34,7 @@ String getStatus() {
   system["flashChipSize"] = ESP.getFlashChipSize();
   system["realFlashChipSize"] = ESP.getFlashChipRealSize();
 
-  JsonObject fs = doc.createNestedObject("filesystem");
-  FSInfo fsInfo;
-  bool gotInfo = LittleFS.info(fsInfo);
-  if (gotInfo) {
-    fs["totalBytes"] = fsInfo.totalBytes;
-    fs["usedBytes"] = fsInfo.usedBytes;
-    fs["blockSize"] = fsInfo.blockSize;
-    fs["pageSize"] = fsInfo.pageSize;
-    fs["maxOpenFiles"] = fsInfo.maxOpenFiles;
-    fs["maxPathLength"] = fsInfo.maxPathLength;
-  }
+  Filesystem::getStatus(doc.createNestedObject("filesystem"));
 
   JsonObject network = doc.createNestedObject("network");
   network["hostname"] = hostname + ".local";
