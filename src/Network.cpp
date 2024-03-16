@@ -41,8 +41,8 @@ static String macToString(const unsigned char* mac) {
 // Connect to an existing access point
 static void setupWiFiStation() {
   // Set up the renderer with a strobing model for while we connect
-  Color c = Colors::makeColor(95, 95, 255);
-  std::shared_ptr<Model> triangle = std::make_shared<Triangle>("triangle", 0.0, 1.0, c);
+  Color c = Colors::makeColor(127, 127, 255);
+  std::shared_ptr<Model> triangle = std::make_shared<Triangle>("triangle", 0.4, 1.0, c);
   std::shared_ptr<Model> pulsate = std::make_shared<Pulsate>("pulsate", 0.2, 1.0, 0.1, 0.9, triangle);
   networkRenderer->setModel(pulsate);
 
