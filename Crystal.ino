@@ -2,6 +2,7 @@
 #include <GDBStub.h>
 #endif
 
+#include <Arduino.h>
 #include <LittleFS.h>
 
 #include <NeoPixelBus.h>
@@ -44,21 +45,21 @@ void setup() {
 }
 
 void loop() {
-  static int lastUpdateMS = millis();
+  static auto lastUpdateMS = millis();
 
-  long beforeMS = millis();
+  auto beforeMS = millis();
 
   // Check for network activity.
   loopNetwork();
-  long afterNetworkMS = millis();
+  auto afterNetworkMS = millis();
 
   renderer->render();
-  long afterRenderMS = millis();
+  auto afterRenderMS = millis();
   yield();
-  long afterYieldMS = millis();
+  auto afterYieldMS = millis();
 
   loopLogger();
-  long afterAllMS = millis();
+  auto afterAllMS = millis();
 
   if (beforeMS - lastUpdateMS >= logDurationIntervalMS) {
     lastUpdateMS = beforeMS;
@@ -69,7 +70,7 @@ void loop() {
                  afterRenderMS - afterNetworkMS,
                  afterYieldMS - afterRenderMS,
                  afterAllMS - afterYieldMS,
-                 ESP.getFreeHeap());
+                 EspClass::getFreeHeap());
 
     Logger::logMsg(getStatus().c_str());
     Logger::logMsg("\n");
