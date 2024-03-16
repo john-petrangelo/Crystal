@@ -15,7 +15,7 @@
 
 String hostname = "crystal";
 
-// Setup wifi in soft AP mode. The default is to join an
+// Setup Wi-Fi in soft AP mode. The default is to join an
 // existing network in STATION mode.
 // #define USE_SOFT_AP
 
@@ -35,7 +35,7 @@ static Renderer *networkRenderer = nullptr;
 static String macToString(const unsigned char* mac) {
   char buf[20];
   snprintf(buf, sizeof(buf), "%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-  return String(buf);
+  return {buf};
 }
 
 // Connect to an existing access point
@@ -60,7 +60,7 @@ static void setupWiFiStation() {
   Serial.print("Network: ");
   Serial.println(SECRET_SSID);
   Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
+  Serial.println(WiFi.localIP().toString());
   Serial.print("MAC address: ");
   Serial.println(WiFi.macAddress());
   Serial.print("Hostname: ");
@@ -197,8 +197,10 @@ void setupNetwork(Renderer *renderer) {
   String macAddress = WiFi.macAddress();
   if (macAddress == "E8:DB:84:98:7F:C3") {
     hostname = "shard";
-  } else if (macAddress = "84:CC:A8:81:0A:53") {
+  } else if (macAddress == "84:CC:A8:81:0A:53") {
     hostname = "crystal";
+  } else if (macAddress == "A8:48:FA:C1:26:81") {
+    hostname = "zircon";
   } else {
     hostname = WiFi.hostname();
   }
