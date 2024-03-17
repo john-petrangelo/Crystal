@@ -1,4 +1,3 @@
-#include <ArduinoJson.h>
 #include <LittleFS.h>
 
 #include "Filesystem.h"
@@ -22,6 +21,23 @@ void Filesystem::getStatus(JsonObject obj) {
     obj["pageSize"] = fsInfo.pageSize;
     obj["maxOpenFiles"] = fsInfo.maxOpenFiles;
     obj["maxPathLength"] = fsInfo.maxPathLength;
+  }
+
+  JsonArray files = obj["files"].to<JsonArray>();
+  Dir dir = LittleFS.openDir("/");
+  while (dir.next()) {
+    Logger::logf("Dir name=%s size=%d isDir=%d isFile=%d\n",
+                 dir.fileName().c_str(), dir.fileSize(), dir.isDirectory(), dir.isFile());
+    JsonObject file = files.add<JsonObject>();
+    file["name"] = dir.fileName();
+    file["size"] = dir.fileSize();
+    if (dir.isDirectory()) {
+      file["type"] = "directory";
+    } else if (dir.isFile()) {
+      file["type"] = "file";
+    } else {
+      file["type"] = "unknown";
+    }
   }
 }
 
