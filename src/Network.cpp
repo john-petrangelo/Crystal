@@ -240,3 +240,46 @@ void Network::loopLogger() {
     logClient.stop();
   }
 }
+
+void Network::getStatus(JsonObject obj) {
+  obj["hostname"] = Network::getHostname() + ".local";
+  obj["wifiMACAddress"] = WiFi.macAddress();
+  obj["ipAddress"] = WiFi.localIP().toString();
+  obj["mode"] = "unknown";
+  switch(WiFi.getMode()) {
+    case WIFI_OFF:
+      obj["mode"] = "WIFI_OFF";
+      break;
+    case WIFI_STA:
+      obj["mode"] = "WIFI_STA";
+      break;
+    case WIFI_AP:
+      obj["mode"] = "WIFI_AP";
+      break;
+    case WIFI_AP_STA:
+      obj["mode"] = "WIFI_AP_STA";
+      break;
+    default:
+      obj["mode"] = String(WiFi.getMode());
+      break;
+  }
+  obj["phyMode"] = "unknown";
+  switch(WiFi.getPhyMode()) {
+    case WIFI_PHY_MODE_11B:
+      obj["phyMode"] = "WIFI_PHY_MODE_11B";
+      break;
+    case WIFI_PHY_MODE_11G:
+      obj["phyMode"] = "WIFI_PHY_MODE_11G";
+      break;
+    case WIFI_PHY_MODE_11N:
+      obj["phyMode"] = "WIFI_PHY_MODE_11N";
+      break;
+    default:
+      obj["phyMode"] = String(WiFi.getPhyMode());
+      break;
+  }
+  obj["softAPssid"] = "<ssid TBD>";
+  obj["softAPStationNum"] = WiFi.softAPgetStationNum();
+  obj["softAPIP"] = WiFi.softAPIP().toString();
+  obj["softAPmacAddress"] = WiFi.softAPmacAddress();
+}

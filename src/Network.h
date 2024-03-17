@@ -27,6 +27,7 @@ public:
     static void setupNetwork(Renderer *renderer);
     static void loopNetwork();
     static void loopLogger();
+    static void getStatus(JsonObject obj);
 
     static Renderer* getRenderer() { return networkRenderer; }
     static String &getHostname() { return hostname; }
