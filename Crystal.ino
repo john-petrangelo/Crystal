@@ -33,7 +33,7 @@ void setup() {
 #endif
 
   Filesystem::setup();
-  setupNetwork(renderer);
+  Network::setupNetwork(renderer);
 
   std::shared_ptr<Model> model = makeDarkCrystal();
   renderer->setModel(model);
@@ -45,7 +45,7 @@ void loop() {
   auto beforeMS = millis();
 
   // Check for network activity.
-  loopNetwork();
+  Network::loopNetwork();
   auto afterNetworkMS = millis();
 
   renderer->render();
@@ -53,7 +53,7 @@ void loop() {
   yield();
   auto afterYieldMS = millis();
 
-  loopLogger();
+  Network::loopLogger();
   auto afterAllMS = millis();
 
   if (beforeMS - lastUpdateMS >= logDurationIntervalMS) {

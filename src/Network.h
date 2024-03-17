@@ -4,12 +4,31 @@
 
 #include "Renderer.h"
 
-extern String hostname;
+class Network {
+private:
+    static String hostname;
 
-// Server used for HTTP requests
-extern ESP8266WebServer server;
+    static ESP8266WebServer server;
 
-extern void setupNetwork(Renderer *renderer);
-extern void loopNetwork();
-extern void loopLogger();
-extern Renderer* getNetworkRenderer();
+    static WiFiServer logServer;
+    static WiFiClient logClient;
+
+    static Renderer *networkRenderer;
+
+    static void setupWiFiStation();
+    static void setupWiFiSoftAP();
+
+    static void setupHTTP();
+
+    static void setupMDNS();
+    static void setupOTA();
+
+public:
+    static void setupNetwork(Renderer *renderer);
+    static void loopNetwork();
+    static void loopLogger();
+
+    static Renderer* getRenderer() { return networkRenderer; }
+    static String &getHostname() { return hostname; }
+    static ESP8266WebServer &getServer() { return server; }
+};

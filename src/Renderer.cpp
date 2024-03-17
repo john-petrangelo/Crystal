@@ -11,12 +11,12 @@ void Renderer::render() {
     // Get the current time in milliseconds, then convert to decimal seconds
     auto absoluteNow_ms = millis();
     auto relativeNow_ms = absoluteNow_ms - _startTime_ms;
-    auto now_sec = float(relativeNow_ms) / 1000.0;
+    auto now_sec = float(relativeNow_ms) / 1000.0f;
 
     // Update the current state of the model to match the current time
     auto before_update_ms = millis();
     _model->update(now_sec);
-    updateDuration = float((millis()) - before_update_ms) / 1000.0;
+    updateDuration = float((millis()) - before_update_ms) / 1000.0f;
 
     // Set the color of each pixel
     auto before_render_ms = millis();
@@ -25,18 +25,18 @@ void Renderer::render() {
         auto color = _model->render(pos);
         setPixel(i, color);
     }
-  renderDuration = float((millis()) - before_render_ms) / 1000.0;
+  renderDuration = float((millis()) - before_render_ms) / 1000.0f;
 
     // Write the colors to the LED strip
     auto before_show_ms = millis();
     show();
-  showDuration = float((millis()) - before_show_ms) / 1000.0;
+  showDuration = float((millis()) - before_show_ms) / 1000.0f;
 }
 
 void Renderer::getStatus(JsonObject obj) const {
-  obj["updateDuration"] = getNetworkRenderer()->getUpdateDuration();
-  obj["renderDuration"] = getNetworkRenderer()->getRenderDuration();
-  obj["showDuration"] = getNetworkRenderer()->getShowDuration();
+  obj["updateDuration"] = Network::getRenderer()->getUpdateDuration();
+  obj["renderDuration"] = Network::getRenderer()->getRenderDuration();
+  obj["showDuration"] = Network::getRenderer()->getShowDuration();
   obj["model"] = _model->getName();
 }
 

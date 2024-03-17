@@ -13,7 +13,7 @@
 // connect your device to your network.
 #include "../secrets.h"
 
-String hostname = "crystal";
+String Network::hostname = "crystal";
 
 // Setup Wi-Fi in soft AP mode. The default is to join an
 // existing network in STATION mode.
@@ -24,13 +24,13 @@ static WiFiEventHandler stationConnectedHandler;
 static WiFiEventHandler stationDisconnectedHandler;
 
 // Server used for HTTP requests
-ESP8266WebServer server(80);
+ESP8266WebServer Network::server(80);
 
 // Server used for logging.
-static WiFiServer logServer(8000);
-static WiFiClient logClient;
+WiFiServer Network::logServer(8000);
+WiFiClient Network::logClient;
 
-static Renderer *networkRenderer = nullptr;
+Renderer* Network::networkRenderer = nullptr;
 
 static String macToString(const unsigned char* mac) {
   char buf[20];
@@ -39,7 +39,7 @@ static String macToString(const unsigned char* mac) {
 }
 
 // Connect to an existing access point
-static void setupWiFiStation() {
+void Network::setupWiFiStation() {
   // Set up the renderer with a strobing model for while we connect
   Color c = Colors::makeColor(127, 127, 255);
   std::shared_ptr<Model> triangle = std::make_shared<Triangle>("triangle", 0.4, 1.0, c);
@@ -67,26 +67,21 @@ static void setupWiFiStation() {
   Serial.println(hostname);
 }
 
-static void onStationConnected(const WiFiEventSoftAPModeStationConnected& evt) {
-  Logger::logf("Station connected: %s\n", macToString(evt.mac).c_str());
-}
-
-static void onStationDisconnected(const WiFiEventSoftAPModeStationDisconnected& evt) {
-  Logger::logf("Station disconnected: %s\n", macToString(evt.mac).c_str());
-}
-
-Renderer* getNetworkRenderer() {
-  return networkRenderer;
-}
-
 // Create our own network using Soft AP mode
-static void setupWiFiSoftAP() {
+void Network::setupWiFiSoftAP() {
   // Setup wifi soft AP mode
   bool softAPStarted = WiFi.softAP(hostname);
-  // Call "onStationConnected" each time a station connects
-  stationConnectedHandler = WiFi.onSoftAPModeStationConnected(&onStationConnected);
-  // Call "onStationDisconnected" each time a station disconnects
-  WiFi.onSoftAPModeStationDisconnected(&onStationDisconnected);
+
+  // Log each time a station connects or disconnects
+  WiFi.onSoftAPModeStationConnected([](const WiFiEventSoftAPModeStationConnected& evt) {
+      Logger::logf("Station connected: %s\n", macToString(evt.mac).c_str());
+  });
+  WiFi.onSoftAPModeStationDisconnected([](const WiFiEventSoftAPModeStationDisconnected& evt) {
+      Logger::logf("Station disconnected: %s\n", macToString(evt.mac).c_str());
+  });
+
+
+
 
   Serial.printf("Soft AP status: %s\n", softAPStarted ? "Ready" : "Failed");
   Serial.printf("Soft AP IP address: %s\n", WiFi.softAPIP().toString().c_str());
@@ -97,7 +92,7 @@ static void setupWiFiSoftAP() {
 }
 
 // Setup the web server and handlers
-static void setupHTTP() {
+void Network::setupHTTP() {
   server.on("/", HTTP_GET, handleRoot);
   server.on("/crystal.css", HTTP_GET, handleCSS);
   server.on("/crystal.js", HTTP_GET, handleJS);
@@ -120,14 +115,14 @@ static void setupHTTP() {
 }
 
 // Setup an MDNS responder so we can be found by <host>.local instead of IP address
-static void setupMDNS() {
+void Network::setupMDNS() {
   if (MDNS.begin("hostname")) {
     Serial.println("MDNS responder started: crystal.local");
   }
 }
 
 // Setup OTA updates
-static void setupOTA() {
+void Network::setupOTA() {
   // Port defaults to 8266
   // ArduinoOTA.setPort(8266);
 
@@ -189,7 +184,7 @@ static void setupOTA() {
 }
 
 // One-stop to set up all the network components
-void setupNetwork(Renderer *renderer) {
+void Network::setupNetwork(Renderer *renderer) {
   // Use this renderer if we ever want to use the LEDs for network status
   networkRenderer = renderer;
 
@@ -220,7 +215,7 @@ void setupNetwork(Renderer *renderer) {
   Logger::logMsgLn("Network set up complete");
 }
 
-void loopNetwork() {
+void Network::loopNetwork() {
   // Check for network activity.
   server.handleClient();
   MDNS.update();
@@ -228,7 +223,7 @@ void loopNetwork() {
 }
 
 // Check to see if the network logger needs to be setup or torn down
-void loopLogger() {
+void Network::loopLogger() {
   if (!logClient) {
     // No log client. Check the server for new clients.
     logClient = logServer.available();

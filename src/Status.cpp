@@ -21,7 +21,7 @@ String getStatus() {
   snprintf(buffer, sizeof(buffer),"%lud %luh %lum %lu.%0.3lus", days, hours, mins, secs, milliSecs);
   doc["time"] = buffer;
 
-  getNetworkRenderer()->getStatus(doc["renderer"].to<JsonObject>());
+  Network::getRenderer()->getStatus(doc["renderer"].to<JsonObject>());
 
   JsonObject system = doc["system"].to<JsonObject>();
   system["freeHeapBytes"] = EspClass::getFreeHeap();
@@ -37,7 +37,7 @@ String getStatus() {
   Filesystem::getStatus(doc["filesystem"].to<JsonObject>());
 
   JsonObject network = doc["network"].to<JsonObject>();
-  network["hostname"] = hostname + ".local";
+  network["hostname"] = Network::getHostname() + ".local";
   network["wifiMACAddress"] = WiFi.macAddress();
   network["ipAddress"] = WiFi.localIP().toString();
   network["mode"] = "unknown";
@@ -73,7 +73,7 @@ String getStatus() {
       network["phyMode"] = String(WiFi.getPhyMode());
       break;
   }
-  network["softAPssid"] = hostname;
+  network["softAPssid"] = "<ssid TBD>";
   network["softAPStationNum"] = WiFi.softAPgetStationNum();
   network["softAPIP"] = WiFi.softAPIP().toString();
   network["softAPmacAddress"] = WiFi.softAPmacAddress();

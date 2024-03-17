@@ -15,7 +15,7 @@ void handleRoot() {
     auto startMS = millis();
     File file = LittleFS.open("/index.html", "r");
     auto openedMS = millis();
-    size_t sent = server.streamFile(file, "text/html");
+    size_t sent = Network::getServer().streamFile(file, "text/html");
     auto streamedMS = millis();
     file.close();
     auto closedMS = millis();
@@ -27,7 +27,7 @@ void handleCSS() {
     auto startMS = millis();
     File file = LittleFS.open("/crystal.css", "r");
     auto openedMS = millis();
-    size_t sent = server.streamFile(file, "text/css");
+    size_t sent = Network::getServer().streamFile(file, "text/css");
     auto streamedMS = millis();
     file.close();
     auto closedMS = millis();
@@ -39,7 +39,7 @@ void handleJS() {
     auto startMS = millis();
     File file = LittleFS.open("/crystal.js", "r");
     auto openedMS = millis();
-    size_t sent = server.streamFile(file, "text/javascript");
+    size_t sent = Network::getServer().streamFile(file, "text/javascript");
     auto streamedMS = millis();
     file.close();
     auto closedMS = millis();
@@ -49,55 +49,55 @@ void handleJS() {
 
 void handleStatus() {
   String output = getStatus();
-  server.send(200, "application/json", output);
+  Network::getServer().send(200, "application/json", output);
 }
 
 void handleGetBrightness() {
   // Create the response.
   JsonDocument doc;
-  doc["value"] = getNetworkRenderer()->getBrightness();
+  doc["value"] = Network::getRenderer()->getBrightness();
   String output;
   serializeJsonPretty(doc, output);
 
-  server.send(200, "application/json", output);
+  Network::getServer().send(200, "application/json", output);
 }
 
 void handleSetBrightness() {
-  if(!server.hasArg("value")) {
-    server.send(400, "text/plain", "Value parameter missing\n");
+  if(!Network::getServer().hasArg("value")) {
+    Network::getServer().send(400, "text/plain", "Value parameter missing\n");
     return;
   }
 
-  String valueStr = server.arg("value");
+  String valueStr = Network::getServer().arg("value");
   uint8_t value = strtol(valueStr.c_str(), nullptr, 10);
 
-  getNetworkRenderer()->setBrightness(value);
+  Network::getRenderer()->setBrightness(value);
 
-  server.send(200, "text/plain");
+  Network::getServer().send(200, "text/plain");
 }
 
 void handleNotFound() {
   String message = "File Not Found\n\n";
-  message += "URI: " + server.uri();
+  message += "URI: " + Network::getServer().uri();
   message += "\nMethod: ";
-  if (server.method() == HTTP_GET) {
+  if (Network::getServer().method() == HTTP_GET) {
     message += "GET";
   } else {
     message += "POST";
   }
-  message += String("\nArguments: ") + String(server.args()) + "\n";
-  for (int i = 0; i < server.args(); i++) {
-    message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
+  message += String("\nArguments: ") + String(Network::getServer().args()) + "\n";
+  for (int i = 0; i < Network::getServer().args(); i++) {
+    message += " " + Network::getServer().argName(i) + ": " + Network::getServer().arg(i) + "\n";
   }
-  server.send(404, "text/plain", message);
+  Network::getServer().send(404, "text/plain", message);
 }
 
 void handleCrystal() {
   JsonDocument doc;
-  DeserializationError error = deserializeJson(doc, server.arg("plain"));
+  DeserializationError error = deserializeJson(doc, Network::getServer().arg("plain"));
   if (error) {
     Logger::logf("handleCrystal failed to parse JSON: %s\n", error.c_str());
-    server.send(400, "text/plain", error.c_str());
+    Network::getServer().send(400, "text/plain", error.c_str());
     return;
   }
 
@@ -116,23 +116,23 @@ void handleCrystal() {
     upperColor, upperPeriodSec,
     middleColor, middlePeriodSec,
     lowerColor, lowerPeriodSec);
-  getNetworkRenderer()->setModel(model);
+  Network::getRenderer()->setModel(model);
 
-  server.send(200, "text/plain");
+  Network::getServer().send(200, "text/plain");
 }
 
 void handleFlame() {
   std::shared_ptr<Model> model = std::make_shared<Flame>();
-  getNetworkRenderer()->setModel(model);
-  server.send(200, "text/plain");
+  Network::getRenderer()->setModel(model);
+  Network::getServer().send(200, "text/plain");
 }
 
 void handleRainbow() {
   JsonDocument doc;
-  DeserializationError error = deserializeJson(doc, server.arg("plain"));
+  DeserializationError error = deserializeJson(doc, Network::getServer().arg("plain"));
   if (error) {
     Logger::logf("handleRainbow failed to parse JSON: %s\n", error.c_str());
-    server.send(400, "text/plain", error.c_str());
+    Network::getServer().send(400, "text/plain", error.c_str());
     return;
   }
 
@@ -173,52 +173,52 @@ void handleRainbow() {
       8, RED, VIOLET, INDIGO, BLUE, GREEN, YELLOW, ORANGE, RED);
   }
 
-  auto model = getNetworkRenderer()->getModel();
+  auto model = Network::getRenderer()->getModel();
   if (strcmp(model->getName(), "rainbow-rotate") == 0) {
     auto rainbowModel = static_cast<Rotate*>(model.get());
     if (rainbowModel != nullptr) {
       rainbowModel->setSpeed(speed);
       rainbowModel->setModel(gm);
-      server.send(200, "text/plain");
+      Network::getServer().send(200, "text/plain");
       return;
     }
   }
 
   std::shared_ptr<Model> rm = std::make_shared<Rotate>("rainbow-rotate", speed, gm);
-  getNetworkRenderer()->setModel(rm);
+  Network::getRenderer()->setModel(rm);
 
-  server.send(200, "text/plain");
+  Network::getServer().send(200, "text/plain");
 }
 
 void handleSolid() {
-  if(!server.hasArg("color")) {
-    server.send(400, "text/plain", "Color parameter missing\n");
+  if(!Network::getServer().hasArg("color")) {
+    Network::getServer().send(400, "text/plain", "Color parameter missing\n");
     return;
   }
 
-  String colorStr = server.arg("color");
+  String colorStr = Network::getServer().arg("color");
   Color color = strtol(colorStr.c_str(), nullptr, 16);
   std::shared_ptr<Model> model = std::make_shared<SolidModel>("net solid model", color);
-  getNetworkRenderer()->setModel(model);
+  Network::getRenderer()->setModel(model);
 
-  server.send(200, "text/plain");
+  Network::getServer().send(200, "text/plain");
 }
 
 
 void handleDemo1() {
   auto model = makeDemo1();
-  getNetworkRenderer()->setModel(model);
-  server.send(200, "text/plain");
+  Network::getRenderer()->setModel(model);
+  Network::getServer().send(200, "text/plain");
 }
 
 void handleDemo2() {
   auto model = makeDemo2();
-  getNetworkRenderer()->setModel(model);
-  server.send(200, "text/plain");
+  Network::getRenderer()->setModel(model);
+  Network::getServer().send(200, "text/plain");
 }
 
 void handleDemo3() {
   auto model = makeDemo3();
-  getNetworkRenderer()->setModel(model);
-  server.send(200, "text/plain");
+  Network::getRenderer()->setModel(model);
+  Network::getServer().send(200, "text/plain");
 }
