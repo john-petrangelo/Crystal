@@ -21,22 +21,22 @@ String getStatus() {
   snprintf(buffer, sizeof(buffer),"%lud %luh %lum %lu.%0.3lus", days, hours, mins, secs, milliSecs);
   doc["time"] = buffer;
 
-  getNetworkRenderer()->getStatus(doc.createNestedObject("renderer"));
+  getNetworkRenderer()->getStatus(doc["renderer"].to<JsonObject>());
 
-  JsonObject system = doc.createNestedObject("system");
-  system["freeHeapBytes"] = ESP.getFreeHeap();
-  system["heapFragmentation"] = ESP.getHeapFragmentation();
-  system["maxFreeBlockSize"] = ESP.getMaxFreeBlockSize();
-  system["sketchUsedBytes"] = ESP.getSketchSize();
-  system["sketchFreeBytes"] = ESP.getFreeSketchSpace();
-  system["lastResetReason"] = ESP.getResetReason();
-  system["cpuFreqMHz"] = ESP.getCpuFreqMHz();
-  system["flashChipSize"] = ESP.getFlashChipSize();
-  system["realFlashChipSize"] = ESP.getFlashChipRealSize();
+  JsonObject system = doc["system"].to<JsonObject>();
+  system["freeHeapBytes"] = EspClass::getFreeHeap();
+  system["heapFragmentation"] = EspClass::getHeapFragmentation();
+  system["maxFreeBlockSize"] = EspClass::getMaxFreeBlockSize();
+  system["sketchUsedBytes"] = EspClass::getSketchSize();
+  system["sketchFreeBytes"] = EspClass::getFreeSketchSpace();
+  system["lastResetReason"] = EspClass::getResetReason();
+  system["cpuFreqMHz"] = EspClass::getCpuFreqMHz();
+  system["flashChipSize"] = EspClass::getFlashChipSize();
+  system["realFlashChipSize"] = EspClass::getFlashChipRealSize();
 
-  Filesystem::getStatus(doc.createNestedObject("filesystem"));
+  Filesystem::getStatus(doc["filesystem"].to<JsonObject>());
 
-  JsonObject network = doc.createNestedObject("network");
+  JsonObject network = doc["network"].to<JsonObject>();
   network["hostname"] = hostname + ".local";
   network["wifiMACAddress"] = WiFi.macAddress();
   network["ipAddress"] = WiFi.localIP().toString();
@@ -75,7 +75,7 @@ String getStatus() {
   }
   network["softAPssid"] = hostname;
   network["softAPStationNum"] = WiFi.softAPgetStationNum();
-  network["softAPIP"] = WiFi.softAPIP();
+  network["softAPIP"] = WiFi.softAPIP().toString();
   network["softAPmacAddress"] = WiFi.softAPmacAddress();
 
   String output;

@@ -1,72 +1,65 @@
-#include <memory>
-#include <string>
-
+#include <Arduino.h>
 #include <ArduinoJson.h>
-#include <ESP8266WebServer.h>
 #include <LittleFS.h>
 
 #include "lumos-arduino/Colors.h"
-#include "lumos-arduino/Patterns.h"
 
 #include "Animations.h"
-#include "Combinations.h"
 #include "Demos.h"
 #include "Handlers.h"
 #include "Network.h"
-#include "Renderer.h"
 #include "Status.h"
 #include "utils.h"
 
 void handleRoot() {
-    long startMS = millis();
+    auto startMS = millis();
     File file = LittleFS.open("/index.html", "r");
-    long openedMS = millis();
+    auto openedMS = millis();
     size_t sent = server.streamFile(file, "text/html");
-    long streamedMS = millis();
+    auto streamedMS = millis();
     file.close();
-    long closedMS = millis();
+    auto closedMS = millis();
     Logger::logf("handleRoot sentBytes=%d open=%dms stream=%dms close=%dms total=%dms\n",
       sent, openedMS - startMS, streamedMS - openedMS, closedMS - streamedMS, closedMS - startMS);
 }
 
 void handleCSS() {
-    long startMS = millis();
+    auto startMS = millis();
     File file = LittleFS.open("/crystal.css", "r");
-    long openedMS = millis();
+    auto openedMS = millis();
     size_t sent = server.streamFile(file, "text/css");
-    long streamedMS = millis();
+    auto streamedMS = millis();
     file.close();
-    long closedMS = millis();
+    auto closedMS = millis();
     Logger::logf("handleCSS sentBytes=%d open=%dms stream=%dms close=%dms total=%dms\n",
       sent, openedMS - startMS, streamedMS - openedMS, closedMS - streamedMS, closedMS - startMS);
 }
 
 void handleJS() {
-    long startMS = millis();
+    auto startMS = millis();
     File file = LittleFS.open("/crystal.js", "r");
-    long openedMS = millis();
+    auto openedMS = millis();
     size_t sent = server.streamFile(file, "text/javascript");
-    long streamedMS = millis();
+    auto streamedMS = millis();
     file.close();
-    long closedMS = millis();
+    auto closedMS = millis();
     Logger::logf("handleJS sentBytes=%d open=%dms stream=%dms close=%dms total=%dms\n",
       sent, openedMS - startMS, streamedMS - openedMS, closedMS - streamedMS, closedMS - startMS);
 }
 
 void handleStatus() {
-    String output = getStatus();
-    server.send(200, "text/json", output);
-    Logger::logf("handleStatus %s", output.c_str());
+  String output = getStatus();
+  server.send(200, "application/json", output);
 }
 
 void handleGetBrightness() {
   // Create the response.
-  StaticJsonDocument<200> doc;
+  JsonDocument doc;
   doc["value"] = getNetworkRenderer()->getBrightness();
   String output;
   serializeJsonPretty(doc, output);
 
-  server.send(200, "text/json", output);
+  server.send(200, "application/json", output);
 }
 
 void handleSetBrightness() {
@@ -76,26 +69,31 @@ void handleSetBrightness() {
   }
 
   String valueStr = server.arg("value");
-  uint8_t value = strtol(valueStr.c_str(), 0, 10);
+  uint8_t value = strtol(valueStr.c_str(), nullptr, 10);
 
   getNetworkRenderer()->setBrightness(value);
 
-  server.send(200, "text/plain", "");
+  server.send(200, "text/plain");
 }
 
 void handleNotFound() {
   String message = "File Not Found\n\n";
   message += "URI: " + server.uri();
-  message += "\nMethod: "+ (server.method() == HTTP_GET) ? "GET" : "POST";
-  message += String("\nArguments: ") + server.args() + "\n";
-  for (uint8_t i = 0; i < server.args(); i++) {
+  message += "\nMethod: ";
+  if (server.method() == HTTP_GET) {
+    message += "GET";
+  } else {
+    message += "POST";
+  }
+  message += String("\nArguments: ") + String(server.args()) + "\n";
+  for (int i = 0; i < server.args(); i++) {
     message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
   }
   server.send(404, "text/plain", message);
 }
 
 void handleCrystal() {
-  StaticJsonDocument<384> doc;
+  JsonDocument doc;
   DeserializationError error = deserializeJson(doc, server.arg("plain"));
   if (error) {
     Logger::logf("handleCrystal failed to parse JSON: %s\n", error.c_str());
@@ -103,9 +101,9 @@ void handleCrystal() {
     return;
   }
 
-  Color upperColor = strtol(doc["upper"]["color"], 0, 16);
-  Color middleColor = strtol(doc["middle"]["color"], 0, 16);
-  Color lowerColor = strtol(doc["lower"]["color"], 0, 16);
+  Color upperColor = strtol(doc["upper"]["color"], nullptr, 16);
+  Color middleColor = strtol(doc["middle"]["color"], nullptr, 16);
+  Color lowerColor = strtol(doc["lower"]["color"], nullptr, 16);
   float upperSpeed = doc["upper"]["speed"];
   float middleSpeed = doc["middle"]["speed"];
   float lowerSpeed = doc["lower"]["speed"];
@@ -120,17 +118,17 @@ void handleCrystal() {
     lowerColor, lowerPeriodSec);
   getNetworkRenderer()->setModel(model);
 
-  server.send(200, "text/plain", "");
+  server.send(200, "text/plain");
 }
 
 void handleFlame() {
   std::shared_ptr<Model> model = std::make_shared<Flame>();
   getNetworkRenderer()->setModel(model);
-  server.send(200, "text/plain", "");
+  server.send(200, "text/plain");
 }
 
 void handleRainbow() {
-  StaticJsonDocument<128> doc;
+  JsonDocument doc;
   DeserializationError error = deserializeJson(doc, server.arg("plain"));
   if (error) {
     Logger::logf("handleRainbow failed to parse JSON: %s\n", error.c_str());
@@ -176,12 +174,12 @@ void handleRainbow() {
   }
 
   auto model = getNetworkRenderer()->getModel();
-  if (model->getName() == "rainbow-rotate") {
+  if (strcmp(model->getName(), "rainbow-rotate") == 0) {
     auto rainbowModel = static_cast<Rotate*>(model.get());
-    if (rainbowModel != NULL) {
+    if (rainbowModel != nullptr) {
       rainbowModel->setSpeed(speed);
       rainbowModel->setModel(gm);
-      server.send(200, "text/plain", "");
+      server.send(200, "text/plain");
       return;
     }
   }
@@ -189,7 +187,7 @@ void handleRainbow() {
   std::shared_ptr<Model> rm = std::make_shared<Rotate>("rainbow-rotate", speed, gm);
   getNetworkRenderer()->setModel(rm);
 
-  server.send(200, "text/plain", "");
+  server.send(200, "text/plain");
 }
 
 void handleSolid() {
@@ -199,28 +197,28 @@ void handleSolid() {
   }
 
   String colorStr = server.arg("color");
-  Color color = strtol(colorStr.c_str(), 0, 16);
+  Color color = strtol(colorStr.c_str(), nullptr, 16);
   std::shared_ptr<Model> model = std::make_shared<SolidModel>("net solid model", color);
   getNetworkRenderer()->setModel(model);
 
-  server.send(200, "text/plain", "");
+  server.send(200, "text/plain");
 }
 
 
 void handleDemo1() {
   auto model = makeDemo1();
   getNetworkRenderer()->setModel(model);
-  server.send(200, "text/plain", "");
+  server.send(200, "text/plain");
 }
 
 void handleDemo2() {
   auto model = makeDemo2();
   getNetworkRenderer()->setModel(model);
-  server.send(200, "text/plain", "");
+  server.send(200, "text/plain");
 }
 
 void handleDemo3() {
   auto model = makeDemo3();
   getNetworkRenderer()->setModel(model);
-  server.send(200, "text/plain", "");
+  server.send(200, "text/plain");
 }
