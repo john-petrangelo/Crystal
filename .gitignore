@@ -7,7 +7,6 @@ sketch.json
 secrets.h
 build
 
-CMakeLists.txt
 cmake-build-debug
 
 .idea
