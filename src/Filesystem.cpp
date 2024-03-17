@@ -26,8 +26,6 @@ void Filesystem::getStatus(JsonObject obj) {
   JsonArray files = obj["files"].to<JsonArray>();
   Dir dir = LittleFS.openDir("/");
   while (dir.next()) {
-    Logger::logf("Dir name=%s size=%d isDir=%d isFile=%d\n",
-                 dir.fileName().c_str(), dir.fileSize(), dir.isDirectory(), dir.isFile());
     JsonObject file = files.add<JsonObject>();
     file["name"] = dir.fileName();
     file["size"] = dir.fileSize();
