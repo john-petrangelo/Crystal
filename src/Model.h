@@ -218,5 +218,22 @@ private:
  * Speed?
  */
 
+/*
+ * Static
+ * Simulate static/random noise.
+ *
+ * Color or BW
+ * Speed? (how often the static updates)
+ */
+
+/*
+ * Knight Rider
+ * Strobe light back and forth
+ *
+ * Color?
+ * Speed?
+ * Velocity shape? (e.g. linear, faster on edges, faster in middle, etc.)
+ */
+
 
 #endif // __MODEL__
