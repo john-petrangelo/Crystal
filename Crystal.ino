@@ -29,7 +29,7 @@ void setup() {
   renderer = new Esp8266_NeoPixelBus_Renderer(PIXELS_COUNT);
 
   Filesystem::setup();
-  Network::setupNetwork(renderer);
+  Network::setup(renderer);
 
   std::shared_ptr<Model> model = makeDarkCrystal();
   renderer->setModel(model);

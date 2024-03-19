@@ -15,7 +15,7 @@ private:
 
     static Renderer *networkRenderer;
 
-    static void setupWiFiStation();
+    static bool setupWiFiStation();
     static void setupWiFiSoftAP();
 
     static void setupHTTP();
@@ -26,7 +26,7 @@ private:
     static void checkLogger();
 
 public:
-    static void setupNetwork(Renderer *renderer);
+    static void setup(Renderer *renderer);
     static void loop();
     static void getStatus(JsonObject obj);
 

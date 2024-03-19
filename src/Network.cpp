@@ -15,6 +15,7 @@
 
 String Network::hostname = "crystal";
 
+// TODO Make automatically fall back to AP mode if home network is not found
 // Setup Wi-Fi in soft AP mode. The default is to join an
 // existing network in STATION mode.
 // #define USE_SOFT_AP
@@ -38,8 +39,8 @@ static String macToString(const unsigned char* mac) {
   return {buf};
 }
 
-// Connect to an existing access point
-void Network::setupWiFiStation() {
+// Connect to an existing access point. Returns true on success, false if did not connect.
+boolean Network::setupWiFiStation() {
   // Set up the renderer with a strobing model for while we connect
   Color c = Colors::makeColor(127, 127, 255);
   std::shared_ptr<Model> triangle = std::make_shared<Triangle>("triangle", 0.4, 1.0, c);
@@ -49,22 +50,24 @@ void Network::setupWiFiStation() {
   // Setup WiFi station mode
   WiFi.mode(WIFI_STA);
   WiFi.begin(SECRET_SSID, SECRET_PASSWORD);
-  while (WiFi.status() != WL_CONNECTED) {
+
+  // While connecting, we get WL_DISCONNECTED for many seconds then we get about one second
+  // of WL_NO_SSID_AVAIL if the SSID is bad or WL_WRONG_PASSWORD if the password is bad.
+  // We'll keep trying until we see a bad SSID or bad password status, or up to 10 seconds total.
+  auto connectStartTime_ms = millis();
+  while ((WiFi.status() == WL_DISCONNECTED) && (millis() - connectStartTime_ms < 10000)) {
     networkRenderer->render();
     delay(10);
   }
-  Serial.println("");
 
-  logServer.begin();
+  // If we're not connected yet, stop trying.
+  if (WiFi.status() != WL_CONNECTED) {
+    WiFi.mode(WIFI_OFF);
+    return false;
+  }
 
-  Serial.print("Network: ");
-  Serial.println(SECRET_SSID);
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP().toString());
-  Serial.print("MAC address: ");
-  Serial.println(WiFi.macAddress());
-  Serial.print("Hostname: ");
-  Serial.println(hostname);
+  // Success
+  return true;
 }
 
 // Create our own network using Soft AP mode
@@ -79,9 +82,6 @@ void Network::setupWiFiSoftAP() {
   WiFi.onSoftAPModeStationDisconnected([](const WiFiEventSoftAPModeStationDisconnected& evt) {
       Logger::logf("Station disconnected: %s\n", macToString(evt.mac).c_str());
   });
-
-
-
 
   Serial.printf("Soft AP status: %s\n", softAPStarted ? "Ready" : "Failed");
   Serial.printf("Soft AP IP address: %s\n", WiFi.softAPIP().toString().c_str());
@@ -183,37 +183,6 @@ void Network::setupOTA() {
     Logger::logMsg("OTA ready\n");
 }
 
-// One-stop to set up all the network components
-void Network::setupNetwork(Renderer *renderer) {
-  // Use this renderer if we ever want to use the LEDs for network status
-  networkRenderer = renderer;
-
-  // If we recognize the MAC address, use a different hostname specific to that MAC address
-  String macAddress = WiFi.macAddress();
-  if (macAddress == "E8:DB:84:98:7F:C3") {
-    hostname = "shard";
-  } else if (macAddress == "84:CC:A8:81:0A:53") {
-    hostname = "crystal";
-  } else if (macAddress == "A8:48:FA:C1:26:81") {
-    hostname = "zircon";
-  } else {
-    hostname = WiFi.hostname();
-  }
-
-#ifdef USE_SOFT_AP
-  setupWiFiSoftAP();
-#else
-  setupWiFiStation();
-#endif
-
-  setupHTTP();
-
-  // No need to set up MDNS if using OTA, the OTA library already sets it up
-  //  setupMDNS();
-  setupOTA();
-
-  Logger::logMsgLn("Network set up complete");
-}
 
 // Check to see if the network logger needs to be setup or torn down
 void Network::checkLogger() {
@@ -232,6 +201,42 @@ void Network::checkLogger() {
     Logger::setStream(&Serial);
     logClient.stop();
   }
+}
+
+// One-stop to set up all the network components
+void Network::setup(Renderer *renderer) {
+  // Use this renderer if we ever want to use the LEDs for network status
+  networkRenderer = renderer;
+
+  // If we recognize the MAC address, use a different hostname specific to that MAC address
+  String macAddress = WiFi.macAddress();
+  if (macAddress == "E8:DB:84:98:7F:C3") {
+    hostname = "shard";
+  } else if (macAddress == "84:CC:A8:81:0A:53") {
+    hostname = "crystal";
+  } else if (macAddress == "A8:48:FA:C1:26:81") {
+    hostname = "zircon";
+  } else {
+    hostname = WiFi.hostname();
+  }
+
+  // First try to connect to a known base station
+  bool networkDidConnect = setupWiFiStation();
+
+  // If didn't connect, then start up our own soft access point
+  if (!networkDidConnect) {
+    setupWiFiSoftAP();
+  }
+
+  setupHTTP();
+
+  // No need to set up MDNS if using OTA, the OTA library already sets it up
+  //  setupMDNS();
+  setupOTA();
+
+  logServer.begin();
+
+  Logger::logMsgLn("Network set up complete");
 }
 
 void Network::loop() {
