@@ -23,10 +23,11 @@ private:
     static void setupMDNS();
     static void setupOTA();
 
+    static void checkLogger();
+
 public:
     static void setupNetwork(Renderer *renderer);
-    static void loopNetwork();
-    static void loopLogger();
+    static void loop();
     static void getStatus(JsonObject obj);
 
     static Renderer* getRenderer() { return networkRenderer; }

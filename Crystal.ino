@@ -14,23 +14,19 @@
 #include "src/Network.h"
 #include "src/Renderer.h"
 #include "src/Status.h"
+#include "src/System.h"
 
 // Configuration information about the NeoPixel strip we are using.
 int const PIXELS_COUNT = 24;
 Renderer *renderer = nullptr;
 
-long const logDurationIntervalMS = 5000;
+long const logDurationIntervalMS = 10000;
 
 void setup() {
-  Serial.begin(115200);
-  Serial.println("Serial started");
+  System::setup();
 
   Serial.println("Creating renderer");
   renderer = new Esp8266_NeoPixelBus_Renderer(PIXELS_COUNT);
-
-#ifdef ENABLE_GDB_STUB
-  gdbstub_init();
-#endif
 
   Filesystem::setup();
   Network::setupNetwork(renderer);
@@ -42,33 +38,15 @@ void setup() {
 void loop() {
   static auto lastUpdateMS = millis();
 
-  auto beforeMS = millis();
+  auto now_ms = millis();
 
-  // Check for network activity.
-  Network::loopNetwork();
-  auto afterNetworkMS = millis();
-
+  Network::loop();
   renderer->render();
-  auto afterRenderMS = millis();
+
   yield();
-  auto afterYieldMS = millis();
 
-  Network::loopLogger();
-  auto afterAllMS = millis();
-
-  if (beforeMS - lastUpdateMS >= logDurationIntervalMS) {
-    lastUpdateMS = beforeMS;
-    Logger::logf("%0.3f Completed loop, total %dms(network %dms, render %dms, yield %dms, logger %dms), free heap %d bytes\n",
-                 (float)afterAllMS / 1000.0,
-                 afterAllMS - beforeMS,
-                 afterNetworkMS - beforeMS,
-                 afterRenderMS - afterNetworkMS,
-                 afterYieldMS - afterRenderMS,
-                 afterAllMS - afterYieldMS,
-                 EspClass::getFreeHeap());
-
+  if (now_ms - lastUpdateMS >= logDurationIntervalMS) {
+    lastUpdateMS = now_ms;
     Logger::logMsgLn(getStatus().c_str());
-    WiFi.printDiag(Serial);
-    Serial.println("");
   }
 }

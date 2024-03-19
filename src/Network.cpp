@@ -215,15 +215,8 @@ void Network::setupNetwork(Renderer *renderer) {
   Logger::logMsgLn("Network set up complete");
 }
 
-void Network::loopNetwork() {
-  // Check for network activity.
-  server.handleClient();
-  MDNS.update();
-  ArduinoOTA.handle();
-}
-
 // Check to see if the network logger needs to be setup or torn down
-void Network::loopLogger() {
+void Network::checkLogger() {
   if (!logClient) {
     // No log client. Check the server for new clients.
     logClient = logServer.available();
@@ -239,6 +232,14 @@ void Network::loopLogger() {
     Logger::setStream(&Serial);
     logClient.stop();
   }
+}
+
+void Network::loop() {
+  // Check for network activity.
+  server.handleClient();
+  MDNS.update();
+  ArduinoOTA.handle();
+  checkLogger();
 }
 
 void Network::getStatus(JsonObject obj) {

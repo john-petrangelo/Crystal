@@ -34,6 +34,7 @@ add_executable(Crystal
         src/Network.cpp
         src/Renderer.cpp
         src/Status.cpp
+        src/System.cpp
         src/lumos-arduino/Colors.cpp
         src/lumos-arduino/Logger.cpp
         src/lumos-arduino/Patterns.cpp
