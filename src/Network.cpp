@@ -15,15 +15,6 @@
 
 String Network::hostname = "crystal";
 
-// TODO Make automatically fall back to AP mode if home network is not found
-// Setup Wi-Fi in soft AP mode. The default is to join an
-// existing network in STATION mode.
-// #define USE_SOFT_AP
-
-// Event handlers for soft AP connect and disconnect events
-static WiFiEventHandler stationConnectedHandler;
-static WiFiEventHandler stationDisconnectedHandler;
-
 // Server used for HTTP requests
 ESP8266WebServer Network::server(80);
 
