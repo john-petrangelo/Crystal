@@ -1,7 +1,4 @@
-#include <math.h>
-
 #include "lumos-arduino/Colors.h"
-#include "lumos-arduino/Logger.h"
 
 #include "Combinations.h"
 #include "utils.h"
@@ -14,6 +11,13 @@ Color Add::render(float pos) {
 
   Color const newColor = Colors::add(colorA, colorB);
   return newColor;
+}
+
+void Add::asJson(JsonObject obj) const {
+  Model::asJson(obj);
+  JsonArray models = obj["models"].to<JsonArray>();
+  modelA->asJson(models.add<JsonObject>());
+  modelB->asJson(models.add<JsonObject>());
 }
 
 /***** WINDOW *****/

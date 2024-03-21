@@ -19,6 +19,7 @@ public:
     void reset() { _startTime_ms = millis(); };
 
     std::shared_ptr<Model> & getModel() { return _model; }
+    std::shared_ptr<Model> const & getModel() const { return _model; }
     void setModel(std::shared_ptr<Model> & model) { _model = model; reset(); }
 
     // TODO Get info

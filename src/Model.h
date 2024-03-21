@@ -2,6 +2,7 @@
 #define __MODEL__
 
 #include <memory>
+#include <ArduinoJson.h>
 
 #include "lumos-arduino/defs.h"
 #include "lumos-arduino/Colors.h"
@@ -21,9 +22,14 @@ class Model {
     virtual Color render(float pos) = 0;
 
     // Returns the name of this model, provided in the constructor.
-    char const * getName() { return name; }
+    char const * getName() const { return name; }
 
-  private:
+    // Adds a description of the model to a JSON object, default behavior just adds the name
+    virtual void asJson(JsonObject obj) const {
+      obj["name"] = String(getName());
+    }
+
+private:
     char const *name;
 };
 typedef std::shared_ptr<Model> ModelPtr;

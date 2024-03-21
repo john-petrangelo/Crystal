@@ -24,6 +24,8 @@ class Add : public Model {
     void update(float timeStamp) { modelA->update(timeStamp); modelB->update(timeStamp); }
     Color render(float pos);
 
+    void asJson(JsonObject obj) const override;
+
   private:
     std::shared_ptr<Model> modelA;
     std::shared_ptr<Model> modelB;
