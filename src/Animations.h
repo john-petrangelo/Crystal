@@ -1,5 +1,4 @@
-#ifndef __ANIMATIONS__
-#define __ANIMATIONS__
+#pragma once
 
 #include <memory>
 
@@ -10,8 +9,9 @@ class Flame : public Model {
   public:
     Flame();
 
-    virtual void update(float timeStamp);
-    Color render(float pos);
+    void update(float timeStamp) override;
+    Color render(float pos) override;
+    void asJson(JsonObject obj) const override;
 
   private:
     Color const C1 = Colors::blend(RED, YELLOW, 50);
@@ -47,11 +47,12 @@ class Pulsate : public Model {
         std::shared_ptr<Model> model)
       : Model(name), model(model), dimmest(dimmest), brightest(brightest),
         dimSecs(dimSecs), brightenSecs(brightenSecs), periodSecs(dimSecs + brightenSecs) {}
-    virtual void update(float timeStamp);
-    virtual Color render(float pos);
+    void update(float timeStamp) override;
+    Color render(float pos) override;
+    void asJson(JsonObject obj) const override;
 
   private:
-    float dimmness = 0.0;
+    float dimness = 0.0;
 
     float const dimmest;
     float const brightest;
@@ -71,10 +72,11 @@ class Rotate : public Model {
       : Model(name), speed(speed), model(model) {}
     virtual void update(float timeStamp);
     virtual Color render(float pos);
+    virtual void asJson(JsonObject obj) const override;
     void setSpeed(float newSpeed) { speed = newSpeed; }
     void setModel(std::shared_ptr<Model> newModel) { model = newModel; }
 
-  private:
+private:
     float speed;
     float rotationOffset = 0.0;
     float prevTimeStamp = 0.0;
@@ -87,5 +89,3 @@ extern std::shared_ptr<Model> makeCrystal(
   Color upperColor, float upperPeriodSec,
   Color middleColor, float middlePeriodSec,
   Color lowerColor, float lowerPeriodSec);
-
-#endif // __ANIMATIONS__

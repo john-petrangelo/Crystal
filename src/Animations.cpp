@@ -40,6 +40,12 @@ Color Rotate::render(float pos) {
   return model->render(rotatedPos);
 }
 
+void Rotate::asJson(JsonObject obj) const {
+  Model::asJson(obj);
+  model->asJson(obj["model"].to<JsonObject>());
+  obj["speed"] = speed;
+}
+
 /***** FLAME *****/
 
 Flame::Flame() : Model("Flame"), lastUpdateMS(-PERIOD_SEC) {
@@ -63,16 +69,24 @@ Color Flame::render(float pos) {
   return model->render(pos);
 }
 
+void Flame::asJson(JsonObject obj) const {
+  Model::asJson(obj);
+  model->asJson(obj["model"].to<JsonObject>());
+  colorAsJson(obj["Color1"].to<JsonObject>(), C1);
+  colorAsJson(obj["Color2"].to<JsonObject>(), C2);
+  colorAsJson(obj["Color3"].to<JsonObject>(), C3);
+}
+
 /***** PULSATE *****/
 
 void Pulsate::update(float timeStamp) {
   timeStamp = fmod(timeStamp, periodSecs);
   if (timeStamp < brightenSecs) {
     // We're getting brighter
-    dimmness = fmap(timeStamp, 0.0, brightenSecs, brightest, dimmest);
+    dimness = fmap(timeStamp, 0.0, brightenSecs, brightest, dimmest);
   } else {
     // We're getting dimmer
-    dimmness = fmap(timeStamp, brightenSecs, periodSecs, dimmest, brightest);
+    dimness = fmap(timeStamp, brightenSecs, periodSecs, dimmest, brightest);
   }
 
   // Update the wrapped model as well.
@@ -81,8 +95,19 @@ void Pulsate::update(float timeStamp) {
 
 Color Pulsate::render(float pos) {
   Color oldColor = model->render(pos);
-  Color newColor = Colors::fade(oldColor, dimmness * 100.0);
+  Color newColor = Colors::fade(oldColor, dimness * 100.0);
   return newColor;
+}
+
+void Pulsate::asJson(JsonObject obj) const {
+  Model::asJson(obj);
+  model->asJson(obj["model"].to<JsonObject>());
+  obj["dimness"] = dimness;
+  obj["dimmest"] = dimmest;
+  obj["brightest"] = brightest;
+  obj["dimSecs"] = dimSecs;
+  obj["brightenSecs"] = brightenSecs;
+  obj["periodSecs"] = periodSecs;
 }
 
 /***** COMPOSITES *****/

@@ -1,6 +1,4 @@
-#ifndef __COMBINE__
-#define __COMBINE__
-
+#pragma once
 #include <memory>
 
 #include "lumos-arduino/defs.h"
@@ -21,14 +19,14 @@ class Add : public Model {
   public:
     Add(char const *name, std::shared_ptr<Model> a, std::shared_ptr<Model> b)
       : Model(name), modelA(a), modelB(b) { }
-    void update(float timeStamp) { modelA->update(timeStamp); modelB->update(timeStamp); }
-    Color render(float pos);
+    void update(float timeStamp) override { modelA->update(timeStamp); modelB->update(timeStamp); }
+    Color render(float pos) override;
 
     void asJson(JsonObject obj) const override;
 
   private:
-    std::shared_ptr<Model> modelA;
-    std::shared_ptr<Model> modelB;
+    ModelPtr modelA;
+    ModelPtr modelB;
 };
 
 /***** WINDOW *****/
@@ -39,16 +37,16 @@ class Add : public Model {
 class WindowModel : public Model {
   public:
     WindowModel(char const *name, float rangeMin, float rangeMax,
-        std::shared_ptr<Model> insideModel, std::shared_ptr<Model> outsideModel)
+        ModelPtr insideModel, ModelPtr outsideModel)
       : Model(name), rangeMin(rangeMin), rangeMax(rangeMax),
-        insideModel(insideModel), outsideModel(outsideModel) { }
-    void update(float timeStamp) { insideModel->update(timeStamp); outsideModel->update(timeStamp); }
-    Color render(float pos);
+        insideModel(std::move(insideModel)), outsideModel(std::move(outsideModel)) { }
+    void update(float timeStamp) override { insideModel->update(timeStamp); outsideModel->update(timeStamp); }
+    Color render(float pos) override;
 
-  private:
+    void asJson(JsonObject obj) const override;
+
+private:
     std::shared_ptr<Model> insideModel;
     std::shared_ptr<Model> outsideModel;
     float rangeMin, rangeMax;
 };
-
-#endif // __COMBINE__

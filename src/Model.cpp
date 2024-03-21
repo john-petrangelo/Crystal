@@ -3,6 +3,13 @@
 #include "Model.h"
 #include "utils.h"
 
+void Model::colorAsJson(JsonObject obj, Color c) {
+  obj["red"] = Colors::getRed(c);
+  obj["green"] = Colors::getGreen(c);
+  obj["blue"] = Colors::getBlue(c);
+}
+
+
 /***** MULTIGRADIENT *****/
 
 MultiGradientModel::MultiGradientModel(char const *name, int count, ...) : Model(name), count(count) {

@@ -29,6 +29,9 @@ class Model {
       obj["name"] = String(getName());
     }
 
+protected:
+    static void colorAsJson(JsonObject obj, Color c);
+
 private:
     char const *name;
 };
@@ -240,6 +243,5 @@ private:
  * Speed?
  * Velocity shape? (e.g. linear, faster on edges, faster in middle, etc.)
  */
-
 
 #endif // __MODEL__
