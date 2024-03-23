@@ -1,6 +1,7 @@
 #include <memory>
 
 #include "Models.h"
+#include "Models/Gradient.h"
 #include "Models/Model.h"
 #include "Models/Pulsate.h"
 #include "Models/Rotate.h"
@@ -8,8 +9,8 @@
 #include "Models/Window.h"
 
 std::shared_ptr<Model> makeDemo1() {
-  auto grad_left = std::make_shared<GradientModel>("grad-left", RED, YELLOW);
-  auto grad_right = std::make_shared<GradientModel>("grad-right", BLUE, GREEN);
+  auto grad_left = std::make_shared<GradientModel>(RED, YELLOW);
+  auto grad_right = std::make_shared<GradientModel>(BLUE, GREEN);
 
   auto rot_left = std::make_shared<Rotate>(-4.0, grad_left);
   auto rot_right = std::make_shared<Rotate>(1.0, grad_right);
@@ -27,7 +28,7 @@ std::shared_ptr<Model> makeDemo1() {
 };
 
 std::shared_ptr<Model> makeDemo2() {
-  auto gradient = std::make_shared<GradientModel>("grad", BLUE, RED);
+  auto gradient = std::make_shared<GradientModel>(BLUE, RED);
   auto rot_grad = std::make_shared<Rotate>(2.0, gradient);
   auto rev_grad = std::make_shared<ReverseModel>(rot_grad);
 
@@ -41,8 +42,8 @@ std::shared_ptr<Model> makeDemo2() {
 }
 
 std::shared_ptr<Model> makeDemo3() {
-  auto gradientRed = std::make_shared<GradientModel>("grad_red", BLACK, RED);
-  auto gradientBlue = std::make_shared<GradientModel>("grad_red", BLUE, BLACK);
+  auto gradientRed = std::make_shared<GradientModel>(BLACK, RED);
+  auto gradientBlue = std::make_shared<GradientModel>(BLUE, BLACK);
   auto sum = std::make_shared<Sum>(gradientRed, gradientBlue);
 
   auto triangle = std::make_shared<Triangle>("green triangle", 0.2, 0.4, GREEN);

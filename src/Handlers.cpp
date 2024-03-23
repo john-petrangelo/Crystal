@@ -5,7 +5,6 @@
 #include "lumos-arduino/Colors.h"
 #include "lumos-arduino/Logger.h"
 
-#include "Models/Crystal.h"
 #include "Demos.h"
 #include "Handlers.h"
 #include "Network.h"
@@ -13,6 +12,7 @@
 #include "utils.h"
 #include "Models/Crystal.h"
 #include "Models/Flame.h"
+#include "Models/Gradient.h"
 #include "Models/Rotate.h"
 #include "Models/Solid.h"
 
@@ -144,37 +144,26 @@ void handleRainbow() {
   float speed = doc["speed"];
 
   ModelPtr gm = nullptr;
-  if (mode == "classic") {
-    gm = std::make_shared<MultiGradientModel>("vivid-gradient",
-      8, RED, VIOLET, INDIGO, BLUE, GREEN, YELLOW, ORANGE, RED);
-  } else if (mode == "tv") {
-    gm = std::make_shared<MultiGradientModel>("tv-gradient",
-      8, 0x0000BF, 0xBF0000, 0xBF00C0, 0x00BF00, 0x00BFBE, 0xBFBF00, 0xBFBFBF, 0x666666);
+  if (mode == "tv") {
+    gm = std::make_shared<MultiGradientModel>(
+            8, 0x0000BF, 0xBF0000, 0xBF00C0, 0x00BF00, 0x00BFBE, 0xBFBF00, 0xBFBFBF, 0x666666);
   } else if (mode == "50s") {
-    gm = std::make_shared<MultiGradientModel>("50s-gradient",
-      6, 0xB26463, 0x79C874, 0x8AC5BD, 0x9A942E, 0x937535, 0xB26463);
+    gm = std::make_shared<MultiGradientModel>(6, 0xB26463, 0x79C874, 0x8AC5BD, 0x9A942E, 0x937535, 0xB26463);
   } else if (mode == "60s") {
-    gm = std::make_shared<MultiGradientModel>("60s-gradient",
-      6, 0xFCD53A, 0xBFC847, 0xF7790B, 0xDC4E80, 0x7BD0EC, 0xFCD53A);
+    gm = std::make_shared<MultiGradientModel>(6, 0xFCD53A, 0xBFC847, 0xF7790B, 0xDC4E80, 0x7BD0EC, 0xFCD53A);
   } else if (mode == "70s") {
-    gm = std::make_shared<MultiGradientModel>("70s-gradient",
-      6, 0xE59F23, 0x925E18, 0x758C32, 0xCE985A, 0xE15623, 0xE59F23);
+    gm = std::make_shared<MultiGradientModel>(6, 0xE59F23, 0x925E18, 0x758C32, 0xCE985A, 0xE15623, 0xE59F23);
   } else if (mode == "80s") {
-    gm = std::make_shared<MultiGradientModel>("80s-gradient",
-      6, 0xFE167A, 0x003BB1, 0x00C8AB, 0xFFC800, 0x8000E2, 0xFE167A);
+    gm = std::make_shared<MultiGradientModel>(6, 0xFE167A, 0x003BB1, 0x00C8AB, 0xFFC800, 0x8000E2, 0xFE167A);
   } else if (mode == "90s") {
-    gm = std::make_shared<MultiGradientModel>("90s-gradient",
-      6, 0xB03A50, 0x7F5F14, 0x065B44, 0x4B183C, 0x6B0A29, 0xB03A50);
+    gm = std::make_shared<MultiGradientModel>(6, 0xB03A50, 0x7F5F14, 0x065B44, 0x4B183C, 0x6B0A29, 0xB03A50);
   } else if (mode == "00s") {
-    gm = std::make_shared<MultiGradientModel>("00s-gradient",
-      6, 0x79AED6, 0x8F8C84, 0xC4A051, 0x69322C, 0x3D4D4C, 0x79AED6);
+    gm = std::make_shared<MultiGradientModel>(6, 0x79AED6, 0x8F8C84, 0xC4A051, 0x69322C, 0x3D4D4C, 0x79AED6);
   } else if (mode == "10s") {
-    gm = std::make_shared<MultiGradientModel>("10s-gradient",
-      6, 0xF0A2A3, 0x62656D, 0x8E6E29, 0x725A47, 0x4F7018, 0xF0A2A3);
+    gm = std::make_shared<MultiGradientModel>(6, 0xF0A2A3, 0x62656D, 0x8E6E29, 0x725A47, 0x4F7018, 0xF0A2A3);
   } else {
-    // We shouldn't get here, but assume "classic" as a default in case we do.
-    gm = std::make_shared<MultiGradientModel>("rainbow-gradient",
-      8, RED, VIOLET, INDIGO, BLUE, GREEN, YELLOW, ORANGE, RED);
+    // We want to get here for "classic". We'll also return a "classic" rainbow for any unexpected mode values.
+    gm = std::make_shared<MultiGradientModel>(8, RED, VIOLET, INDIGO, BLUE, GREEN, YELLOW, ORANGE, RED);
   }
 
   auto model = Network::getRenderer()->getModel();

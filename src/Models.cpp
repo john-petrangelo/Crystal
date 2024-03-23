@@ -3,40 +3,6 @@
 #include "Models.h"
 #include "utils.h"
 
-/***** MULTIGRADIENT *****/
-
-MultiGradientModel::MultiGradientModel(char const *name, int count, ...) : Model(name), count(count) {
-  if (count < 2 || count > MAX_COLORS) {
-    count = 0;
-    return;
-  }
-  
-  // Declare a va_list macro and initialize it with va_start.
-  // Copy all of the colors from varargs to array.
-  va_list argList;
-  va_start(argList, count);
-  for (int i = 0; i < count; i++) {
-    colors[i] = va_arg(argList, Color);
-  }
-  va_end(argList);
-}
-
-Color MultiGradientModel::render(float pos) {
-  float colorPos = pos * (count - 1);
-
-  // Get the two colors flanking the mapped position
-  int lower = floor(colorPos);
-  int upper = ceil(colorPos);
-
-  // Linearly interpolate from the lower color to the upper color. If same, quick return.
-  if (upper == lower) {
-    return colors[lower];
-  }
-
-  float ratio = (colorPos - lower) / (upper - lower);
-  return Colors::blend(colors[lower], colors[upper], 100 * ratio);
-}
-
 /***** MAP *****/
 
 Color MapModel::render(float pos) {

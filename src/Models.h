@@ -1,38 +1,6 @@
 #pragma once
 
-//#include "lumos-arduino/defs.h"
-
 #include "Models/Model.h"
-
-/***** GRADIENT *****/
-
-/*
- * Set a gradient color pattern from one color to another color.
- */
-class GradientModel : public Model {
-  public:
-    GradientModel(char const *name, Color a, Color b) : Model(name), a(a), b(b) { }
-    Color render(float pos) override { return Colors::blend(a, b, 100 * pos); }
-
-  private:
-    Color a, b;
-};
-
-/***** MULTIGRADIENT *****/
-
-/*
- * Set a gradient color pattern. The number of defined color points is variable.
- */
-class MultiGradientModel : public Model {
-  public:
-    MultiGradientModel(char const *name, int count, ...);
-    Color render(float pos) override;
-
-  private:
-    static int const MAX_COLORS = 10;
-    int count;
-    Color colors[MAX_COLORS];
-};
 
 /***** MAP *****/
 
