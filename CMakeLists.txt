@@ -40,5 +40,6 @@ add_executable(Crystal
         src/lumos-arduino/Patterns.cpp
         src/Models/Flame.cpp
         src/Models/Model.cpp
+        src/Models/Pulsate.cpp
         src/Models/Rotate.cpp
 )

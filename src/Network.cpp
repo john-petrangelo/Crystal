@@ -8,11 +8,13 @@
 #include "lumos-arduino/Colors.h"
 #include "lumos-arduino/Logger.h"
 
-// Secrets are defined in another file called "secrets.h" to avoid commiting secrets
+#include "Models/Pulsate.h"
+#include "Models/Solid.h"
+
+// Secrets are defined in another file called "secrets.h" to avoid committing secrets
 // into a public repo. You will need to change the secret values in secrets.h to
 // connect your device to your network.
 #include "../secrets.h"
-#include "Models/Solid.h"
 
 String Network::hostname = "crystal";
 
@@ -35,11 +37,11 @@ static String macToString(const unsigned char* mac) {
 boolean Network::setupWiFiStation() {
   // Set up the renderer with a strobing model for while we connect
   Color c = Colors::makeColor(127, 127, 255);
-  std::shared_ptr<Model> triangle = std::make_shared<Triangle>("triangle", 0.4, 1.0, c);
-  std::shared_ptr<Model> pulsate = std::make_shared<Pulsate>("pulsate", 0.2, 1.0, 0.1, 0.9, triangle);
+  ModelPtr triangle = std::make_shared<Triangle>("triangle", 0.4, 1.0, c);
+  ModelPtr pulsate = std::make_shared<Pulsate>(0.2, 1.0, 0.1, 0.9, triangle);
   networkRenderer->setModel(pulsate);
 
-  // Setup WiFi station mode
+  // Setup Wi-Fi station mode
   WiFi.mode(WIFI_STA);
   WiFi.begin(SECRET_SSID, SECRET_PASSWORD);
 
@@ -83,7 +85,7 @@ void Network::setupWiFiSoftAP() {
   Serial.printf("Soft AP has %d stations connected\n", WiFi.softAPgetStationNum());
 }
 
-// Setup the web server and handlers
+// Set up the web server and handlers
 void Network::setupHTTP() {
   server.on("/", HTTP_GET, handleRoot);
   server.on("/crystal.css", HTTP_GET, handleCSS);
@@ -142,8 +144,6 @@ void Network::setupOTA() {
         gauge->setValue((float)progress / (float)total);
         networkRenderer->render();
       }
-
-
   });
 
   ArduinoOTA.onEnd([]() {
