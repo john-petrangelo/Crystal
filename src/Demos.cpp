@@ -1,7 +1,8 @@
 #include <memory>
 
-#include "Animations.h"
+#include "Models.h"
 #include "Combinations.h"
+#include "Models/Crystal.h"
 #include "Models/Model.h"
 #include "Models/Pulsate.h"
 #include "Models/Rotate.h"

@@ -5,12 +5,13 @@
 #include "lumos-arduino/Colors.h"
 #include "lumos-arduino/Logger.h"
 
-#include "Animations.h"
+#include "Models/Crystal.h"
 #include "Demos.h"
 #include "Handlers.h"
 #include "Network.h"
 #include "Status.h"
 #include "utils.h"
+#include "Models/Crystal.h"
 #include "Models/Flame.h"
 #include "Models/Rotate.h"
 #include "Models/Solid.h"
@@ -115,7 +116,7 @@ void handleCrystal() {
   float middlePeriodSec = fmap(middleSpeed, 0.0, 1.0, 11.0, 1.0);
   float lowerPeriodSec = fmap(lowerSpeed, 0.0, 1.0, 11.0, 1.0);
 
-  auto model = makeCrystal(
+  ModelPtr model = std::make_shared<Crystal>(
     upperColor, upperPeriodSec,
     middleColor, middlePeriodSec,
     lowerColor, lowerPeriodSec);

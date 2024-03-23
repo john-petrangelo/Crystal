@@ -8,9 +8,9 @@
 #include "src/lumos-arduino/Colors.h"
 #include "src/lumos-arduino/Logger.h"
 
-#include "src/Animations.h"
 #include "src/Filesystem.h"
 #include "src/Models.h"
+#include "src/Models/Crystal.h"
 #include "src/Network.h"
 #include "src/Renderer.h"
 #include "src/Status.h"
@@ -31,7 +31,7 @@ void setup() {
   Filesystem::setup();
   Network::setup(renderer);
 
-  std::shared_ptr<Model> model = makeDarkCrystal();
+  ModelPtr model = std::make_shared<Crystal>();
   renderer->setModel(model);
 }
 

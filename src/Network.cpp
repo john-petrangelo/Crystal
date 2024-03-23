@@ -1,13 +1,14 @@
 #include <ArduinoOTA.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
-#include "Animations.h"
+#include "Models.h"
 #include "Filesystem.h"
 #include "Handlers.h"
 #include "Network.h"
 #include "lumos-arduino/Colors.h"
 #include "lumos-arduino/Logger.h"
 
+#include "Models/Crystal.h"
 #include "Models/Pulsate.h"
 #include "Models/Solid.h"
 

@@ -25,7 +25,6 @@ include_directories(
 
 add_executable(Crystal
         Crystal.ino
-        src/Animations.cpp
         src/Combinations.cpp
         src/Demos.cpp
         src/Filesystem.cpp
@@ -38,6 +37,7 @@ add_executable(Crystal
         src/lumos-arduino/Colors.cpp
         src/lumos-arduino/Logger.cpp
         src/lumos-arduino/Patterns.cpp
+        src/Models/Crystal.cpp
         src/Models/Flame.cpp
         src/Models/Model.cpp
         src/Models/Pulsate.cpp
