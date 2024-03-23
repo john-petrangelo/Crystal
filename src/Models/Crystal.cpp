@@ -1,13 +1,14 @@
-#include "Crystal.h"
 #include "../Combinations.h"
 #include "../Models.h"
+#include "Crystal.h"
 #include "Pulsate.h"
 
 Crystal::Crystal(Color upperColor, float upperPeriodSec,
                  Color middleColor, float middlePeriodSec,
                  Color lowerColor, float lowerPeriodSec)
-        : Model("Crystal"), model(makeCrystal(
-        upperColor, upperPeriodSec, middleColor, middlePeriodSec, lowerColor, lowerPeriodSec)) {}
+        : Model("Crystal") {
+  model = makeCrystal(upperColor, upperPeriodSec, middleColor, middlePeriodSec, lowerColor, lowerPeriodSec);
+}
 
 Crystal::Crystal()
         : Model("DarkCrystal"),
@@ -17,8 +18,7 @@ Crystal::Crystal()
 
 void Crystal::asJson(JsonObject obj) const {
   Model::asJson(obj);
-  model->asJson(obj);
-};
+  model->asJson(obj["model"].to<JsonObject>());}
 
 ModelPtr Crystal::makeCrystal(
     Color upperColor, float upperPeriodSec,
