@@ -10,7 +10,7 @@
 
 #include "src/Animations.h"
 #include "src/Filesystem.h"
-#include "src/Model.h"
+#include "src/Models.h"
 #include "src/Network.h"
 #include "src/Renderer.h"
 #include "src/Status.h"

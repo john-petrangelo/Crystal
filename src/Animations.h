@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "lumos-arduino/Colors.h"
-#include "Model.h"
+#include "Models.h"
 
 class Flame : public Model {
   public:
