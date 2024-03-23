@@ -1,8 +1,7 @@
-#include "../Combinations.h"
 #include "../Models.h"
-#include "Sum.h"
 #include "Crystal.h"
 #include "Pulsate.h"
+#include "Sum.h"
 
 Crystal::Crystal(Color upperColor, float upperPeriodSec,
                  Color middleColor, float middlePeriodSec,

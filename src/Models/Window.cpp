@@ -1,17 +1,15 @@
-#include "Combinations.h"
+#include "Window.h"
 
-/***** WINDOW *****/
-
-Color WindowModel::render(float pos) {
+Color Window::render(float pos) {
   if ((rangeMin <= pos) && (pos <= rangeMax)) {
     return insideModel->render(pos);
   }
 
-  // The pos is outside the range
+  // The position is outside the range
   return outsideModel->render(pos);
 }
 
-void WindowModel::asJson(JsonObject obj) const {
+void Window::asJson(JsonObject obj) const {
   Model::asJson(obj);
   insideModel->asJson(obj["insideModel"].to<JsonObject>());
   outsideModel->asJson(obj["outsideModel"].to<JsonObject>());

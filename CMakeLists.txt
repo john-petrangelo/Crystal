@@ -25,7 +25,7 @@ include_directories(
 
 add_executable(Crystal
         Crystal.ino
-        src/Combinations.cpp
+        src/Models/Window.cpp
         src/Demos.cpp
         src/Filesystem.cpp
         src/Handlers.cpp
