@@ -3,18 +3,6 @@
 #include "Models.h"
 #include "utils.h"
 
-/***** MAP *****/
-
-Color MapModel::render(float pos) {
-  if ((inRangeMin <= pos) && (pos <= inRangeMax)) {
-    float outPos = fmap(pos, inRangeMin, inRangeMax, outRangeMin, outRangeMax);
-    return model->render(outPos);
-  }
-
-  // Everything outside the "in range" will be BLACK
-  return BLACK;
-}
-
 /***** TRIANGLE *****/
 
 Color Triangle::render(float pos) {

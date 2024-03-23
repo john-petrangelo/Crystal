@@ -2,7 +2,7 @@
 
 #include "Models.h"
 #include "Models/Gradient.h"
-#include "Models/Model.h"
+#include "Models/Map.h"
 #include "Models/Pulsate.h"
 #include "Models/Rotate.h"
 #include "Models/Sum.h"
@@ -18,22 +18,22 @@ std::shared_ptr<Model> makeDemo1() {
   auto pulsator = std::make_shared<Pulsate>(0.2, 1.0, 2.5, 2.5, rot_left);
 
 
-  auto map_left = std::make_shared<MapModel>("map left", 0.0, 0.2, 0.0, 1.0, pulsator);
-  auto map_right = std::make_shared<MapModel>("map right", 0.2, 1.0, 0.0, 1.0, rot_right);
+  auto map_left = std::make_shared<Map>(0.0, 0.2, 0.0, 1.0, pulsator);
+  auto map_right = std::make_shared<Map>(0.2, 1.0, 0.0, 1.0, rot_right);
 
   auto window = std::make_shared<Window>(0.0, 0.2, map_left, map_right);
   auto rot_window = std::make_shared<Rotate>(-0.5, window);
 
   return rot_window;
-};
+}
 
 std::shared_ptr<Model> makeDemo2() {
   auto gradient = std::make_shared<GradientModel>(BLUE, RED);
   auto rot_grad = std::make_shared<Rotate>(2.0, gradient);
   auto rev_grad = std::make_shared<ReverseModel>(rot_grad);
 
-  auto map_left = std::make_shared<MapModel>("map left", 0.0, 0.5, 0.0, 1.0, rot_grad);
-  auto map_right = std::make_shared<MapModel>("map right", 0.5, 1.0, 0.0, 1.0, rev_grad);
+  auto map_left = std::make_shared<Map>(0.0, 0.5, 0.0, 1.0, rot_grad);
+  auto map_right = std::make_shared<Map>(0.5, 1.0, 0.0, 1.0, rev_grad);
 
   auto window = std::make_shared<Window>(0.0, 0.5, map_left, map_right);
   auto pulsator = std::make_shared<Pulsate>(0.2, 1.0, 2.5, 2.5, window);

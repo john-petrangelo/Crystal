@@ -4,7 +4,7 @@
 
 Flame::Flame() : Model("Flame") {
   auto mgm = std::make_shared<MultiGradientModel>(7, BLACK, C1, C2, C3, C2, C1, BLACK);
-  model = std::make_shared<MapModel>("flame-map",0.0, 1.0, 0.0, 1.0, mgm);
+  model = std::make_shared<Map>(0.0, 1.0, 0.0, 1.0, mgm);
   lastUpdateMS = -PERIOD_SEC;
 }
 

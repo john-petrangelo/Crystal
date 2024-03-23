@@ -2,7 +2,7 @@
 
 #include "../lumos-arduino/Colors.h"
 #include "Model.h"
-#include "../Models.h"
+#include "Map.h"
 
 class Flame : public Model {
   public:
@@ -17,7 +17,7 @@ class Flame : public Model {
     Color const C2 = Colors::blend(RED, YELLOW, 70);
     Color const C3 = Colors::blend(RED, YELLOW, 90);
 
-    std::shared_ptr<MapModel> model{};
+    std::shared_ptr<Map> model{};
 
     float lastUpdateMS;
     float const PERIOD_SEC = 0.110;

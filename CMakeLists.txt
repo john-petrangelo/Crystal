@@ -40,6 +40,7 @@ add_executable(Crystal
         src/Models/Crystal.cpp
         src/Models/Flame.cpp
         src/Models/Gradient.cpp
+        src/Models/Map.cpp
         src/Models/Model.cpp
         src/Models/Pulsate.cpp
         src/Models/Rotate.cpp

@@ -2,30 +2,6 @@
 
 #include "Models/Model.h"
 
-/***** MAP *****/
-
-/*
- * TODO MapModel description
- */
-class MapModel : public Model {
-  public:
-    MapModel(char const *name, float inRangeMin, float inRangeMax, float outRangeMin, float outRangeMax,
-        std::shared_ptr<Model> model)
-      : Model(name), inRangeMin(inRangeMin), inRangeMax(inRangeMax),
-        outRangeMin(outRangeMin), outRangeMax(outRangeMax), model(model) { }
-    void update(float timeStamp) override { model->update(timeStamp); }
-    Color render(float pos) override;
-
-    void setInRange(float inRangeMin, float inRangeMax) {
-      this->inRangeMin = inRangeMin;
-      this->inRangeMax = inRangeMax;
-    }
-
-  private:
-    std::shared_ptr<Model> model;
-    float inRangeMin, inRangeMax, outRangeMin, outRangeMax;
-};
-
 /***** REVERSE *****/
 
 class ReverseModel : public Model {

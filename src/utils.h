@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 /**
  * Re-maps a number from one range to another. That is, a value of fromLow would get mapped to toLow,
  * a value of fromHigh to toHigh, values in-between to values in-between, etc.
