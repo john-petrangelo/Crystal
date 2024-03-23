@@ -1,33 +1,6 @@
 #pragma once
-#include <memory>
-
-#include "lumos-arduino/defs.h"
-#include "lumos-arduino/Colors.h"
-#include "lumos-arduino/Logger.h"
 
 #include "Models/Model.h"
-
-/***** ADD *****/
-
-/*
- * Add two models together, channel by channel, constraining each channel to 1.0
- * 
- * Requires two input models.
- * Position and time independent.
- */
-class Add : public Model {
-  public:
-    Add(char const *name, std::shared_ptr<Model> a, std::shared_ptr<Model> b)
-      : Model(name), modelA(a), modelB(b) { }
-    void update(float timeStamp) override { modelA->update(timeStamp); modelB->update(timeStamp); }
-    Color render(float pos) override;
-
-    void asJson(JsonObject obj) const override;
-
-  private:
-    ModelPtr modelA;
-    ModelPtr modelB;
-};
 
 /***** WINDOW *****/
 

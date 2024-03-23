@@ -2,6 +2,7 @@
 
 #include "Models.h"
 #include "Combinations.h"
+#include "Models/Sum.h"
 #include "Models/Crystal.h"
 #include "Models/Model.h"
 #include "Models/Pulsate.h"
@@ -43,10 +44,10 @@ std::shared_ptr<Model> makeDemo2() {
 std::shared_ptr<Model> makeDemo3() {
   auto gradientRed = std::make_shared<GradientModel>("grad_red", BLACK, RED);
   auto gradientBlue = std::make_shared<GradientModel>("grad_red", BLUE, BLACK);
-  auto sum = std::make_shared<Add>("Add", gradientRed, gradientBlue);
+  auto sum = std::make_shared<Sum>(gradientRed, gradientBlue);
 
   auto triangle = std::make_shared<Triangle>("green triangle", 0.2, 0.4, GREEN);
-  auto sum2 = std::make_shared<Add>("Add2", sum, triangle);
+  auto sum2 = std::make_shared<Sum>(sum, triangle);
 
   return  sum2;
 }

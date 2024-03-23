@@ -42,4 +42,5 @@ add_executable(Crystal
         src/Models/Model.cpp
         src/Models/Pulsate.cpp
         src/Models/Rotate.cpp
+        src/Models/Sum.cpp
 )

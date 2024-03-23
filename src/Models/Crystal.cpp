@@ -1,5 +1,6 @@
 #include "../Combinations.h"
 #include "../Models.h"
+#include "Sum.h"
 #include "Crystal.h"
 #include "Pulsate.h"
 
@@ -43,8 +44,8 @@ ModelPtr Crystal::makeCrystal(
     lowerPulsate = std::make_shared<Pulsate>(0.3, 1.0, lowerPeriodSec/2.0, lowerPeriodSec/2.0, lowerTriangle);
   }
 
-  ModelPtr sum = std::make_shared<Add>("sum", upperPulsate, middlePulsate);
-  sum = std::make_shared<Add>("sum", sum, lowerPulsate);
+  ModelPtr sum = std::make_shared<Sum>(upperPulsate, middlePulsate);
+  sum = std::make_shared<Sum>(sum, lowerPulsate);
 
   return sum;
 }
