@@ -1,7 +1,7 @@
 #ifndef __DEMOS__
 #define __DEMOS__
 
-#include "Model.h"
+#include "Models/Model.h"
 
 /***** DEMOS *****/
 

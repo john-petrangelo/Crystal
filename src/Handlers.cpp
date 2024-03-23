@@ -3,6 +3,7 @@
 #include <LittleFS.h>
 
 #include "lumos-arduino/Colors.h"
+#include "lumos-arduino/Logger.h"
 
 #include "Animations.h"
 #include "Demos.h"
@@ -10,6 +11,9 @@
 #include "Network.h"
 #include "Status.h"
 #include "utils.h"
+#include "Models/Flame.h"
+#include "Models/Rotate.h"
+#include "Models/Solid.h"
 
 void handleRoot() {
     auto startMS = millis();
@@ -48,8 +52,7 @@ void handleJS() {
 }
 
 void handleStatus() {
-  String output = getStatus();
-  Network::getServer().send(200, "application/json", output);
+  Network::getServer().send(200, "application/json", getStatus());
 }
 
 void handleGetBrightness() {
@@ -122,7 +125,7 @@ void handleCrystal() {
 }
 
 void handleFlame() {
-  std::shared_ptr<Model> model = std::make_shared<Flame>();
+  ModelPtr model = std::make_shared<Flame>();
   Network::getRenderer()->setModel(model);
   Network::getServer().send(200, "text/plain");
 }
@@ -139,7 +142,7 @@ void handleRainbow() {
   String mode = doc["mode"];
   float speed = doc["speed"];
 
-  std::shared_ptr<Model> gm = nullptr;
+  ModelPtr gm = nullptr;
   if (mode == "classic") {
     gm = std::make_shared<MultiGradientModel>("vivid-gradient",
       8, RED, VIOLET, INDIGO, BLUE, GREEN, YELLOW, ORANGE, RED);
@@ -184,7 +187,7 @@ void handleRainbow() {
     }
   }
 
-  std::shared_ptr<Model> rm = std::make_shared<Rotate>("rainbow-rotate", speed, gm);
+  ModelPtr rm = std::make_shared<Rotate>(speed, gm);
   Network::getRenderer()->setModel(rm);
 
   Network::getServer().send(200, "text/plain");
@@ -198,7 +201,7 @@ void handleSolid() {
 
   String colorStr = Network::getServer().arg("color");
   Color color = strtol(colorStr.c_str(), nullptr, 16);
-  std::shared_ptr<Model> model = std::make_shared<SolidModel>("net solid model", color);
+  ModelPtr model = std::make_shared<Solid>("net solid model", color);
   Network::getRenderer()->setModel(model);
 
   Network::getServer().send(200, "text/plain");

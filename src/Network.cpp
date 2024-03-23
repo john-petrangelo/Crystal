@@ -12,6 +12,7 @@
 // into a public repo. You will need to change the secret values in secrets.h to
 // connect your device to your network.
 #include "../secrets.h"
+#include "Models/Solid.h"
 
 String Network::hostname = "crystal";
 
@@ -151,7 +152,7 @@ void Network::setupOTA() {
       Logger::setStream(&Serial);
       logClient.stop();
 
-      ModelPtr model = std::make_shared<SolidModel>("solid", BLACK);
+      ModelPtr model = std::make_shared<Solid>("solid", BLACK);
       networkRenderer->setModel(model);
       networkRenderer->render();
   });

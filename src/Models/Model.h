@@ -3,9 +3,7 @@
 #include <ArduinoJson.h>
 #include <memory>
 
-#include "lumos-arduino/defs.h"
-#include "lumos-arduino/Colors.h"
-#include "lumos-arduino/Logger.h"
+#include "../lumos-arduino/Colors.h"
 
 class Model {
   public:

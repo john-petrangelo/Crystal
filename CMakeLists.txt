@@ -30,7 +30,7 @@ add_executable(Crystal
         src/Demos.cpp
         src/Filesystem.cpp
         src/Handlers.cpp
-        src/Model.cpp
+        src/Models.cpp
         src/Network.cpp
         src/Renderer.cpp
         src/Status.cpp
@@ -38,4 +38,7 @@ add_executable(Crystal
         src/lumos-arduino/Colors.cpp
         src/lumos-arduino/Logger.cpp
         src/lumos-arduino/Patterns.cpp
+        src/Models/Flame.cpp
+        src/Models/Model.cpp
+        src/Models/Rotate.cpp
 )

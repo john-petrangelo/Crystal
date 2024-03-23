@@ -5,7 +5,7 @@
 #include "lumos-arduino/Colors.h"
 #include "lumos-arduino/Logger.h"
 
-#include "Model.h"
+#include "Models/Model.h"
 
 /***** ADD *****/
 

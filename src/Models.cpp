@@ -1,4 +1,4 @@
-#include <math.h>
+#include <cmath>
 
 #include "Models.h"
 #include "utils.h"
