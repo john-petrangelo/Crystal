@@ -1,7 +1,7 @@
-#include "../Models.h"
 #include "Crystal.h"
 #include "Pulsate.h"
 #include "Sum.h"
+#include "Triangle.h"
 
 Crystal::Crystal(Color upperColor, float upperPeriodSec,
                  Color middleColor, float middlePeriodSec,
@@ -25,19 +25,19 @@ ModelPtr Crystal::makeCrystal(
     Color middleColor, float middlePeriodSec,
     Color lowerColor, float lowerPeriodSec) {
 
-  ModelPtr upperTriangle = std::make_shared<Triangle>("crystal upper color", 0.6, 1.0, upperColor);
+  ModelPtr upperTriangle = std::make_shared<Triangle>(0.6, 1.0, upperColor);
   ModelPtr upperPulsate = upperTriangle;
   if (upperPeriodSec <= 10.0) {
     upperPulsate = std::make_shared<Pulsate>(0.3, 1.0, upperPeriodSec/2.0, upperPeriodSec/2.0, upperTriangle);
   }
 
-  ModelPtr middleTriangle = std::make_shared<Triangle>("crystal middle color", 0.3, 0.7, middleColor);
+  ModelPtr middleTriangle = std::make_shared<Triangle>(0.3, 0.7, middleColor);
   ModelPtr middlePulsate = middleTriangle;
   if (middlePeriodSec <= 10.0) {
     middlePulsate = std::make_shared<Pulsate>(0.4, 1.0, middlePeriodSec/2.0, middlePeriodSec/2.0, middleTriangle);
   }
 
-  ModelPtr lowerTriangle = std::make_shared<Triangle>("crystal lower color", 0.0, 0.4, lowerColor);
+  ModelPtr lowerTriangle = std::make_shared<Triangle>(0.0, 0.4, lowerColor);
   ModelPtr lowerPulsate = lowerTriangle;
   if (lowerPeriodSec <= 10.0) {
     lowerPulsate = std::make_shared<Pulsate>(0.3, 1.0, lowerPeriodSec/2.0, lowerPeriodSec/2.0, lowerTriangle);

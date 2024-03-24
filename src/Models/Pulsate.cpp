@@ -23,7 +23,6 @@ Color Pulsate::render(float pos) {
 
 void Pulsate::asJson(JsonObject obj) const {
   Model::asJson(obj);
-  obj["dimness"] = dimness;
   obj["dimmest"] = dimmest;
   obj["brightest"] = brightest;
   obj["dimSecs"] = dimSecs;

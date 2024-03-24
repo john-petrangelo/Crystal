@@ -8,9 +8,9 @@
 #include "lumos-arduino/Colors.h"
 #include "lumos-arduino/Logger.h"
 
-#include "Models/Crystal.h"
 #include "Models/Pulsate.h"
 #include "Models/Solid.h"
+#include "Models/Triangle.h"
 
 // Secrets are defined in another file called "secrets.h" to avoid committing secrets
 // into a public repo. You will need to change the secret values in secrets.h to
@@ -38,7 +38,7 @@ static String macToString(const unsigned char* mac) {
 boolean Network::setupWiFiStation() {
   // Set up the renderer with a strobing model for while we connect
   Color c = Colors::makeColor(127, 127, 255);
-  ModelPtr triangle = std::make_shared<Triangle>("triangle", 0.4, 1.0, c);
+  ModelPtr triangle = std::make_shared<Triangle>(0.4, 1.0, c);
   ModelPtr pulsate = std::make_shared<Pulsate>(0.2, 1.0, 0.1, 0.9, triangle);
   networkRenderer->setModel(pulsate);
 

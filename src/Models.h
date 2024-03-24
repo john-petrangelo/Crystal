@@ -2,19 +2,6 @@
 
 #include "Models/Model.h"
 
-/***** TRIANGLE *****/
-
-class Triangle : public Model {
-public: Triangle(char const *name, float rangeMin, float rangeMax, Color color)
-            : Model(name), rangeMin(rangeMin), rangeMax(rangeMax), color(color) { }
-    Color render(float pos) override;
-
-private:
-    float const rangeMin;
-    float const rangeMax;
-    Color const color;
-};
-
 /***** GAUGE *****/
 
 class GaugeModel : public Model {

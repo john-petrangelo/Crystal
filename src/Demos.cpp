@@ -1,12 +1,12 @@
 #include <memory>
 
-#include "Models.h"
 #include "Models/Gradient.h"
 #include "Models/Map.h"
 #include "Models/Pulsate.h"
 #include "Models/Reverse.h"
 #include "Models/Rotate.h"
 #include "Models/Sum.h"
+#include "Models/Triangle.h"
 #include "Models/Window.h"
 
 std::shared_ptr<Model> makeDemo1() {
@@ -47,7 +47,7 @@ std::shared_ptr<Model> makeDemo3() {
   auto gradientBlue = std::make_shared<GradientModel>(BLUE, BLACK);
   auto sum = std::make_shared<Sum>(gradientRed, gradientBlue);
 
-  auto triangle = std::make_shared<Triangle>("green triangle", 0.2, 0.4, GREEN);
+  auto triangle = std::make_shared<Triangle>(0.2, 0.4, GREEN);
   auto sum2 = std::make_shared<Sum>(sum, triangle);
 
   return  sum2;
