@@ -3,8 +3,8 @@
 #include "Model.h"
 
 class Gauge : public Model {
-public: Gauge(char const *name, uint16_t pixelsCount, Color color, float value = 0.0)
-            : Model(name), pixelsCount(pixelsCount), color(color) { setValue(value); }
+public: Gauge(uint16_t pixelsCount, Color color, float value = 0.0)
+            : Model("Gauge"), pixelsCount(pixelsCount), color(color) { setValue(value); }
     Color render(float pos) override;
     void asJson(JsonObject obj) const override;
 

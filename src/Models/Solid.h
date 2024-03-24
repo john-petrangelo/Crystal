@@ -7,7 +7,7 @@
  */
 class Solid : public Model {
   public:
-    Solid(char const *name, Color color) : Model("Solid"), color(color) {}
+    Solid(Color color) : Model("Solid"), color(color) {}
     Color render(float pos) override { return color; }
     void asJson(JsonObject obj) const override { colorAsJson(obj["color"].to<JsonObject>(), color); };
 

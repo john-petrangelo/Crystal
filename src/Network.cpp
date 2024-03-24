@@ -132,7 +132,7 @@ void Network::setupOTA() {
 
     Logger::logf("OTA Start\n");
 
-    ModelPtr gauge = std::make_shared<Gauge>("gauge", 24, GREEN);
+    ModelPtr gauge = std::make_shared<Gauge>(24, GREEN);
     networkRenderer->setModel(gauge);
     networkRenderer->render();
   });
@@ -153,7 +153,7 @@ void Network::setupOTA() {
       Logger::setStream(&Serial);
       logClient.stop();
 
-      ModelPtr model = std::make_shared<Solid>("solid", BLACK);
+      ModelPtr model = std::make_shared<Solid>(BLACK);
       networkRenderer->setModel(model);
       networkRenderer->render();
   });

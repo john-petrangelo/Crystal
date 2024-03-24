@@ -191,7 +191,7 @@ void handleSolid() {
 
   String colorStr = Network::getServer().arg("color");
   Color color = strtol(colorStr.c_str(), nullptr, 16);
-  ModelPtr model = std::make_shared<Solid>("net solid model", color);
+  ModelPtr model = std::make_shared<Solid>(color);
   Network::getRenderer()->setModel(model);
 
   Network::getServer().send(200, "text/plain");
