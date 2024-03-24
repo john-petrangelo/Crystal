@@ -4,6 +4,7 @@
 #include "Models/Gradient.h"
 #include "Models/Map.h"
 #include "Models/Pulsate.h"
+#include "Models/Reverse.h"
 #include "Models/Rotate.h"
 #include "Models/Sum.h"
 #include "Models/Window.h"
@@ -30,7 +31,7 @@ std::shared_ptr<Model> makeDemo1() {
 std::shared_ptr<Model> makeDemo2() {
   auto gradient = std::make_shared<GradientModel>(BLUE, RED);
   auto rot_grad = std::make_shared<Rotate>(2.0, gradient);
-  auto rev_grad = std::make_shared<ReverseModel>(rot_grad);
+  auto rev_grad = std::make_shared<Reverse>(rot_grad);
 
   auto map_left = std::make_shared<Map>(0.0, 0.5, 0.0, 1.0, rot_grad);
   auto map_right = std::make_shared<Map>(0.5, 1.0, 0.0, 1.0, rev_grad);

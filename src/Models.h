@@ -2,18 +2,6 @@
 
 #include "Models/Model.h"
 
-/***** REVERSE *****/
-
-class ReverseModel : public Model {
-  public:
-    ReverseModel(std::shared_ptr<Model> model) : Model("ReverseModel"), model(model) { }
-    void update(float timeStamp) override { model->update(timeStamp); }
-    Color render(float pos) override { return model->render(1.0 - pos); }
-
-  private:
-    std::shared_ptr<Model> model;
-};
-
 /***** TRIANGLE *****/
 
 class Triangle : public Model {
