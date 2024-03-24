@@ -1,15 +1,9 @@
-#ifdef ENABLE_GDB_STUB
-#include <GDBStub.h>
-#endif
-
 #include <Arduino.h>
 #include <NeoPixelBus.h>
 
-#include "src/lumos-arduino/Colors.h"
 #include "src/lumos-arduino/Logger.h"
 
 #include "src/Filesystem.h"
-#include "src/Models.h"
 #include "src/Models/Crystal.h"
 #include "src/Network.h"
 #include "src/Renderer.h"

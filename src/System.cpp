@@ -2,6 +2,10 @@
 
 #include "System.h"
 
+#ifdef ENABLE_GDB_STUB
+#include <GDBStub.h>
+#endif
+
 void System::setup() {
   Serial.begin(115200);
   Serial.println("Serial started");

@@ -1,13 +1,13 @@
 #include <ArduinoOTA.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
-#include "Models.h"
 #include "Filesystem.h"
 #include "Handlers.h"
 #include "Network.h"
 #include "lumos-arduino/Colors.h"
 #include "lumos-arduino/Logger.h"
 
+#include "Models/Gauge.h"
 #include "Models/Pulsate.h"
 #include "Models/Solid.h"
 #include "Models/Triangle.h"
@@ -46,9 +46,9 @@ boolean Network::setupWiFiStation() {
   WiFi.mode(WIFI_STA);
   WiFi.begin(SECRET_SSID, SECRET_PASSWORD);
 
-  // While connecting, we get WL_DISCONNECTED for many seconds then we get about one second
+  // While connecting, we get WL_DISCONNECTED for many seconds, then we get about one second
   // of WL_NO_SSID_AVAIL if the SSID is bad or WL_WRONG_PASSWORD if the password is bad.
-  // We'll keep trying until we see a bad SSID or bad password status, or up to 10 seconds total.
+  // We'll keep trying until we see a bad SSID or bad password status, or up to 10 seconds in total.
   auto connectStartTime_ms = millis();
   while ((WiFi.status() == WL_DISCONNECTED) && (millis() - connectStartTime_ms < 10000)) {
     networkRenderer->render();
@@ -109,7 +109,7 @@ void Network::setupHTTP() {
   Serial.println("HTTP server started");
 }
 
-// Setup an MDNS responder so we can be found by <host>.local instead of IP address
+// Set up an MDNS responder, so we can be found by <host>.local instead of IP address
 void Network::setupMDNS() {
   if (MDNS.begin("hostname")) {
     Serial.println("MDNS responder started: crystal.local");
@@ -132,7 +132,7 @@ void Network::setupOTA() {
 
     Logger::logf("OTA Start\n");
 
-    ModelPtr gauge = std::make_shared<GaugeModel>("gauge", 24, GREEN);
+    ModelPtr gauge = std::make_shared<Gauge>("gauge", 24, GREEN);
     networkRenderer->setModel(gauge);
     networkRenderer->render();
   });
@@ -140,7 +140,7 @@ void Network::setupOTA() {
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
     Logger::logf("OTA Progress: %u%%\r", 100 * progress / total);
 
-      std::shared_ptr<GaugeModel> gauge = std::static_pointer_cast<GaugeModel>(networkRenderer->getModel());
+      std::shared_ptr<Gauge> gauge = std::static_pointer_cast<Gauge>(networkRenderer->getModel());
       if (gauge != nullptr) {
         gauge->setValue((float)progress / (float)total);
         networkRenderer->render();

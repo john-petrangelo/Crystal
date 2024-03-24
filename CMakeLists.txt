@@ -29,7 +29,7 @@ add_executable(Crystal
         src/Demos.cpp
         src/Filesystem.cpp
         src/Handlers.cpp
-        src/Models.cpp
+        src/Models/Gauge.cpp
         src/Network.cpp
         src/Renderer.cpp
         src/Status.cpp

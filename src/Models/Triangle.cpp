@@ -9,11 +9,11 @@ Color Triangle::render(float pos) {
   float midPoint = (rangeMin + rangeMax) / 2;
 
   if (pos <= midPoint) {
-    // Rising side of triangle
+    // Rising side of the triangle
     float ratio = 100.0f * fmap(pos, rangeMin, midPoint, 0.0, 1.0);
     return Colors::blend(BLACK, color, int(ratio));
   } else {
-    // Falling side of triangle
+    // Falling side of the triangle
     float ratio = 100.0f * fmap(pos, midPoint, rangeMax, 1.0, 0.0);
     return Colors::blend(BLACK, color, int(ratio));
   }
