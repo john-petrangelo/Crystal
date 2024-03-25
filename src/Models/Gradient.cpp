@@ -1,5 +1,3 @@
-#include <cmath>
-
 #include "Gradient.h"
 
 Color Gradient::render(float pos) {
