@@ -2,7 +2,7 @@
 
 void Gauge::setValue(float valueIn) {
   value = valueIn;
-  fullColorPixels = value * pixelsCount;
+  fullColorPixels = floor(value * pixelsCount);
   remainder = value - fullColorPixels / pixelsCount;
   colorRatio = remainder * pixelsCount;
   partialColor = Colors::fade(color, (int)(100.0 * colorRatio));
@@ -10,7 +10,7 @@ void Gauge::setValue(float valueIn) {
 
 Color Gauge::render(float pos) {
   // Figure out which is the last pixel we should light.
-  float posPixel = pos * pixelsCount;
+  float posPixel = floor(pos * pixelsCount);
 
   // If this isn't the last pixel, just return the full color.
   if (posPixel < fullColorPixels) {
