@@ -45,10 +45,8 @@ std::shared_ptr<Model> makeDemo2() {
 std::shared_ptr<Model> makeDemo3() {
   auto gradientRed = Gradient::make(BLACK, RED);
   auto gradientBlue = Gradient::make(BLUE, BLACK);
-  auto sum = std::make_shared<Sum>(gradientRed, gradientBlue);
-
   auto triangle = std::make_shared<Triangle>(0.2, 0.4, GREEN);
-  auto sum2 = std::make_shared<Sum>(sum, triangle);
+  auto sum = Sum::make(gradientRed, gradientBlue, triangle);
 
-  return  sum2;
+  return  sum;
 }

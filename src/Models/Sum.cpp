@@ -1,16 +1,24 @@
 #include "Sum.h"
 
-Color Sum::render(float pos) {
-  Color const colorA = modelA->render(pos);
-  Color const colorB = modelB->render(pos);
+void Sum::update(float timeStamp) {
+  for (const ModelPtr& model : models) {
+    model->update(timeStamp);
+  }
+}
 
-  Color const newColor = Colors::add(colorA, colorB);
-  return newColor;
+Color Sum::render(float pos) {
+  Color sum;
+  for (const ModelPtr& model : models) {
+    sum = Colors::add(sum, model->render(pos));
+  }
+
+  return sum;
 }
 
 void Sum::asJson(JsonObject obj) const {
   Model::asJson(obj);
-  JsonArray models = obj["models"].to<JsonArray>();
-  modelA->asJson(models.add<JsonObject>());
-  modelB->asJson(models.add<JsonObject>());
+  JsonArray modelsArray = obj["models"].to<JsonArray>();
+  for (const ModelPtr& model : models) {
+    model->asJson(modelsArray.add<JsonObject>());
+  }
 }
