@@ -1,5 +1,3 @@
-var defaultColor = "#e6e6fa";
-
 window.addEventListener("load", startup, false);
 
 function startup() {
@@ -54,8 +52,8 @@ function startup() {
         colorSpeed.appendChild(clone);
         colorSpeed.querySelector("span").textContent = colorSpeed.dataset.title;
 
-        colorSpeed.querySelector("input[type='color'").id = colorSpeed.id + "-color";
-        colorSpeed.querySelector("input[type='range'").id = colorSpeed.id + "-speed";
+        colorSpeed.querySelector("input[type='color']").id = colorSpeed.id + "-color";
+        colorSpeed.querySelector("input[type='range']").id = colorSpeed.id + "-speed";
         colorSpeed.addEventListener("input", crystalDidChange);
     }
 
@@ -72,7 +70,7 @@ function startup() {
             upDown.querySelector("span").textContent = upDown.dataset.title;
         }
 
-        upDown.querySelector("input[type='range'").id = upDown.id + "-range";
+        upDown.querySelector("input[type='range']").id = upDown.id + "-range";
         upDown.addEventListener("input", rainbowDidChange);
     }
 }
@@ -135,7 +133,7 @@ function crystalDidChange(event) {
 }
 
 function setCrystal(color) {
-    let colorInputs = document.querySelectorAll(".color-speed-container > input[type='color'");
+    let colorInputs = document.querySelectorAll(".color-speed-container > input[type='color']");
     for (let colorInput of colorInputs) {
         colorInput.value = "#" + color;
     }
