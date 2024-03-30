@@ -20,7 +20,7 @@ void Rotate::update(float timeStamp) {
 Color Rotate::render(float pos) {
   // If there's no predecessor, then there's nothing to rotate. Bail out.
   if (model == nullptr) {
-    return RED;
+    return BLACK;
   }
 
   // Add the offset to the position, then correct for wrap-around

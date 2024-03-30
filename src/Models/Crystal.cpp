@@ -43,7 +43,7 @@ ModelPtr Crystal::makeCrystal(
     lowerPulsate = std::make_shared<Pulsate>(0.3, 1.0, lowerPeriodSec/2.0, lowerPeriodSec/2.0, lowerTriangle);
   }
 
-  ModelPtr sum = Sum::make(upperPulsate, middlePulsate, lowerPulsate);
+  ModelPtr sum = Sum::make({upperPulsate, middlePulsate, lowerPulsate});
 
   return sum;
 }

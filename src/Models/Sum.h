@@ -14,22 +14,18 @@ typedef std::shared_ptr<Sum> SumPtr;
 
 class Sum : public Model {
   public:
+    Sum(std::vector<ModelPtr>::const_iterator modelsBegin, std::vector<ModelPtr>::const_iterator modelsEnd)
+      : Model("Sum"), models(modelsBegin, modelsEnd) {}
     Sum(std::initializer_list<ModelPtr> modelArgs) : Model("Sum"), models(modelArgs) {}
     void update(float timeStamp) override;
     Color render(float pos) override;
     void asJson(JsonObject obj) const override;
 
-    static SumPtr make(ModelPtr m1, ModelPtr m2) {
-      return std::make_shared<Sum>(std::initializer_list<ModelPtr>{
-        std::move(m1), std::move(m2)});
+    static SumPtr make(std::vector<ModelPtr>::const_iterator modelsBegin, std::vector<ModelPtr>::const_iterator modelsEnd) {
+      return std::make_shared<Sum>(modelsBegin, modelsEnd);
     }
-    static SumPtr make(ModelPtr m1, ModelPtr m2, ModelPtr m3) {
-      return std::make_shared<Sum>(std::initializer_list<ModelPtr>{
-        std::move(m1), std::move(m2), std::move(m3)});
-    }
-    static SumPtr make(ModelPtr m1, ModelPtr m2, ModelPtr m3, ModelPtr m4) {
-      return std::make_shared<Sum>(std::initializer_list<ModelPtr>{
-        std::move(m1), std::move(m2), std::move(m3), std::move(m4)});
+    static SumPtr make(std::initializer_list<ModelPtr> initList) {
+      return std::make_shared<Sum>(initList);
     }
 
 private:

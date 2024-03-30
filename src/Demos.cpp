@@ -19,8 +19,8 @@ std::shared_ptr<Model> makeDemo1() {
   auto pulsator = std::make_shared<Pulsate>(0.2, 1.0, 2.5, 2.5, rot_left);
 
 
-  auto map_left = std::make_shared<Map>(0.0, 0.2, 0.0, 1.0, pulsator);
-  auto map_right = std::make_shared<Map>(0.2, 1.0, 0.0, 1.0, rot_right);
+  auto map_left = Map::make(0.0, 0.2, 0.0, 1.0, pulsator);
+  auto map_right = Map::make(0.2, 1.0, 0.0, 1.0, rot_right);
 
   auto window = std::make_shared<Window>(0.0, 0.2, map_left, map_right);
   auto rot_window = std::make_shared<Rotate>(-0.5, window);
@@ -33,8 +33,8 @@ std::shared_ptr<Model> makeDemo2() {
   auto rot_grad = std::make_shared<Rotate>(2.0, gradient);
   auto rev_grad = std::make_shared<Reverse>(rot_grad);
 
-  auto map_left = std::make_shared<Map>(0.0, 0.5, 0.0, 1.0, rot_grad);
-  auto map_right = std::make_shared<Map>(0.5, 1.0, 0.0, 1.0, rev_grad);
+  auto map_left = Map::make(0.0, 0.5, 0.0, 1.0, rot_grad);
+  auto map_right = Map::make(0.5, 1.0, 0.0, 1.0, rev_grad);
 
   auto window = std::make_shared<Window>(0.0, 0.5, map_left, map_right);
   auto pulsator = std::make_shared<Pulsate>(0.2, 1.0, 2.5, 2.5, window);
@@ -46,7 +46,7 @@ std::shared_ptr<Model> makeDemo3() {
   auto gradientRed = Gradient::make(BLACK, RED);
   auto gradientBlue = Gradient::make(BLUE, BLACK);
   auto triangle = std::make_shared<Triangle>(0.2, 0.4, GREEN);
-  auto sum = Sum::make(gradientRed, gradientBlue, triangle);
+  auto sum = Sum::make({gradientRed, gradientBlue, triangle});
 
   return  sum;
 }

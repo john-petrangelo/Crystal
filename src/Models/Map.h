@@ -7,6 +7,9 @@
 /*
  * TODO Map description
  */
+class Map;
+typedef std::shared_ptr<Map> MapPtr;
+
 class Map : public Model {
   public:
     Map(float inRangeMin, float inRangeMax, float outRangeMin, float outRangeMax,
@@ -21,6 +24,11 @@ class Map : public Model {
       this->inRangeMin = newInRangeMin;
       this->inRangeMax = newInRangeMax;
     }
+
+    static MapPtr make(float inRangeMin, float inRangeMax, float outRangeMin, float outRangeMax, ModelPtr model) {
+      return std::make_shared<Map>(inRangeMin, inRangeMax, outRangeMin, outRangeMax, std::move(model));
+    }
+
 
   private:
     ModelPtr model;

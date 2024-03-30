@@ -4,7 +4,7 @@
 
 Flame::Flame() : Model("Flame") {
   auto mgm = Gradient::make(BLACK, C1, C2, C3, C2, C1, BLACK);
-  model = std::make_shared<Map>(0.0, 1.0, 0.0, 1.0, mgm);
+  model = Map::make(0.0, 1.0, 0.0, 1.0, mgm);
   lastUpdateMS = -PERIOD_SEC;
 }
 
@@ -26,8 +26,8 @@ Color Flame::render(float pos) {
 
 void Flame::asJson(JsonObject obj) const {
   Model::asJson(obj);
-  model->asJson(obj["model"].to<JsonObject>());
   colorAsJson(obj["Color1"].to<JsonObject>(), C1);
   colorAsJson(obj["Color2"].to<JsonObject>(), C2);
   colorAsJson(obj["Color3"].to<JsonObject>(), C3);
+  model->asJson(obj["model"].to<JsonObject>());
 }

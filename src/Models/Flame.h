@@ -17,7 +17,7 @@ class Flame : public Model {
     Color const C2 = Colors::blend(RED, YELLOW, 70);
     Color const C3 = Colors::blend(RED, YELLOW, 90);
 
-    std::shared_ptr<Map> model{};
+    MapPtr model{};
 
     float lastUpdateMS;
     float const PERIOD_SEC = 0.110;
