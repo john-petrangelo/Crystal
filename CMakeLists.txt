@@ -46,4 +46,6 @@ add_executable(Crystal
         src/Models/Rotate.cpp
         src/Models/Sum.cpp
         src/Models/Triangle.cpp
+        src/Models/WarpCore.cpp
+        src/Models/Shift.cpp
 )

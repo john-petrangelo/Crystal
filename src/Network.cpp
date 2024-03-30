@@ -101,6 +101,7 @@ void Network::setupHTTP() {
   server.on("/rainbow", HTTP_PUT, handleRainbow);
   server.on("/flame", HTTP_GET, handleFlame);
   server.on("/solid", HTTP_GET, handleSolid);
+  server.on("/warpcore", HTTP_GET, handleWarpCore);
   server.on("/demo1", HTTP_GET, handleDemo1);
   server.on("/demo2", HTTP_GET, handleDemo2);
   server.on("/demo3", HTTP_GET, handleDemo3);
@@ -185,7 +186,7 @@ void Network::checkLogger() {
     if (logClient) {
       // We've got a new log client.
       Logger::setStream(&logClient);
-      Logger::logMsgLn("Connected to WiFi logging...");
+      Logger::logf("Connected to %s...\n", hostname.c_str());
     }
   }
 

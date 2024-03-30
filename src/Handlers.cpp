@@ -15,6 +15,7 @@
 #include "Models/Gradient.h"
 #include "Models/Rotate.h"
 #include "Models/Solid.h"
+#include "Models/WarpCore.h"
 
 void handleRoot() {
     auto startMS = millis();
@@ -182,6 +183,15 @@ void handleRainbow() {
   Network::getServer().send(200, "text/plain");
 }
 
+void handleWarpCore() {
+  Logger::logf("Handler - entered handleWarpCore\n");
+  ModelPtr model = WarpCore::make(5.0f/24.0f, 1.0, 3);
+  Logger::logf("Handler - made WarpCore\n");
+  Network::getRenderer()->setModel(model);
+  Network::getServer().send(200, "text/plain");
+  Logger::logf("Handler - leaving handleWarpCore\n");
+}
+
 void handleSolid() {
   if(!Network::getServer().hasArg("color")) {
     Network::getServer().send(400, "text/plain", "Color parameter missing\n");
@@ -195,7 +205,6 @@ void handleSolid() {
 
   Network::getServer().send(200, "text/plain");
 }
-
 
 void handleDemo1() {
   auto model = makeDemo1();
