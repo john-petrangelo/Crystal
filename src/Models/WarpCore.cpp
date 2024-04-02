@@ -3,13 +3,13 @@
 #include "../lumos-arduino/Logger.h"
 #include "../utils.h"
 
+#include "Gradient.h"
 #include "Map.h"
 #include "Shift.h"
 //#include "Solid.h"
 //#include "Sum.h"
 #include "Triangle.h"
 #include "WarpCore.h"
-#include "Gradient.h"
 
 //WarpCore::WarpCore(float size, float speed, int count) :
 //    Model("WarpCore"), size(size), speed(speed), count(count) {
@@ -33,12 +33,12 @@
 //  model = Rotate::make(speed, sum);
 //}
 
-WarpCore::WarpCore(float size, float speed, int count) :
+WarpCore::WarpCore(float size, float speed, int count, int slidein) :
         Model("WarpCore"), size(size), speed(speed), count(count) {
   auto c = Colors::makeColor(95, 95, 255);
 //  auto triangle = Triangle::make(0.0, 1.0, c);
-  auto triangle = Gradient::make(RED, VIOLET, INDIGO, BLUE, GREEN, YELLOW, ORANGE, RED);
-  model = Shift::make(1.0, speed, triangle);
+  auto triangle = Gradient::make(RED, BLUE);
+  model = Shift::make(slidein ? Shift::IN : Shift::OUT, speed, triangle);
 }
 
 Color WarpCore::render(float pos) {

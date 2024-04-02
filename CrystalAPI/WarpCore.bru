@@ -5,7 +5,11 @@ meta {
 }
 
 get {
-  url: http://{{HOST}}/warpcore
+  url: http://{{HOST}}/warpcore?speed=1.0
   body: none
   auth: none
+}
+
+query {
+  speed: 1.0
 }

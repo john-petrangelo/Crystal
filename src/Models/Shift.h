@@ -13,7 +13,12 @@ typedef std::shared_ptr<Shift> ShiftPtr;
 // of zero is stopped. Positive speed shifts up, negative speed shifts down.
 class Shift : public Model {
   public:
-    Shift(float distance, float speed, ModelPtr model);
+    enum INOUT {
+        IN,
+        OUT
+    };
+
+    Shift(INOUT inout, float speed, ModelPtr model);
     void update(float timeStamp) override;
     Color render(float pos) override;
     void asJson(JsonObject obj) const override;
@@ -21,12 +26,12 @@ class Shift : public Model {
     void setSpeed(float newSpeed) { speed = newSpeed; }
     void setModel(std::shared_ptr<Model> newModel) { model = std::move(newModel); }
 
-    static ShiftPtr make(float distance, float speed, const ModelPtr& model) {
-      return std::make_shared<Shift>(distance, speed, model);
+    static ShiftPtr make(INOUT inout, float speed, ModelPtr model) {
+      return std::make_shared<Shift>(inout, speed, std::move(model));
     }
 
 private:
-    float distance;
+    INOUT inout;
     float speed;
     float startTime;
     float endTime;
