@@ -33,3 +33,14 @@ inline float frand(double fmin, double fmax) {
 inline float lerp(float v0, float v1, float t) {
   return v0 + t * (v1 - v0);
 }
+
+/**
+ * Returns the sign of the given value as an integer.
+ * - If the value is negative, returns -1.
+ * - If the value is positive, returns 1.
+ * - If the value is zero, returns 0.
+ */
+template <typename T>
+inline T sign(T val) {
+  return (T(0) < val) - (val < T(0));
+}
