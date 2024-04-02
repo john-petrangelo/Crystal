@@ -14,8 +14,8 @@ typedef std::shared_ptr<Shift> ShiftPtr;
 class Shift : public Model {
   public:
     enum INOUT {
-        IN,
-        OUT
+        SHIFT_IN,
+        SHIFT_OUT
     };
 
     Shift(INOUT inout, float speed, ModelPtr model);
@@ -30,7 +30,21 @@ class Shift : public Model {
       return std::make_shared<Shift>(inout, speed, std::move(model));
     }
 
-private:
+    class In {
+    public:
+        static ShiftPtr make(float speed, ModelPtr model) {
+          return std::make_shared<Shift>(SHIFT_IN, speed, std::move(model));
+        }
+    };
+
+    class Out {
+    public:
+        static ShiftPtr make(float speed, ModelPtr model) {
+          return std::make_shared<Shift>(SHIFT_OUT, speed, std::move(model));
+        }
+    };
+
+  private:
     INOUT inout;
     float speed;
     float startTime;

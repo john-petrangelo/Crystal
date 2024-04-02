@@ -21,11 +21,11 @@ void Shift::update(float timeStamp) {
   if (updateTime > endTime) {
     // Should be done, return completely shifted.
     switch(inout) {
-      case IN:
+      case SHIFT_IN:
         // For shift-in, that means the shift is completely in, so 1.0.
         shiftOffset = 1.0;
         break;
-      case OUT:
+      case SHIFT_OUT:
         // For shift-out, that means the shift just out of range, so -1.01.
         shiftOffset = 1.01;
         break;
@@ -34,7 +34,7 @@ void Shift::update(float timeStamp) {
     shiftOffset = fmap(updateTime, startTime, endTime, 0.0f, 1.0f);
   }
 
-  if (inout == IN) {
+  if (inout == SHIFT_IN) {
     // If sliding in, then invert the offset to start with nothing and fill-in over time.
     shiftOffset = -(1.0f - shiftOffset);
   }

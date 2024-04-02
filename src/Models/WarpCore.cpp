@@ -38,7 +38,11 @@ WarpCore::WarpCore(float size, float speed, int count, int slidein) :
   auto c = Colors::makeColor(95, 95, 255);
 //  auto triangle = Triangle::make(0.0, 1.0, c);
   auto triangle = Gradient::make(RED, BLUE);
-  model = Shift::make(slidein ? Shift::IN : Shift::OUT, speed, triangle);
+  if (slidein) {
+    model = Shift::In::make(speed, triangle);
+  } else {
+    model = Shift::Out::make(speed, triangle);
+  }
 }
 
 Color WarpCore::render(float pos) {
