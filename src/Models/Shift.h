@@ -7,7 +7,7 @@
 class Shift;
 typedef std::shared_ptr<Shift> ShiftPtr;
 
-// An animation that shifts lights to the left or right. Unlike Rotate, does not
+// An animation that shifts lights to the left or right. Unlike Rotate, it does not
 // wrap around once a color reaches the end.
 // The speed of shift is given as a frequency expressed in Hz. A frequency
 // of zero is stopped. Positive speed shifts up, negative speed shifts down.
@@ -18,7 +18,9 @@ class Shift : public Model {
         SHIFT_OUT
     };
 
-    Shift(INOUT inout, float speed, ModelPtr model);
+    Shift(INOUT inout, float speed, ModelPtr model) :
+            Model("Shift"), inout(inout), speed(speed), model(std::move(model)),
+            shiftOffset(1.0f), startTime(0.0f), endTime(0.0f), updateTime(0.0f) {}
     void update(float timeStamp) override;
     Color render(float pos) override;
     void asJson(JsonObject obj) const override;

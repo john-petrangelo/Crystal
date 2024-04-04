@@ -1,15 +1,6 @@
 #include "../utils.h"
-#include "../lumos-arduino/Logger.h"
 
 #include "Shift.h"
-
-#include "../Status.h"
-
-Shift::Shift(INOUT inout, float speed, ModelPtr model) :
-        Model("Shift"), inout(inout), speed(speed), model(std::move(model)),
-        shiftOffset(1.0f), startTime(0.0f), endTime(0.0f), updateTime(0.0f) {
-  // TODO - move to header
-}
 
 void Shift::update(float timeStamp) {
   // The first time we call update() we need to set the initial startTime
