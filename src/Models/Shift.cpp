@@ -3,19 +3,27 @@
 
 #include "Shift.h"
 
+#include "../Status.h"
+
 Shift::Shift(INOUT inout, float speed, ModelPtr model) :
         Model("Shift"), inout(inout), speed(speed), model(std::move(model)),
-        shiftOffset(1.0f), startTime(float(millis()) / 1000.0f), updateTime(0)
-{
-  if (speed == 0.0f) {
-    endTime = startTime;
-  } else {
-    endTime = startTime + 1.0f / fabs(speed);
-  }
+        shiftOffset(1.0f), startTime(0.0f), endTime(0.0f), updateTime(0.0f) {
+  // TODO - move to header
 }
 
 void Shift::update(float timeStamp) {
-  updateTime = startTime + timeStamp;
+  // The first time we call update() we need to set the initial startTime
+  if (startTime == 0.0) {
+    startTime = timeStamp;
+
+    if (speed == 0.0f) {
+      endTime = startTime;
+    } else {
+      endTime = startTime + 1.0f / fabs(speed);
+    }
+  }
+
+  updateTime = timeStamp;
 
   // How far along are we in the shift window?
   if (updateTime > endTime) {

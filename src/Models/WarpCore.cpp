@@ -1,48 +1,58 @@
-#include <vector>
-
 #include "../lumos-arduino/Logger.h"
 #include "../utils.h"
 
 #include "Gradient.h"
 #include "Map.h"
 #include "Shift.h"
-//#include "Solid.h"
-//#include "Sum.h"
-#include "Triangle.h"
+#include "Solid.h"
 #include "WarpCore.h"
+#include "Triangle.h"
 
-//WarpCore::WarpCore(float size, float speed, int count) :
-//    Model("WarpCore"), size(size), speed(speed), count(count) {
-//  Color c = Colors::makeColor(95, 95, 255);
-//  ModelPtr solid = Solid::make(c);
-//  if (size * (float)count >= 1.0) {
-//    // Overflow, warp core breach, just always return the solid color
-//    model = solid;
-//    return;
-//  }
-//
-//  std::vector<ModelPtr> maps;
-//  float const offset = 1.0f / (float)count;
-//  for (int i = 0; i < count; ++i) {
-//    float start = (float)i * offset;
-//    float end = start + size;
-//    maps.push_back(Map::make(start, end, 0.0, 1.0, solid));
-//  }
-//  auto sum = Sum::make(maps.begin(), maps.end());
-//
-//  model = Rotate::make(speed, sum);
-//}
-
-WarpCore::WarpCore(float size, float speed, int count, int slidein) :
-        Model("WarpCore"), size(size), speed(speed), count(count) {
-  auto c = Colors::makeColor(95, 95, 255);
-//  auto triangle = Triangle::make(0.0, 1.0, c);
-  auto triangle = Gradient::make(RED, BLUE);
-  if (slidein) {
-    model = Shift::In::make(speed, triangle);
-  } else {
-    model = Shift::Out::make(speed, triangle);
+WarpCore::WarpCore(float size, float speed) : Model("WarpCore"), size(size), speed(speed) {
+  Color c = Colors::makeColor(95, 95, 255);
+  ModelPtr glow = Triangle::make(0.0, 1.0, c);
+  if (size < 0.0 || size >= 1.0) {
+    // Overflow, warp core breach, just always return the glow color
+    mapModel = glow;
+    return;
   }
+
+  float start = 0.5f - size/2.0f;
+  float end = 0.5f + size/2.0f;
+
+  mapModel = Map::make(start, end, 0.0, 1.0, glow);
+
+  mode = MODE_IN;
+  model = Shift::In::make(speed, mapModel);
+  lastModeChangeTime = 0.0f;
+}
+
+void WarpCore::update(float timeStamp) {
+  float modeDuration = 1.0f / fabs(speed);
+  if (mode == MODE_BETWEEN) {
+    modeDuration /= 2;
+  }
+
+  if (timeStamp - lastModeChangeTime >= modeDuration) {
+    switch (mode) {
+      case MODE_IN:
+        mode = MODE_OUT;
+        model = Shift::Out::make(speed, mapModel);
+        break;
+      case MODE_OUT:
+        mode = MODE_BETWEEN;
+        model = Solid::make(BLACK);
+        break;
+      case MODE_BETWEEN:
+        mode = MODE_IN;
+        model = Shift::In::make(speed, mapModel);
+        break;
+    }
+
+    lastModeChangeTime = timeStamp;
+  }
+
+  model->update(timeStamp);
 }
 
 Color WarpCore::render(float pos) {
@@ -53,6 +63,5 @@ void WarpCore::asJson(JsonObject obj) const {
   Model::asJson(obj);
   obj["size"] = size;
   obj["speed"] = speed;
-  obj["count"] = count;
   model->asJson(obj["model"].to<JsonObject>());
 }

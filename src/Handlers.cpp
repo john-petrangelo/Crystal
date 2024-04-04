@@ -184,8 +184,6 @@ void handleRainbow() {
 }
 
 void handleWarpCore() {
-  Logger::logf("Handler - entered handleWarpCore\n");
-
   if(!Network::getServer().hasArg("speed")) {
     Network::getServer().send(400, "text/plain", "Speed parameter missing\n");
     return;
@@ -193,19 +191,16 @@ void handleWarpCore() {
   String speedStr = Network::getServer().arg("speed");
   float speed = strtof(speedStr.c_str(), nullptr);
 
-  if(!Network::getServer().hasArg("slidein")) {
-    Network::getServer().send(400, "text/plain", "slidein parameter missing\n");
+  if(!Network::getServer().hasArg("size")) {
+    Network::getServer().send(400, "text/plain", "Size parameter missing\n");
     return;
   }
-  String slideinStr = Network::getServer().arg("slidein");
-  int slidein = int(strtol(slideinStr.c_str(), nullptr, 10));
+  String sizeStr = Network::getServer().arg("size");
+  float size = strtof(sizeStr.c_str(), nullptr);
 
-
-  ModelPtr model = WarpCore::make(5.0f/24.0f, speed, 3, slidein);
-  Logger::logf("Handler - made WarpCore\n");
+  ModelPtr model = WarpCore::make(size, speed);
   Network::getRenderer()->setModel(model);
   Network::getServer().send(200, "text/plain");
-  Logger::logf("Handler - leaving handleWarpCore slideinStr=%s slidein=%d\n", slideinStr.c_str(), slidein);
 }
 
 void handleSolid() {
