@@ -10,7 +10,7 @@ void Shift::update(float timeStamp) {
     if (speed == 0.0f) {
       endTime = startTime;
     } else {
-      endTime = startTime + 1.0f / fabs(speed);
+      endTime = startTime + fabs(speed);
     }
   }
 
@@ -19,7 +19,7 @@ void Shift::update(float timeStamp) {
   // How far along are we in the shift window?
   if (updateTime > endTime) {
     // Should be done, return completely shifted.
-    switch(inout) {
+    switch(shiftMode) {
       case SHIFT_IN:
         // For shift-in, that means the shift is completely in, so 1.0.
         shiftOffset = 1.0;
@@ -33,7 +33,7 @@ void Shift::update(float timeStamp) {
     shiftOffset = fmap(updateTime, startTime, endTime, 0.0f, 1.0f);
   }
 
-  if (inout == SHIFT_IN) {
+  if (shiftMode == SHIFT_IN) {
     // If sliding in, then invert the offset to start with nothing and fill-in over time.
     shiftOffset = -(1.0f - shiftOffset);
   }
@@ -65,7 +65,7 @@ Color Shift::render(float pos) {
 void Shift::asJson(JsonObject obj) const {
   Model::asJson(obj);
   obj["speed"] = speed;
-  obj["inout"] = inout;
+  obj["shiftMode"] = shiftMode;
   obj["shiftOffset"] = shiftOffset;
   obj["startTime"] = startTime;
   obj["endTime"] = endTime;

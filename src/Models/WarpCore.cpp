@@ -28,7 +28,7 @@ WarpCore::WarpCore(float size, float speed) : Model("WarpCore"), size(size), spe
 }
 
 void WarpCore::update(float timeStamp) {
-  float modeDuration = 1.0f / fabs(speed);
+  float modeDuration = fabs(speed);
   if (mode == MODE_BETWEEN) {
     modeDuration /= 2;
   }
