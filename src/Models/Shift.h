@@ -20,7 +20,7 @@ class Shift : public Model {
      * @brief Constructor for Shift.
      *
      * @param shiftMode Specifies that the model shifts from the outside in or from the inside out
-     * @param shiftDuration The time taken to shift the complete lengths in or out
+     * @param shiftDuration The time taken to shift the complete length in or out
      *              - Positive values indicate low-to-high shiftDuration
      *              - Negative values indicate high-to-low shiftDuration
      * @param model The model to shift in or out
