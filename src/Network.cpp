@@ -139,7 +139,7 @@ void Network::setupOTA() {
   });
 
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-    Logger::logf("OTA Progress: %u%%\r", 100 * progress / total);
+    Logger::logf("\rOTA Progress: %u%% ", 100 * progress / total);
 
       std::shared_ptr<Gauge> gauge = std::static_pointer_cast<Gauge>(networkRenderer->getModel());
       if (gauge != nullptr) {
