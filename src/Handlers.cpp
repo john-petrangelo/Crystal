@@ -17,6 +17,37 @@
 #include "Models/Solid.h"
 #include "Models/WarpCore.h"
 
+static bool getArgAsLong(const char* paramName, long& paramValue) {
+  if (!Network::getServer().hasArg(paramName)) {
+    Network::getServer().send(400, "text/plain", String(paramName) + " parameter missing\n");
+    return false; // Error occurred
+  }
+  String paramStr = Network::getServer().arg(paramName);
+  paramValue = strtol(paramStr.c_str(), nullptr, 10);
+  Logger::logf("getArgAsLong str=%s value=%ld\n", paramStr.c_str(), paramValue);
+  return true; // No error
+}
+
+static bool getArgAsColor(const char* paramName, Color& paramValue) {
+  if (!Network::getServer().hasArg(paramName)) {
+    Network::getServer().send(400, "text/plain", String(paramName) + " parameter missing\n");
+    return false; // Error occurred
+  }
+  String paramStr = Network::getServer().arg(paramName);
+  paramValue = strtol(paramStr.c_str(), nullptr, 16);
+  return true; // No error
+}
+
+static bool getArgAsFloat(const char* paramName, float& paramValue) {
+  if (!Network::getServer().hasArg(paramName)) {
+    Network::getServer().send(400, "text/plain", String(paramName) + " parameter missing\n");
+    return false; // Error occurred
+  }
+  String paramStr = Network::getServer().arg(paramName);
+  paramValue = strtof(paramStr.c_str(), nullptr);
+  return true; // No error
+}
+
 void handleRoot() {
     auto startMS = millis();
     File file = LittleFS.open("/index.html", "r");
@@ -68,16 +99,17 @@ void handleGetBrightness() {
 }
 
 void handleSetBrightness() {
-  if(!Network::getServer().hasArg("value")) {
-    Network::getServer().send(400, "text/plain", "Value parameter missing\n");
+  long value;
+  Logger::logf("handleSetBrightness\n");
+  if (!getArgAsLong("value", value)) return;
+  Logger::logf("handleSetBrightness value=%ld\n", value);
+  if (value < 0 || value > 255) {
+    Network::getServer().send(400, "text/plain", "invalid value, expected 0-255\n");
     return;
   }
 
-  String valueStr = Network::getServer().arg("value");
-  uint8_t value = strtol(valueStr.c_str(), nullptr, 10);
-
+  // Success
   Network::getRenderer()->setBrightness(value);
-
   Network::getServer().send(200, "text/plain");
 }
 
@@ -184,40 +216,23 @@ void handleRainbow() {
 }
 
 void handleWarpCore() {
-  if(!Network::getServer().hasArg("speed")) {
-    Network::getServer().send(400, "text/plain", "Speed parameter missing\n");
-    return;
-  }
-  String speedStr = Network::getServer().arg("speed");
-  float speed = strtof(speedStr.c_str(), nullptr);
+  float frequency;
+  float size;
+  float dutyCycle;
 
-  if(!Network::getServer().hasArg("size")) {
-    Network::getServer().send(400, "text/plain", "Size parameter missing\n");
-    return;
-  }
-  String sizeStr = Network::getServer().arg("size");
-  float size = strtof(sizeStr.c_str(), nullptr);
+  if (!getArgAsFloat("frequency", frequency)) return;
+  if (!getArgAsFloat("size", size)) return;
+  if (!getArgAsFloat("frequency", dutyCycle)) return;
 
-  if(!Network::getServer().hasArg("dutyCycle")) {
-    Network::getServer().send(400, "text/plain", "DutyCycle parameter missing\n");
-    return;
-  }
-  String dutyCycleStr = Network::getServer().arg("dutyCycle");
-  float dutyCycle = strtof(dutyCycleStr.c_str(), nullptr);
-
-  ModelPtr model = WarpCore::make(size, speed, dutyCycle);
+  ModelPtr model = WarpCore::make(size, frequency, dutyCycle);
   Network::getRenderer()->setModel(model);
   Network::getServer().send(200, "text/plain");
 }
 
 void handleSolid() {
-  if(!Network::getServer().hasArg("color")) {
-    Network::getServer().send(400, "text/plain", "Color parameter missing\n");
-    return;
-  }
+  Color color;
+  if (!getArgAsColor("color", color)) return;
 
-  String colorStr = Network::getServer().arg("color");
-  Color color = strtol(colorStr.c_str(), nullptr, 16);
   ModelPtr model = std::make_shared<Solid>(color);
   Network::getRenderer()->setModel(model);
 
