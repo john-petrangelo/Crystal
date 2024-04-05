@@ -78,3 +78,10 @@ Strobe light back and forth
 Color?
 Speed?
 Velocity shape? (e.g., linear, faster on edges, faster in the middle, etc.)
+
+## Strobe
+Only update the underlying model every nnn ms
+
+Requires input model
+
+Position independent
