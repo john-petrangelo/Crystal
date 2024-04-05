@@ -222,7 +222,7 @@ void handleWarpCore() {
 
   if (!getArgAsFloat("frequency", frequency)) return;
   if (!getArgAsFloat("size", size)) return;
-  if (!getArgAsFloat("frequency", dutyCycle)) return;
+  if (!getArgAsFloat("dutyCycle", dutyCycle)) return;
 
   ModelPtr model = WarpCore::make(size, frequency, dutyCycle);
   Network::getRenderer()->setModel(model);
