@@ -26,8 +26,15 @@ WarpCore::WarpCore(float size, float frequency, float dutyCycle)
   }
 
   // Range of the model to light, from start to end
-  float const start = 0.5f - size/2.0f;
-  float const end = 0.5f + size/2.0f;
+  float start;
+  float end;
+  if (frequency > 0.0f) {
+    start = 0.0f;
+    end = size;
+  } else {
+    start = 1.0f - size;
+    end = 1.0f;
+  }
 
   // Map the glow into the range from start to end
   mapModel = Map::make(start, end, 0.0, 1.0, glow);
@@ -38,13 +45,6 @@ WarpCore::WarpCore(float size, float frequency, float dutyCycle)
   durationDark = fabs(durationTotal - durationLit);
   durationIn = durationLit / (1.0f + size);
   durationOut = durationLit - durationIn;
-  Logger::logf("WarpCore::WarpCore     frequency=%-f\n", frequency);
-  Logger::logf("WarpCore::WarpCore     dutyCycle=%-f\n", dutyCycle);
-  Logger::logf("WarpCore::WarpCore durationTotal=%-f\n", durationTotal);
-  Logger::logf("WarpCore::WarpCore   durationLit=%-f\n", durationLit);
-  Logger::logf("WarpCore::WarpCore  durationDark=%-f\n", durationDark);
-  Logger::logf("WarpCore::WarpCore    durationIn=%-f\n", durationIn);
-  Logger::logf("WarpCore::WarpCore   durationOut=%-f\n", durationOut);
 
   // Set the initial mode and model
   mode = MODE_IN;
@@ -55,27 +55,21 @@ WarpCore::WarpCore(float size, float frequency, float dutyCycle)
 void WarpCore::update(float timeStamp) {
   switch (mode) {
     case MODE_IN:
-//      Logger::logf("WarpCore::update case MODE_IN\n");
       if (timeStamp - lastModeChangeTime >= fabs(durationIn)) {
-        Logger::logf("WarpCore::update mode->OUT\n");
         mode = MODE_OUT;
-        model = Shift::Out::make(-durationOut, mapModel);
+        model = Shift::Out::make(-durationIn, mapModel);
         lastModeChangeTime = timeStamp;
       }
       break;
     case MODE_OUT:
-      Logger::logf("WarpCore::update case MODE_OUT\n");
       if (timeStamp - lastModeChangeTime >= fabs(durationOut)) {
-        Logger::logf("WarpCore::update mode->DARK\n");
         mode = MODE_DARK;
         model = Solid::make(BLACK);
         lastModeChangeTime = timeStamp;
       }
       break;
     case MODE_DARK:
-      Logger::logf("WarpCore::update case MODE_DARK\n");
       if (timeStamp - lastModeChangeTime >= fabs(durationDark)) {
-        Logger::logf("WarpCore::update mode->IN\n");
         mode = MODE_IN;
         model = Shift::In::make(-durationIn, mapModel);;
         lastModeChangeTime = timeStamp;
