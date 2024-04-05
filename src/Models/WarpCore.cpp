@@ -36,8 +36,8 @@ WarpCore::WarpCore(float size, float frequency, float dutyCycle)
   float const durationTotal = 1 / frequency;
   float const durationLit = durationTotal * dutyCycle;
   durationDark = fabs(durationTotal - durationLit);
-  durationIn = durationLit / 2.0f;
-  durationOut = durationLit / 2.0f;
+  durationIn = durationLit / (1.0f + size);
+  durationOut = durationLit - durationIn;
   Logger::logf("WarpCore::WarpCore     frequency=%-f\n", frequency);
   Logger::logf("WarpCore::WarpCore     dutyCycle=%-f\n", dutyCycle);
   Logger::logf("WarpCore::WarpCore durationTotal=%-f\n", durationTotal);
@@ -55,7 +55,7 @@ WarpCore::WarpCore(float size, float frequency, float dutyCycle)
 void WarpCore::update(float timeStamp) {
   switch (mode) {
     case MODE_IN:
-      Logger::logf("WarpCore::update case MODE_IN\n");
+//      Logger::logf("WarpCore::update case MODE_IN\n");
       if (timeStamp - lastModeChangeTime >= fabs(durationIn)) {
         Logger::logf("WarpCore::update mode->OUT\n");
         mode = MODE_OUT;
@@ -81,8 +81,6 @@ void WarpCore::update(float timeStamp) {
         lastModeChangeTime = timeStamp;
       }
       break;
-    default:
-      Logger::logf("WarpCore::update unknown mode=%d\n", mode);
   }
 
   model->update(timeStamp);
