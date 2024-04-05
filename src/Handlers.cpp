@@ -198,7 +198,14 @@ void handleWarpCore() {
   String sizeStr = Network::getServer().arg("size");
   float size = strtof(sizeStr.c_str(), nullptr);
 
-  ModelPtr model = WarpCore::make(size, speed);
+  if(!Network::getServer().hasArg("dutyCycle")) {
+    Network::getServer().send(400, "text/plain", "DutyCycle parameter missing\n");
+    return;
+  }
+  String dutyCycleStr = Network::getServer().arg("dutyCycle");
+  float dutyCycle = strtof(dutyCycleStr.c_str(), nullptr);
+
+  ModelPtr model = WarpCore::make(size, speed, dutyCycle);
   Network::getRenderer()->setModel(model);
   Network::getServer().send(200, "text/plain");
 }

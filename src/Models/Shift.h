@@ -9,8 +9,6 @@ typedef std::shared_ptr<Shift> ShiftPtr;
 
 // An animation that shifts lights to the left or right. Unlike Rotate, it does not
 // wrap around once a color reaches the end.
-// The speed of shift is given as a frequency expressed in Hz. A frequency
-// of zero is stopped. Positive speed shifts up, negative speed shifts down.
 class Shift : public Model {
   public:
     enum SHIFT_MODE {
@@ -22,42 +20,42 @@ class Shift : public Model {
      * @brief Constructor for Shift.
      *
      * @param shiftMode Specifies that the model shifts from the outside in or from the inside out
-     * @param speed The speed of the movement:
-     *              - Positive values indicate low-to-high speed
-     *              - Negative values indicate high-to-low speed
+     * @param shiftDuration The time taken to shift the complete lengths in or out
+     *              - Positive values indicate low-to-high shiftDuration
+     *              - Negative values indicate high-to-low shiftDuration
      * @param model The model to shift in or out
      */
-     Shift(SHIFT_MODE shiftMode, float speed, ModelPtr model) :
-             Model("Shift"), shiftMode(shiftMode), speed(speed), model(std::move(model)),
+     Shift(SHIFT_MODE shiftMode, float shiftDuration, ModelPtr model) :
+             Model("Shift"), shiftMode(shiftMode), shiftDuration(shiftDuration), model(std::move(model)),
              shiftOffset(1.0f), startTime(0.0f), endTime(0.0f), updateTime(0.0f) {}
     void update(float timeStamp) override;
     Color render(float pos) override;
     void asJson(JsonObject obj) const override;
 
-    void setSpeed(float newSpeed) { speed = newSpeed; }
+    void setSpeed(float newSpeed) { shiftDuration = newSpeed; }
     void setModel(std::shared_ptr<Model> newModel) { model = std::move(newModel); }
 
-    static ShiftPtr make(SHIFT_MODE shiftMode, float speed, ModelPtr model) {
-      return std::make_shared<Shift>(shiftMode, speed, std::move(model));
+    static ShiftPtr make(SHIFT_MODE shiftMode, float shiftDuration, ModelPtr model) {
+      return std::make_shared<Shift>(shiftMode, shiftDuration, std::move(model));
     }
 
     class In {
     public:
-        static ShiftPtr make(float speed, ModelPtr model) {
-          return std::make_shared<Shift>(SHIFT_IN, speed, std::move(model));
+        static ShiftPtr make(float shiftDuration, ModelPtr model) {
+          return std::make_shared<Shift>(SHIFT_IN, shiftDuration, std::move(model));
         }
     };
 
     class Out {
     public:
-        static ShiftPtr make(float speed, ModelPtr model) {
-          return std::make_shared<Shift>(SHIFT_OUT, speed, std::move(model));
+        static ShiftPtr make(float shiftDuration, ModelPtr model) {
+          return std::make_shared<Shift>(SHIFT_OUT, shiftDuration, std::move(model));
         }
     };
 
   private:
     SHIFT_MODE shiftMode;
-    float speed;
+    float shiftDuration;
     float startTime;
     float endTime;
     float updateTime;

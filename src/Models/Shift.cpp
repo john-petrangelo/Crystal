@@ -7,10 +7,10 @@ void Shift::update(float timeStamp) {
   if (startTime == 0.0) {
     startTime = timeStamp;
 
-    if (speed == 0.0f) {
+    if (shiftDuration == 0.0f) {
       endTime = startTime;
     } else {
-      endTime = startTime + fabs(speed);
+      endTime = startTime + fabs(shiftDuration);
     }
   }
 
@@ -39,7 +39,7 @@ void Shift::update(float timeStamp) {
   }
 
   // Adjust the offset by the direction (positive speed is low to high).
-  shiftOffset = sign(speed) * shiftOffset;
+  shiftOffset = sign(shiftDuration) * shiftOffset;
 
   // Update the wrapped model as well.
   model->update(timeStamp);
@@ -64,7 +64,7 @@ Color Shift::render(float pos) {
 
 void Shift::asJson(JsonObject obj) const {
   Model::asJson(obj);
-  obj["speed"] = speed;
+  obj["speed"] = shiftDuration;
   obj["shiftMode"] = shiftMode;
   obj["shiftOffset"] = shiftOffset;
   obj["startTime"] = startTime;

@@ -8,48 +8,81 @@
 #include "WarpCore.h"
 #include "Triangle.h"
 
-WarpCore::WarpCore(float size, float speed) : Model("WarpCore"), size(size), speed(speed) {
-  Color c = Colors::makeColor(95, 95, 255);
-  ModelPtr glow = Triangle::make(0.0, 1.0, c);
+WarpCore::WarpCore(float size, float frequency, float dutyCycle)
+  : Model("WarpCore"), size(size), frequency(frequency), dutyCycle(dutyCycle)
+{
+  ModelPtr glow = Triangle::make(0.0, 1.0, coreColor);
+
+  // If the size is too big or too small, then we have a warp core breach, light the whole length
   if (size < 0.0 || size >= 1.0) {
-    // Overflow, warp core breach, just always return the glow color
     mapModel = glow;
     return;
   }
 
-  float start = 0.5f - size/2.0f;
-  float end = 0.5f + size/2.0f;
+  // If the frequency is zero then we don't have a functioning Warp Core, just glow
+  if (frequency == 0.0) {
+    mapModel = glow;
+    return;
+  }
 
+  // Range of the model to light, from start to end
+  float const start = 0.5f - size/2.0f;
+  float const end = 0.5f + size/2.0f;
+
+  // Map the glow into the range from start to end
   mapModel = Map::make(start, end, 0.0, 1.0, glow);
 
+  // Calculate how long to display and shift the lights as well as how long to stay dark between cycles
+  float const durationTotal = 1 / frequency;
+  float const durationLit = durationTotal * dutyCycle;
+  durationDark = fabs(durationTotal - durationLit);
+  durationIn = durationLit / 2.0f;
+  durationOut = durationLit / 2.0f;
+  Logger::logf("WarpCore::WarpCore     frequency=%-f\n", frequency);
+  Logger::logf("WarpCore::WarpCore     dutyCycle=%-f\n", dutyCycle);
+  Logger::logf("WarpCore::WarpCore durationTotal=%-f\n", durationTotal);
+  Logger::logf("WarpCore::WarpCore   durationLit=%-f\n", durationLit);
+  Logger::logf("WarpCore::WarpCore  durationDark=%-f\n", durationDark);
+  Logger::logf("WarpCore::WarpCore    durationIn=%-f\n", durationIn);
+  Logger::logf("WarpCore::WarpCore   durationOut=%-f\n", durationOut);
+
+  // Set the initial mode and model
   mode = MODE_IN;
-  model = Shift::In::make(speed, mapModel);
+  model = Shift::In::make(-durationIn, mapModel);
   lastModeChangeTime = 0.0f;
 }
 
 void WarpCore::update(float timeStamp) {
-  float modeDuration = fabs(speed);
-  if (mode == MODE_BETWEEN) {
-    modeDuration /= 2;
-  }
-
-  if (timeStamp - lastModeChangeTime >= modeDuration) {
-    switch (mode) {
-      case MODE_IN:
+  switch (mode) {
+    case MODE_IN:
+      Logger::logf("WarpCore::update case MODE_IN\n");
+      if (timeStamp - lastModeChangeTime >= fabs(durationIn)) {
+        Logger::logf("WarpCore::update mode->OUT\n");
         mode = MODE_OUT;
-        model = Shift::Out::make(speed, mapModel);
-        break;
-      case MODE_OUT:
-        mode = MODE_BETWEEN;
+        model = Shift::Out::make(-durationOut, mapModel);
+        lastModeChangeTime = timeStamp;
+      }
+      break;
+    case MODE_OUT:
+      Logger::logf("WarpCore::update case MODE_OUT\n");
+      if (timeStamp - lastModeChangeTime >= fabs(durationOut)) {
+        Logger::logf("WarpCore::update mode->DARK\n");
+        mode = MODE_DARK;
         model = Solid::make(BLACK);
-        break;
-      case MODE_BETWEEN:
+        lastModeChangeTime = timeStamp;
+      }
+      break;
+    case MODE_DARK:
+      Logger::logf("WarpCore::update case MODE_DARK\n");
+      if (timeStamp - lastModeChangeTime >= fabs(durationDark)) {
+        Logger::logf("WarpCore::update mode->IN\n");
         mode = MODE_IN;
-        model = Shift::In::make(speed, mapModel);
-        break;
-    }
-
-    lastModeChangeTime = timeStamp;
+        model = Shift::In::make(-durationIn, mapModel);;
+        lastModeChangeTime = timeStamp;
+      }
+      break;
+    default:
+      Logger::logf("WarpCore::update unknown mode=%d\n", mode);
   }
 
   model->update(timeStamp);
@@ -62,6 +95,21 @@ Color WarpCore::render(float pos) {
 void WarpCore::asJson(JsonObject obj) const {
   Model::asJson(obj);
   obj["size"] = size;
-  obj["speed"] = speed;
+  obj["frequency"] = frequency;
+  obj["dutyCycle"] = dutyCycle;
+  switch(mode) {
+    case MODE_IN:
+      obj["mode"] = "IN";
+      break;
+    case MODE_OUT:
+      obj["mode"] = "OUT";
+      break;
+    case MODE_DARK:
+      obj["mode"] = "DARK";
+      break;
+  }
+  obj["durationIn"] = durationIn;
+  obj["durationOut"] = durationOut;
+  obj["durationDark"] = durationDark;
   model->asJson(obj["model"].to<JsonObject>());
 }
