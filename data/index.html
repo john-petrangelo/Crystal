@@ -71,6 +71,7 @@
         <button id="crystal-button">Crystal</button>
         <button id="rainbow-button" onclick="fetch('/rainbow', {method:'GET'})">Rainbow</button>
         <button id="flame-button" onclick="fetch('/flame', {method:'GET'})">Flame</button>
+        <button id="warp-core-button">Warp Core<span class="warpWave"></span></button>
         <button id="other-button">Other</button>
       </div>
     </div>
@@ -116,6 +117,10 @@
           <button id="rb-10s-button" onclick="setRainbow('10s')">'10s</button>
         </div>
       </div>
+    </div>
+
+    <div id="warp-core-subpage" class="subpage" data-buttonid="warp-core-button" data-title="Warp Core">
+      Warp Core controls go here
     </div>
 
     <div id="other-subpage" class="subpage" data-buttonid="other-button" data-title="Other">

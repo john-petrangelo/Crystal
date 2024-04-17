@@ -51,6 +51,25 @@ button {
 #flame-button {
     background: radial-gradient(ellipse at bottom, #ff8000, orange, yellow 90%);
 }
+@keyframes warpAnim {
+  0%, 33% { top: -15px; }
+  100% { top: 100%; }
+}
+.warpWave {
+  position: absolute;
+  border-radius: 40%;
+  height: 10px;
+  left: 0; right: 0;
+  width: 40%;
+  margin: auto;
+  background-color: rgba(32, 128, 255, 0.6);
+  animation: warpAnim 1.0s linear infinite;
+}
+#warp-core-button {
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(to right, #111, 20%, #601808, 80%, #111);
+}
 #other-button {
   background: #303030;
 }
