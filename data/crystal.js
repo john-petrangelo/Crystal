@@ -1,8 +1,8 @@
 window.addEventListener("load", startup, false);
 
 function startup() {
-    var brightness = document.getElementById("brightness")
-    var brightnessBox = document.getElementById("brightness-box")
+    const brightness = document.getElementById("brightness");
+    const brightnessBox = document.getElementById("brightness-box");
     fetch("/brightness")
       .then(response => {
         if (!response.ok) {
@@ -14,7 +14,7 @@ function startup() {
           brightness.value = data.value;
           brightnessBox.style.visibility = "visible";
       })
-      .catch(error => {
+      .catch(() => {
           brightness.value = 255;
           brightnessBox.style.visibility = "visible";
       });
@@ -83,13 +83,13 @@ function snapMin(value, minAllowed) {
     return value;
 }
 
-function brightnessDidChange(event) {
+async function brightnessDidChange(event) {
     event.target.value = snapMin(event.target.value, 40);
-    url = "/brightness?value=" + event.target.value;
-    fetch(url, {method:'PUT'});
+    let url = `/brightness?value=${event.target.value}`;
+    await fetch(url, {method:'PUT'});
 }
 
-var crystalData = {
+const crystalData = {
     upper: {
         color: "ff00d0",
         speed: 0.5
@@ -104,7 +104,7 @@ var crystalData = {
     }
 };
 
-function crystalDidChange(event) {
+async function crystalDidChange(event) {
     switch (event.target.id) {
         case "crystal-upper-color":
             crystalData.upper.color = event.target.value.substring(1);
@@ -129,10 +129,10 @@ function crystalDidChange(event) {
             break;
     }
 
-    fetch('/crystal', {method: 'PUT', body: JSON.stringify(crystalData)});
+    await fetch('/crystal', {method: 'PUT', body: JSON.stringify(crystalData)});
 }
 
-function setCrystal(color) {
+async function setCrystal(color) {
     let colorInputs = document.querySelectorAll(".color-speed-container > input[type='color']");
     for (let colorInput of colorInputs) {
         colorInput.value = "#" + color;
@@ -142,15 +142,15 @@ function setCrystal(color) {
     crystalData.middle.color = color;
     crystalData.lower.color = color;
 
-    fetch('/crystal', {method: 'PUT', body: JSON.stringify(crystalData)});
+    await fetch('/crystal', {method: 'PUT', body: JSON.stringify(crystalData)});
 }
 
-var rainbowData = {
+let rainbowData = {
     mode: "classic",
     speed: 0.3
 };
 
-function rainbowDidChange(event) {
+async function rainbowDidChange(event) {
     switch (event.target.id) {
         case "rb-movement-range":
             event.target.value = snapMin(event.target.value, 0.1);
@@ -158,10 +158,10 @@ function rainbowDidChange(event) {
             break;
     }
 
-    fetch('/rainbow', {method: 'PUT', body: JSON.stringify(rainbowData)});
+    await fetch('/rainbow', {method: 'PUT', body: JSON.stringify(rainbowData)});
 }
 
-function setRainbow(mode) {
+async function setRainbow(mode) {
     rainbowData.mode = mode;
-    fetch('/rainbow', {method: 'PUT', body: JSON.stringify(rainbowData)});
+    await fetch('/rainbow', {method: 'PUT', body: JSON.stringify(rainbowData)});
 }
