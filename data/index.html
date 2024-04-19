@@ -120,7 +120,13 @@
     </div>
 
     <div id="warp-core-subpage" class="subpage" data-buttonid="warp-core-button" data-title="Warp Core">
-      Warp Core controls go here
+      <button id="warp-core-engage-button" class="center" onclick="fetch('/warpcore?frequency=0.6&size=0.6&dutyCycle=0.6', {method:'GET'})">Engage!</button>
+      <hr>
+      <span class="section-title">Advanced Settings</span>
+      DRAFT
+      <div id="warp-core-frequency" class="up-down"></div>
+      <div id="warp-core-size" class="up-down"></div>
+      <div id="warp-core-duty-cycle" class="up-down"></div>
     </div>
 
     <div id="other-subpage" class="subpage" data-buttonid="other-button" data-title="Other">
