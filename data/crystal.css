@@ -49,7 +49,7 @@ button {
     rgba(0, 0, 0, 0) 70%);
   }
 #flame-button {
-    background: radial-gradient(ellipse at bottom, #ff8000, orange, yellow 90%);
+    background: radial-gradient(ellipse at bottom, #f80, orange, yellow 90%);
 }
 @keyframes warpAnim {
   0%, 33% { top: -15px; }
@@ -62,16 +62,16 @@ button {
   left: 0; right: 0;
   width: 40%;
   margin: auto;
-  background-color: rgba(32, 128, 255, 0.6);
+  background: radial-gradient(ellipse, #6AF, 40%, #555);
   animation: warpAnim 1.0s linear infinite;
 }
 #warp-core-button {
   overflow: hidden;
   position: relative;
-  background: linear-gradient(to right, #111, 20%, #601808, 80%, #111);
+  background: linear-gradient(to right, #333, 10%, #333, 30%, #87B, 70%, #333, 90%, #333);
 }
 #other-button {
-  background: #303030;
+  background: #333;
 }
 
 #dark-crystal-button {
@@ -80,28 +80,28 @@ button {
   margin-bottom: 3px;
 }
 #ruby-button {
-  background: radial-gradient(ellipse 100% 80%, #9b111e, white);
+  background: radial-gradient(ellipse 100% 80%, #A12, white);
 }
 #emerald-button {
-  background: radial-gradient(ellipse 100% 80%, #10D026, white);
+  background: radial-gradient(ellipse 100% 80%, #1D3, white);
 }
 #saphire-button {
-  background: radial-gradient(ellipse 100% 80%, #1020A0, white);
+  background: radial-gradient(ellipse 100% 80%, #12A, white);
 }
 #topaz-button {
-  background: radial-gradient(ellipse 100% 80%, #ffa000, white);
+  background: radial-gradient(ellipse 100% 80%, #FA0, white);
 }
 #turquoise-button {
-  background: radial-gradient(ellipse 100% 80%, #00d0d0, white);
+  background: radial-gradient(ellipse 100% 80%, #0DD, white);
 }
 #diamond-button {
-  background: radial-gradient(ellipse 100% 80%, white,#b0b0b0);
+  background: radial-gradient(ellipse 100% 80%, white,#BBB);
 }
 #amethyst-button {
-  background: radial-gradient(ellipse 100% 80%, #9966cc, white);
+  background: radial-gradient(ellipse 100% 80%, #95B, white);
 }
 #jade-button {
-  background: radial-gradient(ellipse 100% 80%, #40A630, white);
+  background: radial-gradient(ellipse 100% 80%, #4A3, white);
 }
 #lapis-button {
   background: radial-gradient(ellipse 100% 80%, #26619c, white);
