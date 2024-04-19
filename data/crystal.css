@@ -1,7 +1,7 @@
 body {
-  background-color: #e6e6fa;
   color: purple;
   font-family: 'Tahoma', sans-serif;
+  background-color: lavender !important;
 }
 .title {
   font-family: 'Brush Script MT', cursive;
@@ -19,9 +19,9 @@ button {
   width: calc(33% - 6px);
   height: 60px;
   color: white;
-  text-shadow: 0 0 4px #000000;
+  background: #333;
+  text-shadow: 0 0 4px #000;
   font-size : medium;
-  background-color: #606060;
   text-align: center;
   border-radius: 15px;
   border:1px solid darkslategray;
@@ -51,6 +51,7 @@ button {
 #flame-button {
     background: radial-gradient(ellipse at bottom, #f80, orange, yellow 90%);
 }
+
 @keyframes warpAnim {
   0%, 33% { top: -15px; }
   100% { top: 100%; }
@@ -58,7 +59,7 @@ button {
 .warpWave {
   position: absolute;
   border-radius: 40%;
-  height: 10px;
+  height: 15px;
   left: 0; right: 0;
   width: 40%;
   margin: auto;
@@ -69,9 +70,6 @@ button {
   overflow: hidden;
   position: relative;
   background: linear-gradient(to right, #333, 10%, #333, 30%, #87B, 70%, #333, 90%, #333);
-}
-#other-button {
-  background: #333;
 }
 
 #dark-crystal-button {
@@ -85,7 +83,7 @@ button {
 #emerald-button {
   background: radial-gradient(ellipse 100% 80%, #1D3, white);
 }
-#saphire-button {
+#sapphire-button {
   background: radial-gradient(ellipse 100% 80%, #12A, white);
 }
 #topaz-button {
