@@ -22,18 +22,12 @@ public:
     std::shared_ptr<Model> const & getModel() const { return _model; }
     void setModel(std::shared_ptr<Model> & model) { _model = model; reset(); }
 
-    // TODO Get info
-
     virtual void setPixel(int i, Color c) = 0;
     virtual void show() = 0;
     virtual int pixelsCount() const = 0;
 
     virtual uint8_t getBrightness() const = 0;
     virtual void setBrightness(uint8_t brightness) = 0;
-
-    float getUpdateDuration() const { return updateDuration; }
-    float getRenderDuration() const { return renderDuration; }
-    float getShowDuration() const { return showDuration; }
 
     virtual void getStatus(JsonObject obj) const;
 };

@@ -199,20 +199,19 @@ void handleRainbow() {
   }
 
   auto model = Network::getRenderer()->getModel();
-  if (strcmp(model->getName(), "rainbow-rotate") == 0) {
+  if (strcmp(model->getName(), "RotatingRainbow") == 0) {
+    // Just update the current rainbow model
     auto rainbowModel = static_cast<Rotate*>(model.get());
-    if (rainbowModel != nullptr) {
-      rainbowModel->setSpeed(speed);
-      rainbowModel->setModel(gm);
-      Network::getServer().send(200, "text/plain");
-      return;
-    }
+    rainbowModel->setSpeed(speed);
+    rainbowModel->setModel(gm);
+    Network::getServer().send(200, "text/plain");
+  } else {
+    // Create a new model
+    ModelPtr rm = std::make_shared<Rotate>("RotatingRainbow", speed, gm);
+    Network::getRenderer()->setModel(rm);
+
+    Network::getServer().send(200, "text/plain");
   }
-
-  ModelPtr rm = std::make_shared<Rotate>(speed, gm);
-  Network::getRenderer()->setModel(rm);
-
-  Network::getServer().send(200, "text/plain");
 }
 
 void handleWarpCore() {

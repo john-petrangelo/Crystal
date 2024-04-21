@@ -34,9 +34,9 @@ void Renderer::render() {
 }
 
 void Renderer::getStatus(JsonObject obj) const {
-  obj["updateDuration"] = Network::getRenderer()->getUpdateDuration();
-  obj["renderDuration"] = Network::getRenderer()->getRenderDuration();
-  obj["showDuration"] = Network::getRenderer()->getShowDuration();
+  obj["updateDuration"] = updateDuration;
+  obj["renderDuration"] = renderDuration;
+  obj["showDuration"] = showDuration;
 
   getModel()->asJson(obj["model"].to<JsonObject>());
 }
