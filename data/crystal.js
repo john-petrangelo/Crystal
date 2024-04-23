@@ -45,25 +45,37 @@ function startup() {
         }
     }
 
-    let colorSpeeds = document.getElementsByClassName("color-speed");
+    let crystalColorSpeedIDs = ["crystal-upper", "crystal-middle", "crystal-lower"];
+    setupColorSpeeds(crystalColorSpeedIDs, crystalDidChange);
+    document.querySelector("#crystal-upper-speed").value = crystalData.upper.speed;
+    document.querySelector("#crystal-middle-speed").value = crystalData.middle.speed;
+    document.querySelector("#crystal-lower-speed").value = crystalData.lower.speed;
+
+    let rainbowUpDownIDs = ["rb-movement"];
+    setupUpDowns(rainbowUpDownIDs, rainbowDidChange);
+
+    let warpCoreColorSpeedIDs = ["warp-core-color-speed"];
+    setupColorSpeeds(warpCoreColorSpeedIDs, warpCoreDidChange);
+    document.querySelector("#warp-core-color-speed").value = warpCoreData.speed;
+}
+
+function setupColorSpeeds(ids, listener) {
     let colorSpeedTemplate = document.getElementById("color-speed-template");
-    for (let colorSpeed of colorSpeeds) {
+    for (let id of ids) {
+        let colorSpeed = document.getElementById(id);
         let clone = colorSpeedTemplate.content.cloneNode(true);
         colorSpeed.appendChild(clone);
         colorSpeed.querySelector("span").textContent = colorSpeed.dataset.title;
 
         colorSpeed.querySelector("input[type='color']").id = colorSpeed.id + "-color";
         colorSpeed.querySelector("input[type='range']").id = colorSpeed.id + "-speed";
-        colorSpeed.addEventListener("input", crystalDidChange);
+        colorSpeed.addEventListener("input", listener);
     }
-
-    document.querySelector("#crystal-upper-speed").value = crystalData.upper.speed;
-    document.querySelector("#crystal-middle-speed").value = crystalData.middle.speed;
-    document.querySelector("#crystal-lower-speed").value = crystalData.lower.speed;
-
-    let upDowns = document.getElementsByClassName("up-down");
+}
+function setupUpDowns(rainbowUpDownIDs, listener) {
     let upDownTemplate = document.getElementById("up-down-template");
-    for (let upDown of upDowns) {
+    for (let id of rainbowUpDownIDs) {
+        let upDown = document.getElementById(id);
         let clone = upDownTemplate.content.cloneNode(true);
         upDown.appendChild(clone);
         if (upDown.dataset.title) {
@@ -71,7 +83,7 @@ function startup() {
         }
 
         upDown.querySelector("input[type='range']").id = upDown.id + "-range";
-        upDown.addEventListener("input", rainbowDidChange);
+        upDown.addEventListener("input", listener);
     }
 }
 
@@ -164,4 +176,19 @@ async function rainbowDidChange(event) {
 async function setRainbow(mode) {
     rainbowData.mode = mode;
     await fetch('/rainbow', {method: 'PUT', body: JSON.stringify(rainbowData)});
+}
+
+let warpCoreData = {
+    speed: 3
+};
+
+async function warpCoreDidChange(event) {
+    switch (event.target.id) {
+        case "warp-core-color-speed":
+            event.target.value = snapMin(event.target.value, 0.1);
+            warpCoreData.speed = event.target.value;
+            break;
+    }
+
+    await fetch('/rainbow', {method: 'PUT', body: JSON.stringify(warpCoreData)});
 }
