@@ -117,21 +117,21 @@ async function crystalDidChange(event) {
             break;
         case "crystal-upper-speed":
             event.target.value = snapMin(event.target.value, 0.1);
-            crystalData.upper_speed = event.target.value;
+            crystalData.upper_speed = parseFloat(event.target.value);
             break;
         case "crystal-middle-color":
             crystalData.middle_color = event.target.value.substring(1);
             break;
         case "crystal-middle-speed":
             event.target.value = snapMin(event.target.value, 0.1);
-            crystalData.middle_speed = event.target.value;
+            crystalData.middle_speed = parseFloat(event.target.value);
             break;
         case "crystal-lower-color":
             crystalData.lower_color = event.target.value.substring(1);
             break;
         case "crystal-lower-speed":
             event.target.value = snapMin(event.target.value, 0.1);
-            crystalData.lower_speed = event.target.value;
+            crystalData.lower_speed = parseFloat(event.target.value);
             break;
     }
 
