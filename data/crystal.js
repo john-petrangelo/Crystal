@@ -160,7 +160,7 @@ async function rainbowDidChange(event) {
     switch (event.target.id) {
         case "rb-movement-range":
             event.target.value = snapMin(event.target.value, 0.1);
-            rainbowData.speed = event.target.value;
+            rainbowData.speed = parseFloat(event.target.value);
             break;
     }
 
