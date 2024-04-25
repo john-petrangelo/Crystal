@@ -17,6 +17,17 @@
 #include "Models/Solid.h"
 #include "Models/WarpCore.h"
 
+static JsonDocument parseJsonBody(char const *handlerName) {
+  JsonDocument doc;
+  DeserializationError error = deserializeJson(doc, Network::getServer().arg("plain"));
+  if (error) {
+    Logger::logf("%s failed to parse JSON: %s\n", handlerName, error.c_str());
+    Network::getServer().send(400, "text/plain", error.c_str());
+  }
+
+  return doc;
+}
+
 template<typename T>
 static T getJsonValue(JsonVariant obj, const char* paramName, T defaultValue) {
   auto value = obj[paramName];
@@ -150,13 +161,7 @@ void handleNotFound() {
 }
 
 void handleCrystal() {
-  JsonDocument doc;
-  DeserializationError error = deserializeJson(doc, Network::getServer().arg("plain"));
-  if (error) {
-    Logger::logf("handleCrystal failed to parse JSON: %s\n", error.c_str());
-    Network::getServer().send(400, "text/plain", error.c_str());
-    return;
-  }
+  JsonDocument doc = parseJsonBody("handleCrystal");
 
   Color upperColor = getJsonColor(doc, "upper_color", 0xff00d0);
   Color middleColor = getJsonColor(doc, "middle_color", 0xff00d0);
@@ -185,14 +190,7 @@ void handleFlame() {
 }
 
 void handleRainbow() {
-  JsonDocument doc;
-  DeserializationError error = deserializeJson(doc, Network::getServer().arg("plain"));
-  if (error) {
-    Logger::logf("handleRainbow failed to parse JSON: %s\n", error.c_str());
-    Network::getServer().send(400, "text/plain", error.c_str());
-    return;
-  }
-
+  JsonDocument doc = parseJsonBody("handleRainbow");
   String mode = getJsonValue(doc, "mode", "classic");
   float speed = getJsonValue(doc, "speed", 0.3f);
 
