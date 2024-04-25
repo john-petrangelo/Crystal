@@ -193,8 +193,8 @@ void handleRainbow() {
     return;
   }
 
-  String mode = doc["mode"];
-  float speed = doc["speed"];
+  String mode = getJsonValue(doc, "mode", "classic");
+  float speed = getJsonValue(doc, "speed", 0.3f);
 
   ModelPtr gm = nullptr;
   if (mode == "tv") {
