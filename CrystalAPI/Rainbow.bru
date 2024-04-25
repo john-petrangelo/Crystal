@@ -1,0 +1,19 @@
+meta {
+  name: Rainbow
+  type: http
+  seq: 2
+}
+
+put {
+  url: http://{{HOST}}/rainbow
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "mode": "classic",
+    "speed": 0.3
+  }
+  
+}

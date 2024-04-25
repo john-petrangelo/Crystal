@@ -1,17 +1,17 @@
 meta {
   name: WarpCore
   type: http
-  seq: 2
+  seq: 5
 }
 
 get {
-  url: http://{{HOST}}/warpcore?frequency=1&size=0.2&dutyCycle=0.5
+  url: http://{{HOST}}/warpcore?frequency=0.6&size=0.6&dutyCycle=0.4
   body: none
   auth: none
 }
 
 query {
-  frequency: 1
-  size: 0.2
-  dutyCycle: 0.5
+  frequency: 0.6
+  size: 0.6
+  dutyCycle: 0.4
 }
