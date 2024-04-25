@@ -17,6 +17,26 @@
 #include "Models/Solid.h"
 #include "Models/WarpCore.h"
 
+template<typename T>
+static T getJsonValue(JsonVariant obj, const char* paramName, T defaultValue) {
+  auto value = obj[paramName];
+  if (value.isNull() || !value.is<T>()) {
+    return defaultValue;
+  }
+
+  return value.as<T>();
+}
+
+static Color getJsonColor(JsonVariant obj, const char* paramName, Color defaultValue = BLACK){
+  auto value = obj[paramName];
+  if (value.isNull() || !value.is<const char *>()) {
+    return defaultValue;
+  }
+
+  auto colorStr = value.as<char const *>();
+  return strtol(colorStr, nullptr, 16);
+}
+
 static bool getArgAsLong(const char* paramName, long& paramValue) {
   if (!Network::getServer().hasArg(paramName)) {
     Network::getServer().send(400, "text/plain", String(paramName) + " parameter missing\n");
@@ -138,12 +158,12 @@ void handleCrystal() {
     return;
   }
 
-  Color upperColor = strtol(doc["upper"]["color"], nullptr, 16);
-  Color middleColor = strtol(doc["middle"]["color"], nullptr, 16);
-  Color lowerColor = strtol(doc["lower"]["color"], nullptr, 16);
-  float upperSpeed = doc["upper"]["speed"];
-  float middleSpeed = doc["middle"]["speed"];
-  float lowerSpeed = doc["lower"]["speed"];
+  Color upperColor = getJsonColor(doc, "upper_color", 0xff00d0);
+  Color middleColor = getJsonColor(doc, "middle_color", 0xff00d0);
+  Color lowerColor = getJsonColor(doc, "lower_color", 0xff00d0);
+  float upperSpeed = getJsonValue(doc, "upper_speed", 0.5f);
+  float middleSpeed = getJsonValue(doc, "middle_speed", 0.2f);
+  float lowerSpeed = getJsonValue(doc, "lower_speed", 0.3f);
 
   float upperPeriodSec = fmap(upperSpeed, 0.0, 1.0, 11.0, 1.0);
   float middlePeriodSec = fmap(middleSpeed, 0.0, 1.0, 11.0, 1.0);

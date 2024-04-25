@@ -47,9 +47,9 @@ function startup() {
 
     let crystalColorSpeedIDs = ["crystal-upper", "crystal-middle", "crystal-lower"];
     setupColorSpeeds(crystalColorSpeedIDs, crystalDidChange);
-    document.querySelector("#crystal-upper-speed").value = crystalData.upper.speed;
-    document.querySelector("#crystal-middle-speed").value = crystalData.middle.speed;
-    document.querySelector("#crystal-lower-speed").value = crystalData.lower.speed;
+    document.querySelector("#crystal-upper-speed").value = crystalData.upper_speed;
+    document.querySelector("#crystal-middle-speed").value = crystalData.middle_speed;
+    document.querySelector("#crystal-lower-speed").value = crystalData.lower_speed;
 
     let rainbowUpDownIDs = ["rb-movement"];
     setupUpDowns(rainbowUpDownIDs, rainbowDidChange);
@@ -102,42 +102,36 @@ async function brightnessDidChange(event) {
 }
 
 const crystalData = {
-    upper: {
-        color: "ff00d0",
-        speed: 0.5
-    },
-    middle: {
-        color: "ff00d0",
-        speed: 0.2
-    },
-    lower: {
-        color: "ff00d0",
-        speed: 0.3
-    }
+    upper_color: "ff00d0",
+    upper_speed: 0.5,
+    middle_color: "ff00d0",
+    middle_speed: 0.2,
+    lower_color: "ff00d0",
+    lower_speed: 0.3,
 };
 
 async function crystalDidChange(event) {
     switch (event.target.id) {
         case "crystal-upper-color":
-            crystalData.upper.color = event.target.value.substring(1);
+            crystalData.upper_color = event.target.value.substring(1);
             break;
         case "crystal-upper-speed":
             event.target.value = snapMin(event.target.value, 0.1);
-            crystalData.upper.speed = event.target.value;
+            crystalData.upper_speed = event.target.value;
             break;
         case "crystal-middle-color":
-            crystalData.middle.color = event.target.value.substring(1);
+            crystalData.middle_color = event.target.value.substring(1);
             break;
         case "crystal-middle-speed":
             event.target.value = snapMin(event.target.value, 0.1);
-            crystalData.middle.speed = event.target.value;
+            crystalData.middle_speed = event.target.value;
             break;
         case "crystal-lower-color":
-            crystalData.lower.color = event.target.value.substring(1);
+            crystalData.lower_color = event.target.value.substring(1);
             break;
         case "crystal-lower-speed":
             event.target.value = snapMin(event.target.value, 0.1);
-            crystalData.lower.speed = event.target.value;
+            crystalData.lower_speed = event.target.value;
             break;
     }
 
@@ -150,9 +144,9 @@ async function setCrystal(color) {
         colorInput.value = "#" + color;
     }
 
-    crystalData.upper.color = color;
-    crystalData.middle.color = color;
-    crystalData.lower.color = color;
+    crystalData.upper_color = color;
+    crystalData.middle_color = color;
+    crystalData.lower_color = color;
 
     await fetch('/crystal', {method: 'PUT', body: JSON.stringify(crystalData)});
 }
