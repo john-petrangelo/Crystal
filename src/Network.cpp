@@ -101,7 +101,7 @@ void Network::setupHTTP() {
   server.on("/rainbow", HTTP_PUT, handleRainbow);
   server.on("/flame", HTTP_GET, handleFlame);
   server.on("/solid", HTTP_GET, handleSolid);
-  server.on("/warpcore", HTTP_GET, handleWarpCore);
+  server.on("/warpcore", HTTP_PUT, handleWarpCore);
   server.on("/demo1", HTTP_GET, handleDemo1);
   server.on("/demo2", HTTP_GET, handleDemo2);
   server.on("/demo3", HTTP_GET, handleDemo3);

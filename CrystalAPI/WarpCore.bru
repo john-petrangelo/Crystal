@@ -4,14 +4,17 @@ meta {
   seq: 5
 }
 
-get {
-  url: http://{{HOST}}/warpcore?frequency=0.6&size=0.6&dutyCycle=0.4
-  body: none
+put {
+  url: http://{{HOST}}/warpcore
+  body: json
   auth: none
 }
 
-query {
-  frequency: 0.6
-  size: 0.6
-  dutyCycle: 0.4
+body:json {
+  {
+    "frequency": 3,
+    "size": 0.6,
+    "dutyCycle": 0.8
+  }
+  
 }

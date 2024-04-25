@@ -69,16 +69,6 @@ static bool getArgAsColor(const char* paramName, Color& paramValue) {
   return true; // No error
 }
 
-static bool getArgAsFloat(const char* paramName, float& paramValue) {
-  if (!Network::getServer().hasArg(paramName)) {
-    Network::getServer().send(400, "text/plain", String(paramName) + " parameter missing\n");
-    return false; // Error occurred
-  }
-  String paramStr = Network::getServer().arg(paramName);
-  paramValue = strtof(paramStr.c_str(), nullptr);
-  return true; // No error
-}
-
 void handleRoot() {
     auto startMS = millis();
     File file = LittleFS.open("/index.html", "r");
@@ -233,13 +223,10 @@ void handleRainbow() {
 }
 
 void handleWarpCore() {
-  float frequency;
-  float size;
-  float dutyCycle;
-
-  if (!getArgAsFloat("frequency", frequency)) return;
-  if (!getArgAsFloat("size", size)) return;
-  if (!getArgAsFloat("dutyCycle", dutyCycle)) return;
+  JsonDocument doc = parseJsonBody("handleRainbow");
+  float frequency = getJsonValue(doc, "frequency", 0.6f);
+  float size = getJsonValue(doc, "size", 0.6f);
+  float dutyCycle = getJsonValue(doc, "dutyCycle", 0.4f);
 
   ModelPtr model = WarpCore::make(size, frequency, dutyCycle);
   Network::getRenderer()->setModel(model);
