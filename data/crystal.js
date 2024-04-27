@@ -54,9 +54,11 @@ function startup() {
     let rainbowUpDownIDs = ["rb-movement"];
     setupUpDowns(rainbowUpDownIDs, rainbowDidChange);
 
-    let warpCoreColorSpeedIDs = ["warp-core-color-speed"];
+    let warpCoreColorSpeedIDs = ["warp-core"];
     setupColorSpeeds(warpCoreColorSpeedIDs, warpCoreDidChange);
-    document.querySelector("#warp-core-color-speed").value = warpCoreData.speed;
+    document.querySelector("#warp-core-speed").value = mapValue(warpCoreData.frequency, 0.3, 5.3, 0.0, 1.0);
+    let dataList = document.getElementById("color-speed-tickmarks");
+    dataList.innerHTML = '<option value="0.0"><option value="0.06"></option><option value="1.0"></option>';
 }
 
 function setupColorSpeeds(ids, listener) {
@@ -93,6 +95,10 @@ function snapMin(value, minAllowed) {
     }
 
     return value;
+}
+
+function mapValue(value, fromLow, fromHigh, toLow, toHigh) {
+    return (value - fromLow) * (toHigh - toLow) / (fromHigh - fromLow) + toLow;
 }
 
 async function brightnessDidChange(event) {
@@ -173,16 +179,22 @@ async function setRainbow(mode) {
 }
 
 let warpCoreData = {
-    speed: 3
+    frequency: 0.6
 };
 
 async function warpCoreDidChange(event) {
     switch (event.target.id) {
-        case "warp-core-color-speed":
-            event.target.value = snapMin(event.target.value, 0.1);
-            warpCoreData.speed = event.target.value;
+        // case "warpcore-color":
+        //     crystalData.upper_color = event.target.value.substring(1);
+        //     break;
+        case "warp-core-speed":
+            warpCoreData.frequency = mapValue(event.target.value, 0.0, 1.0, 0.3, 5.3);
             break;
     }
 
-    await fetch('/rainbow', {method: 'PUT', body: JSON.stringify(warpCoreData)});
+    await fetch('/warpcore', {method: 'PUT', body: JSON.stringify(warpCoreData)});
+}
+
+async function setWarpCore() {
+    await fetch('/warpcore', {method: 'PUT', body: JSON.stringify(warpCoreData)})
 }

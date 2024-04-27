@@ -71,7 +71,7 @@
         <button id="crystal-button">Crystal</button>
         <button id="rainbow-button">Rainbow</button>
         <button id="flame-button" onclick="fetch('/flame', {method:'GET'})">Flame</button>
-        <button id="warp-core-button">Warp Core<span class="warpWave"></span></button>
+        <button id="warp-core-button" class="warp-core-button">Warp Core<span class="warpWave"></span></button>
         <button id="other-button">Other</button>
       </div>
     </div>
@@ -120,11 +120,11 @@
     </div>
 
     <div id="warp-core-subpage" class="subpage" data-buttonid="warp-core-button" data-title="Warp Core">
-      <button id="warp-core-engage-button" class="center" onclick="fetch('/warpcore?frequency=0.6&size=0.6&dutyCycle=0.6', {method:'GET'})">Engage!</button>
+      <button id="warp-core-engage-button" class="center warp-core-button" onclick="setWarpCore()">Engage!</button>
       <hr>
       <span class="section-title">Advanced Settings</span>
       DRAFT
-      <div id="warp-core-color-speed" class="color-speed"></div>
+      <div id="warp-core" class="color-speed" data-title="Warp Factor"></div>
     </div>
 
     <div id="other-subpage" class="subpage" data-buttonid="other-button" data-title="Other">
