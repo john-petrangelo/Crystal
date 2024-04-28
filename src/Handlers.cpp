@@ -208,28 +208,34 @@ void handleRainbow() {
 
   auto model = Network::getRenderer()->getModel();
   if (strcmp(model->getName(), "RotatingRainbow") == 0) {
-    // Just update the current rainbow model
+    // Update the current model
     auto rainbowModel = static_cast<Rotate*>(model.get());
     rainbowModel->setSpeed(speed);
     rainbowModel->setModel(gm);
-    Network::getServer().send(200, "text/plain");
   } else {
     // Create a new model
     ModelPtr rm = std::make_shared<Rotate>("RotatingRainbow", speed, gm);
     Network::getRenderer()->setModel(rm);
-
-    Network::getServer().send(200, "text/plain");
   }
+  Network::getServer().send(200, "text/plain");
 }
 
 void handleWarpCore() {
-  JsonDocument doc = parseJsonBody("handleRainbow");
+  JsonDocument doc = parseJsonBody("handleWarpCore");
   float frequency = getJsonValue(doc, "frequency", 0.6f);
   float size = getJsonValue(doc, "size", 0.6f);
   float dutyCycle = getJsonValue(doc, "dutyCycle", 0.4f);
 
-  ModelPtr model = WarpCore::make(size, frequency, dutyCycle);
-  Network::getRenderer()->setModel(model);
+  auto model = Network::getRenderer()->getModel();
+  if (strcmp(model->getName(), "WarpCore") == 0) {
+    // Update the current model
+    auto warpCore = static_cast<WarpCore*>(model.get());
+    warpCore->set(frequency, size, dutyCycle);
+  } else {
+    // Create a new model
+    ModelPtr warpCore = WarpCore::make(size, frequency, dutyCycle);
+    Network::getRenderer()->setModel(warpCore);
+  }
   Network::getServer().send(200, "text/plain");
 }
 

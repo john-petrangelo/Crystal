@@ -13,11 +13,14 @@ class WarpCore : public Model {
     void update(float timeStamp) override;
     Color render(float pos) override;
     void asJson(JsonObject obj) const override;
+    void set(float newFrequency, float newSize, float newDutyCycle);
 
     static WarpCorePtr make(float size, float frequency, float dutyCycle)
       { return std::make_shared<WarpCore>(size, frequency, dutyCycle); }
 
   private:
+    void init();
+
     enum Mode { MODE_IN, MODE_OUT, MODE_DARK };
 
     Color const coreColor =  Colors::makeColor(95, 95, 255);

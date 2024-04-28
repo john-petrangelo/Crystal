@@ -11,6 +11,11 @@
 WarpCore::WarpCore(float size, float frequency, float dutyCycle)
   : Model("WarpCore"), size(size), frequency(frequency), dutyCycle(dutyCycle)
 {
+  init();
+  lastModeChangeTime = 0.0f; //float(millis()) / 1000.0f;
+}
+
+void WarpCore::init() {
   ModelPtr glow = Triangle::make(0.0, 1.0, coreColor);
 
   // If the size is too big or too small, then we have a warp core breach, light the whole length
@@ -49,7 +54,13 @@ WarpCore::WarpCore(float size, float frequency, float dutyCycle)
   // Set the initial mode and model
   mode = MODE_IN;
   model = Shift::In::make(-durationIn, mapModel);
-  lastModeChangeTime = 0.0f;
+}
+
+void WarpCore::set(float newFrequency, float newSize, float newDutyCycle) {
+  frequency = newFrequency;
+  size = newSize;
+  dutyCycle = newDutyCycle;
+  init();
 }
 
 void WarpCore::update(float timeStamp) {
