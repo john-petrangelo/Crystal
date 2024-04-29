@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 
@@ -225,15 +224,16 @@ void handleWarpCore() {
   float frequency = getJsonValue(doc, "frequency", 0.6f);
   float size = getJsonValue(doc, "size", 0.6f);
   float dutyCycle = getJsonValue(doc, "dutyCycle", 0.4f);
+  Color color = getJsonColor(doc, "color", WarpCore::defaultColor);
 
   auto model = Network::getRenderer()->getModel();
   if (strcmp(model->getName(), "WarpCore") == 0) {
     // Update the current model
     auto warpCore = static_cast<WarpCore*>(model.get());
-    warpCore->set(frequency, size, dutyCycle);
+    warpCore->set(frequency, size, dutyCycle, color);
   } else {
     // Create a new model
-    ModelPtr warpCore = WarpCore::make(size, frequency, dutyCycle);
+    ModelPtr warpCore = WarpCore::make(size, frequency, dutyCycle, color);
     Network::getRenderer()->setModel(warpCore);
   }
   Network::getServer().send(200, "text/plain");

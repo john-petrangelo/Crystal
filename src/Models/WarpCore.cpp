@@ -8,15 +8,17 @@
 #include "WarpCore.h"
 #include "Triangle.h"
 
-WarpCore::WarpCore(float size, float frequency, float dutyCycle)
-  : Model("WarpCore"), size(size), frequency(frequency), dutyCycle(dutyCycle)
+Color const WarpCore::defaultColor =  Colors::makeColor(95, 95, 255);
+
+WarpCore::WarpCore(float size, float frequency, float dutyCycle, Color color)
+  : Model("WarpCore"), size(size), frequency(frequency), dutyCycle(dutyCycle), color(color)
 {
   init();
   lastModeChangeTime = 0.0f; //float(millis()) / 1000.0f;
 }
 
 void WarpCore::init() {
-  ModelPtr glow = Triangle::make(0.0, 1.0, coreColor);
+  ModelPtr glow = Triangle::make(0.0, 1.0, color);
 
   // If the size is too big or too small, then we have a warp core breach, light the whole length
   if (size < 0.0 || size >= 1.0) {
@@ -56,10 +58,12 @@ void WarpCore::init() {
   model = Shift::In::make(-durationIn, mapModel);
 }
 
-void WarpCore::set(float newFrequency, float newSize, float newDutyCycle) {
+void WarpCore::set(float newFrequency, float newSize, float newDutyCycle, Color newColor) {
   frequency = newFrequency;
   size = newSize;
   dutyCycle = newDutyCycle;
+  color = newColor;
+
   init();
 }
 

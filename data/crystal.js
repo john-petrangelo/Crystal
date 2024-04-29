@@ -57,6 +57,7 @@ function startup() {
     let warpCoreColorSpeedIDs = ["warp-core"];
     setupColorSpeeds(warpCoreColorSpeedIDs, warpCoreDidChange);
     document.querySelector("#warp-core-speed").value = mapValue(warpCoreData.frequency, 0.3, 5.3, 0.0, 1.0);
+    document.querySelector("#warp-core-color").value = "#" + warpCoreData.color;
     let dataList = document.getElementById("color-speed-tickmarks");
     dataList.innerHTML = '<option value="0.0"><option value="0.06"></option><option value="1.0"></option>';
 }
@@ -179,14 +180,15 @@ async function setRainbow(mode) {
 }
 
 let warpCoreData = {
-    frequency: 0.6
+    frequency: 0.6,
+    color: "5f5fff",
 };
 
 async function warpCoreDidChange(event) {
     switch (event.target.id) {
-        // case "warpcore-color":
-        //     crystalData.upper_color = event.target.value.substring(1);
-        //     break;
+        case "warp-core-color":
+            warpCoreData.color = event.target.value.substring(1);
+            break;
         case "warp-core-speed":
             warpCoreData.frequency = mapValue(event.target.value, 0.0, 1.0, 0.3, 5.3);
             break;
