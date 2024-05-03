@@ -7,11 +7,14 @@
 #include "Solid.h"
 #include "WarpCore.h"
 #include "Triangle.h"
+#include "Sum.h"
+#include "Reverse.h"
 
 Color const WarpCore::defaultColor =  Colors::makeColor(95, 95, 255);
 
-WarpCore::WarpCore(float size, float frequency, float dutyCycle, Color color)
-  : Model("WarpCore"), size(size), frequency(frequency), dutyCycle(dutyCycle), color(color)
+WarpCore::WarpCore(float size, float frequency, float dutyCycle, Color color, bool bidirectional)
+  : Model("WarpCore"), size(size), frequency(frequency), dutyCycle(dutyCycle), color(color),
+    bidirectional(bidirectional)
 {
   init();
   lastModeChangeTime = 0.0f; //float(millis()) / 1000.0f;
@@ -56,13 +59,25 @@ void WarpCore::init() {
   // Set the initial mode and model
   mode = MODE_IN;
   model = Shift::In::make(-durationIn, mapModel);
+
+  handleBidirectional();
 }
 
-void WarpCore::set(float newFrequency, float newSize, float newDutyCycle, Color newColor) {
+void WarpCore::handleBidirectional() {
+  if (bidirectional) {
+    model = Sum::make({
+        Map::make(0.0, 0.5, 0.0, 1.0, Reverse::make(model)),
+        Map::make(0.5, 1.0, 0.0, 1.0, model)
+    });
+  }
+}
+
+void WarpCore::set(float newFrequency, float newSize, float newDutyCycle, Color newColor, bool newBidirectional) {
   frequency = newFrequency;
   size = newSize;
   dutyCycle = newDutyCycle;
   color = newColor;
+  bidirectional = newBidirectional;
 
   init();
 }
@@ -73,6 +88,7 @@ void WarpCore::update(float timeStamp) {
       if (timeStamp - lastModeChangeTime >= fabs(durationIn)) {
         mode = MODE_OUT;
         model = Shift::Out::make(-durationIn, mapModel);
+        handleBidirectional();
         lastModeChangeTime = timeStamp;
       }
       break;
@@ -87,6 +103,7 @@ void WarpCore::update(float timeStamp) {
       if (timeStamp - lastModeChangeTime >= fabs(durationDark)) {
         mode = MODE_IN;
         model = Shift::In::make(-durationIn, mapModel);;
+        handleBidirectional();
         lastModeChangeTime = timeStamp;
       }
       break;
