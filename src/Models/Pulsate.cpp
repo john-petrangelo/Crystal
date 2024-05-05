@@ -17,7 +17,7 @@ void Pulsate::update(float timeStamp) {
 
 Color Pulsate::render(float pos) {
   Color oldColor = model->render(pos);
-  Color newColor = Colors::fade(oldColor, int(dimness * 100.0f));
+  Color newColor = Colors::fade(oldColor, dimness);
   return newColor;
 }
 

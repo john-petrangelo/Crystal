@@ -13,7 +13,7 @@ Color Gradient::render(float pos) {
   }
 
   float ratio = (colorPos - float(lower)) / float(upper - lower);
-  return Colors::blend(colors[lower], colors[upper], int(100.0f * ratio));
+  return Colors::blend(colors[lower], colors[upper], ratio);
 }
 
 void Gradient::asJson(JsonObject obj) const {

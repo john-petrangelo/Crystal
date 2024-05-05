@@ -5,7 +5,7 @@ void Gauge::setValue(float valueIn) {
   fullColorPixels = floor(value * pixelsCount);
   remainder = value - fullColorPixels / pixelsCount;
   colorRatio = remainder * pixelsCount;
-  partialColor = Colors::fade(color, (int)(100.0 * colorRatio));
+  partialColor = Colors::fade(color, colorRatio);
 }
 
 Color Gauge::render(float pos) {

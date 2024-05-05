@@ -13,9 +13,9 @@ class Flame : public Model {
     void asJson(JsonObject obj) const override;
 
   private:
-    Color const C1 = Colors::blend(RED, YELLOW, 50);
-    Color const C2 = Colors::blend(RED, YELLOW, 70);
-    Color const C3 = Colors::blend(RED, YELLOW, 90);
+    Color const C1 = Colors::blend(RED, YELLOW, 0.5);
+    Color const C2 = Colors::blend(RED, YELLOW, 0.7);
+    Color const C3 = Colors::blend(RED, YELLOW, 0.9);
 
     MapPtr model{};
 
