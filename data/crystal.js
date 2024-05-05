@@ -60,7 +60,7 @@ function startup() {
     document.querySelector("#warp-core-color").value = "#" + warpCoreData.color;
     let dataList = document.getElementById("color-speed-tickmarks");
     dataList.innerHTML = '<option value="0.0"><option value="0.06"></option><option value="1.0"></option>';
-    document.getElementById('warp-core-bidirectional').addEventListener('change', warpCoreDidChange);
+    document.getElementById('warp-core-dual').addEventListener('change', warpCoreDidChange);
 }
 
 function setupColorSpeeds(ids, listener) {
@@ -183,7 +183,7 @@ async function setRainbow(mode) {
 let warpCoreData = {
     frequency: 0.6,
     color: "5f5fff",
-    bidirectional: false,
+    dual: false,
 };
 
 async function warpCoreDidChange(event) {
@@ -194,10 +194,9 @@ async function warpCoreDidChange(event) {
         case "warp-core-speed":
             warpCoreData.frequency = mapValue(event.target.value, 0.0, 1.0, 0.3, 5.3);
             break;
-        case "warp-core-bidirectional":
-            warpCoreData.bidirectional = event.target.checked;
+        case "warp-core-dual":
+            warpCoreData.dual = event.target.checked;
     }
-
     await fetch('/warpcore', {method: 'PUT', body: JSON.stringify(warpCoreData)});
 }
 

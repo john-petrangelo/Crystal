@@ -12,9 +12,9 @@
 
 Color const WarpCore::defaultColor =  Colors::makeColor(95, 95, 255);
 
-WarpCore::WarpCore(float size, float frequency, float dutyCycle, Color color, bool bidirectional)
+WarpCore::WarpCore(float size, float frequency, float dutyCycle, Color color, bool dual)
   : Model("WarpCore"), size(size), frequency(frequency), dutyCycle(dutyCycle), color(color),
-    bidirectional(bidirectional)
+    dual(dual)
 {
   init();
   lastModeChangeTime = 0.0f; //float(millis()) / 1000.0f;
@@ -60,11 +60,11 @@ void WarpCore::init() {
   mode = MODE_IN;
   model = Shift::In::make(-durationIn, mapModel);
 
-  handleBidirectional();
+  handleDual();
 }
 
-void WarpCore::handleBidirectional() {
-  if (bidirectional) {
+void WarpCore::handleDual() {
+  if (dual) {
     model = Sum::make({
         Map::make(0.0, 0.5, 0.0, 1.0, Reverse::make(model)),
         Map::make(0.5, 1.0, 0.0, 1.0, model)
@@ -72,12 +72,12 @@ void WarpCore::handleBidirectional() {
   }
 }
 
-void WarpCore::set(float newFrequency, float newSize, float newDutyCycle, Color newColor, bool newBidirectional) {
+void WarpCore::set(float newFrequency, float newSize, float newDutyCycle, Color newColor, bool newDual) {
   frequency = newFrequency;
   size = newSize;
   dutyCycle = newDutyCycle;
   color = newColor;
-  bidirectional = newBidirectional;
+  dual = newDual;
 
   init();
 }
@@ -88,7 +88,7 @@ void WarpCore::update(float timeStamp) {
       if (timeStamp - lastModeChangeTime >= fabs(durationIn)) {
         mode = MODE_OUT;
         model = Shift::Out::make(-durationIn, mapModel);
-        handleBidirectional();
+        handleDual();
         lastModeChangeTime = timeStamp;
       }
       break;
@@ -103,7 +103,7 @@ void WarpCore::update(float timeStamp) {
       if (timeStamp - lastModeChangeTime >= fabs(durationDark)) {
         mode = MODE_IN;
         model = Shift::In::make(-durationIn, mapModel);;
-        handleBidirectional();
+        handleDual();
         lastModeChangeTime = timeStamp;
       }
       break;

@@ -8,21 +8,21 @@ typedef std::shared_ptr<WarpCore> WarpCorePtr;
 
 class WarpCore : public Model {
   public:
-    WarpCore(float size, float frequency, float dutyCycle, Color color, bool bidirectional);
+    WarpCore(float size, float frequency, float dutyCycle, Color color, bool dual);
 
     void update(float timeStamp) override;
     Color render(float pos) override;
     void asJson(JsonObject obj) const override;
-    void set(float newFrequency, float newSize, float newDutyCycle, Color color, bool bidirectional);
+    void set(float newFrequency, float newSize, float newDutyCycle, Color color, bool dual);
 
-    static WarpCorePtr make(float size, float frequency, float dutyCycle, Color color, bool bidirectional)
-      { return std::make_shared<WarpCore>(size, frequency, dutyCycle, color, bidirectional); }
+    static WarpCorePtr make(float size, float frequency, float dutyCycle, Color color, bool dual)
+      { return std::make_shared<WarpCore>(size, frequency, dutyCycle, color, dual); }
 
     static Color const defaultColor;
 
 private:
     void init();
-    void handleBidirectional();
+    void handleDual();
 
     enum Mode { MODE_IN, MODE_OUT, MODE_DARK };
 
@@ -36,7 +36,7 @@ private:
     float frequency;
     float dutyCycle;
     Color color;
-    bool bidirectional;
+    bool dual;
 
     float durationDark{};
     float durationIn{};
