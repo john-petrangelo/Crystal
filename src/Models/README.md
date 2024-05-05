@@ -1,7 +1,7 @@
 # Models
 Models describe what the pixels should look like at a given position at a given time.
 
-## FUTURE IDEAS
+# FUTURE IDEAS
 
 ## Dim
 Adjust the brightness of the color down by the provided percent
@@ -52,13 +52,6 @@ Simulate a lava lamp.
 
 Direction - up/down
 Color
-
-## Warp core
-Simulate a Star Trek warp core.
-
-Direction - up/down?
-Color?
-Speed?
 
 ## Jacob's ladder
 Simulate the rising electrical arc of a Jacob's ladder.
