@@ -1,0 +1,19 @@
+meta {
+  name: Jacob's Ladder
+  type: http
+  seq: 3
+}
+
+put {
+  url: http://{{HOST}}/jacobsladder
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "frequency": 1.0,
+    "size": 0.15
+  }
+  
+}

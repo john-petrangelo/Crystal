@@ -40,12 +40,13 @@ add_executable(Crystal
         src/Models/Crystal.cpp
         src/Models/Flame.cpp
         src/Models/Gradient.cpp
+        src/Models/JacobsLadder.cpp
         src/Models/Map.cpp
         src/Models/Model.cpp
         src/Models/Pulsate.cpp
         src/Models/Rotate.cpp
+        src/Models/Shift.cpp
         src/Models/Sum.cpp
         src/Models/Triangle.cpp
         src/Models/WarpCore.cpp
-        src/Models/Shift.cpp
 )

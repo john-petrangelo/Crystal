@@ -9,9 +9,11 @@
 #include "Network.h"
 #include "Status.h"
 #include "utils.h"
+
 #include "Models/Crystal.h"
 #include "Models/Flame.h"
 #include "Models/Gradient.h"
+#include "Models/JacobsLadder.h"
 #include "Models/Rotate.h"
 #include "Models/Solid.h"
 #include "Models/WarpCore.h"
@@ -236,6 +238,25 @@ void handleWarpCore() {
     // Create a new model
     ModelPtr warpCore = WarpCore::make(size, frequency, dutyCycle, color, dual);
     Network::getRenderer()->setModel(warpCore);
+  }
+  Network::getServer().send(200, "text/plain");
+}
+
+void handleJacobsLadder() {
+  JsonDocument doc = parseJsonBody("handleJacobsLadder");
+  float frequency = getJsonValue(doc, "frequency", 0.6f);
+  float size = getJsonValue(doc, "size", 0.6f);
+  Color color = getJsonColor(doc, "color", JacobsLadder::defaultColor);
+
+  auto model = Network::getRenderer()->getModel();
+  if (strcmp(model->getName(), "JacobsLadder") == 0) {
+    // Update the current model
+    auto jacobsLadder = static_cast<JacobsLadder*>(model.get());
+    jacobsLadder->set(frequency, size, color);
+  } else {
+    // Create a new model
+    ModelPtr jacobsLadder = JacobsLadder::make(size, frequency, color);
+    Network::getRenderer()->setModel(jacobsLadder);
   }
   Network::getServer().send(200, "text/plain");
 }

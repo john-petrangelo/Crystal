@@ -21,8 +21,8 @@ class Shift : public Model {
      *
      * @param shiftMode Specifies that the model shifts from the outside in or from the inside out
      * @param shiftDuration The time taken to shift the complete length in or out
-     *              - Positive values indicate low-to-high shiftDuration
-     *              - Negative values indicate high-to-low shiftDuration
+     *              - Positive values indicate low-to-high
+     *              - Negative values indicate high-to-low
      * @param model The model to shift in or out
      */
      Shift(SHIFT_MODE shiftMode, float shiftDuration, ModelPtr model) :
@@ -34,6 +34,9 @@ class Shift : public Model {
 
     void setSpeed(float newSpeed) { shiftDuration = newSpeed; }
     void setModel(std::shared_ptr<Model> newModel) { model = std::move(newModel); }
+
+    // Start the shifting all over again
+    void reset() { startTime = 0.0f; }
 
     static ShiftPtr make(SHIFT_MODE shiftMode, float shiftDuration, ModelPtr model) {
       return std::make_shared<Shift>(shiftMode, shiftDuration, std::move(model));

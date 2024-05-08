@@ -7,8 +7,10 @@ extern void handleStatus();
 extern void handleGetBrightness();
 extern void handleSetBrightness();
 extern void handleNotFound();
+
 extern void handleCrystal();
 extern void handleFlame();
+extern void handleJacobsLadder();
 extern void handleRainbow();
 extern void handleSolid();
 extern void handleWarpCore();

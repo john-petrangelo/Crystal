@@ -7,11 +7,7 @@ void Shift::update(float timeStamp) {
   if (startTime == 0.0) {
     startTime = timeStamp;
 
-    if (shiftDuration == 0.0f) {
-      endTime = startTime;
-    } else {
-      endTime = startTime + fabs(shiftDuration);
-    }
+    endTime = startTime + fabs(shiftDuration);
   }
 
   updateTime = timeStamp;
@@ -64,7 +60,7 @@ Color Shift::render(float pos) {
 
 void Shift::asJson(JsonObject obj) const {
   Model::asJson(obj);
-  obj["speed"] = shiftDuration;
+  obj["duration"] = shiftDuration;
   obj["shiftMode"] = shiftMode;
   obj["shiftOffset"] = shiftOffset;
   obj["startTime"] = startTime;
