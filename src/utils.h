@@ -14,10 +14,10 @@ inline float fmap(float x, float in_min, float in_max, float out_min, float out_
 }
 
 /**
- * Return a random number between fmin and fmax.
+ * Return a random float between fmin and fmax.
  */
-inline float frand(double fmin, double fmax) {
-  return fmin + random(1UL << 31) * (fmax - fmin) / (1UL << 31);
+inline float frand(float fmin, float fmax) {
+  return fmin + float(random(1UL << 31)) * (fmax - fmin) / (1UL << 31);
 }
 
 /**
