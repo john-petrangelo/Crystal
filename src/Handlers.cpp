@@ -244,18 +244,20 @@ void handleWarpCore() {
 
 void handleJacobsLadder() {
   JsonDocument doc = parseJsonBody("handleJacobsLadder");
-  float frequency = getJsonValue(doc, "frequency", 0.6f);
-  float size = getJsonValue(doc, "size", 0.6f);
-  Color color = getJsonColor(doc, "color", JacobsLadder::defaultColor);
+  float const frequency = getJsonValue(doc, "frequency", 0.6f);
+  float const size = getJsonValue(doc, "size", 0.6f);
+  Color const color = getJsonColor(doc, "color", JacobsLadder::defaultColor);
+  float const jitterSize = getJsonValue(doc, "jitterSize", 0.1f);
+  float const jitterPeriod = getJsonValue(doc, "jitterPeriod", 0.110f);
 
   auto model = Network::getRenderer()->getModel();
   if (strcmp(model->getName(), "JacobsLadder") == 0) {
     // Update the current model
     auto jacobsLadder = static_cast<JacobsLadder*>(model.get());
-    jacobsLadder->set(frequency, size, color);
+    jacobsLadder->set(frequency, size, color, jitterSize, jitterPeriod);
   } else {
     // Create a new model
-    ModelPtr jacobsLadder = JacobsLadder::make(size, frequency, color);
+    ModelPtr jacobsLadder = JacobsLadder::make(size, frequency, color, jitterSize, jitterPeriod);
     Network::getRenderer()->setModel(jacobsLadder);
   }
   Network::getServer().send(200, "text/plain");

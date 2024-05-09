@@ -1,4 +1,5 @@
 #include "../lumos-arduino/Logger.h"
+#include "../utils.h"
 
 #include "Gradient.h"
 #include "JacobsLadder.h"
@@ -8,13 +9,14 @@
 
 Color const JacobsLadder::defaultColor =  WHITE;
 
-JacobsLadder::JacobsLadder(float size, float frequency, Color color)
-    : Model("JacobsLadder"), size(size), frequency(frequency), color(color) {
+JacobsLadder::JacobsLadder(float size, float frequency, Color color, float jitterSize, float jitterPeriod)
+    : Model("JacobsLadder"), size(size), frequency(frequency), color(color),
+      jitterSize(jitterSize), jitterPeriod(jitterPeriod) {
   init();
-  lastResetTime = 0.0f;
 }
 
 void JacobsLadder::init() {
+  Logger::logf("JL:init color=0x%06X\n", color);
   ModelPtr glow = Triangle::make(0.0, 1.0, color);
 
   // If the size is too big or too small, then we have a warp core breach, light the whole length
@@ -38,10 +40,13 @@ void JacobsLadder::init() {
   model = Shift::Out::make(duration, mapModel);
 }
 
-void JacobsLadder::set(float newFrequency, float newSize, Color newColor) {
+void JacobsLadder::set(float newFrequency, float newSize, Color newColor, float newJitterSize, float newJitterPeriod) {
+  Logger::logf("JL:init color=0x%06X newColor=0x%06X\n", color, newColor);
   frequency = newFrequency;
   size = newSize;
   color = newColor;
+  jitterSize = newJitterSize;
+  jitterPeriod = newJitterPeriod;
 
   init();
 }
@@ -53,13 +58,19 @@ void JacobsLadder::update(float timeStamp) {
   }
 
   model->update(timeStamp);
+
+  if (timeStamp - lastJitterTime >= jitterPeriod) {
+    jitter = frand(0.0, jitterSize);
+    lastJitterTime = timeStamp;
+  }
 }
 
 Color JacobsLadder::render(float pos) {
+  pos = constrain(pos + jitter, 0.0, 1.0);
   Color c = model->render(pos);
   uint8_t red = Colors::fade(Colors::getRed(c), pos);
-  uint8_t green = Colors::fade(Colors::getRed(c), pos);
-  uint8_t blue = Colors::fade(Colors::getRed(c), pos);
+  uint8_t green = Colors::fade(Colors::getGreen(c), pos);
+  uint8_t blue = Colors::fade(Colors::getBlue(c), pos);
 
   return Colors::makeColor(red, green, blue);
 }
