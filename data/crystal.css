@@ -56,7 +56,13 @@ button {
   0%, 33% { top: -15px; }
   100% { top: 100%; }
 }
-.warpWave {
+.warp-core {
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(to right, #333, 10%, #333, 30%, #87B, 70%, #333, 90%, #333);
+}
+.warp-core::after {
+  content: "";
   position: absolute;
   border-radius: 40%;
   height: 15px;
@@ -66,12 +72,41 @@ button {
   background: radial-gradient(ellipse, #6AF, 40%, #555);
   animation: warpAnim 1.0s linear infinite;
 }
-.warp-core-button {
-  overflow: hidden;
-  position: relative;
-  background: linear-gradient(to right, #333, 10%, #333, 30%, #87B, 70%, #333, 90%, #333);
-}
 
+@keyframes jacobsLadderAnim {
+  0% { width: 0; top: 95%; }
+  100% { width: 60px; top: 5%; }
+}
+.jacobs-ladder-arc {
+  position: absolute;
+  height: 2px;
+  left: 0; right: 0;
+  margin: auto;
+  background-color: #ff8;
+  animation: jacobsLadderAnim 1.2s ease-in infinite;
+}
+#jacobs-ladder-button {
+  position: relative;
+  background-color: #846;
+}
+#jacobs-ladder-button::before {
+  content: '';
+  position: absolute;
+  bottom: 30px;
+  left: calc(50% - 30px);
+  width: 60px;
+  border-top: 3px solid #333;
+  transform: translate(15px, 100%) rotate(-60deg);
+}
+#jacobs-ladder-button::after {
+  content: '';
+  position: absolute;
+  bottom: 30px;
+  left: calc(50% - 30px);
+  width: 60px;
+  border-top: 3px solid #333;
+  transform: translate(-15px, 100%) rotate(60deg);
+}
 #dark-crystal-button {
   width: 60%;
   background: radial-gradient(ellipse 100% 80%, purple, white);

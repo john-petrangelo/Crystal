@@ -61,6 +61,8 @@ function startup() {
     let dataList = document.getElementById("color-speed-tickmarks");
     dataList.innerHTML = '<option value="0.0"><option value="0.06"></option><option value="1.0"></option>';
     document.getElementById('warp-core-dual').addEventListener('change', warpCoreDidChange);
+
+    document.getElementById('jacobs-ladder-button').addEventListener('click', setJacobsLadder);
 }
 
 function setupColorSpeeds(ids, listener) {
@@ -202,4 +204,14 @@ async function warpCoreDidChange(event) {
 
 async function setWarpCore() {
     await fetch('/warpcore', {method: 'PUT', body: JSON.stringify(warpCoreData)})
+}
+
+let jacobsLadderData = {
+    // frequency: 0.6,
+    // color: "5f5fff",
+    // dual: false,
+};
+async function setJacobsLadder(event) {
+    console.log("setJacobsLadder called");
+    await fetch('/jacobsladder', {method: 'PUT', body: JSON.stringify(jacobsLadderData)});
 }
