@@ -245,10 +245,10 @@ void handleWarpCore() {
 void handleJacobsLadder() {
   JsonDocument doc = parseJsonBody("handleJacobsLadder");
   float const frequency = getJsonValue(doc, "frequency", 0.6f);
-  float const size = getJsonValue(doc, "size", 0.6f);
+  float const size = getJsonValue(doc, "size", 0.15f);
   Color const color = getJsonColor(doc, "color", JacobsLadder::defaultColor);
-  float const jitterSize = getJsonValue(doc, "jitterSize", 0.1f);
-  float const jitterPeriod = getJsonValue(doc, "jitterPeriod", 0.110f);
+  float const jitterSize = getJsonValue(doc, "jitterSize", 0.15f);
+  float const jitterPeriod = getJsonValue(doc, "jitterPeriod", 0.150f);
 
   auto model = Network::getRenderer()->getModel();
   if (strcmp(model->getName(), "JacobsLadder") == 0) {

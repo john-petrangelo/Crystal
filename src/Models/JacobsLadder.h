@@ -36,6 +36,6 @@ private:
     float jitterPeriod;
 
     float duration{};
-
+    float brightness{};
     float jitter{};
 };

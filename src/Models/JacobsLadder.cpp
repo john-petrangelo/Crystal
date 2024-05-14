@@ -58,6 +58,7 @@ void JacobsLadder::update(float timeStamp) {
   }
 
   model->update(timeStamp);
+  brightness = fmap(timeStamp, lastResetTime, lastResetTime+duration, 0.0, 1.0);
 
   if (timeStamp - lastJitterTime >= jitterPeriod) {
     jitter = frand(0.0, jitterSize);
@@ -68,9 +69,9 @@ void JacobsLadder::update(float timeStamp) {
 Color JacobsLadder::render(float pos) {
   pos = constrain(pos + jitter, 0.0, 1.0);
   Color c = model->render(pos);
-  uint8_t red = Colors::fade(Colors::getRed(c), pos);
-  uint8_t green = Colors::fade(Colors::getGreen(c), pos);
-  uint8_t blue = Colors::fade(Colors::getBlue(c), pos);
+  uint8_t red = Colors::fade(Colors::getRed(c), brightness);
+  uint8_t green = Colors::fade(Colors::getGreen(c), brightness);
+  uint8_t blue = Colors::fade(Colors::getBlue(c), brightness);
 
   return Colors::makeColor(red, green, blue);
 }

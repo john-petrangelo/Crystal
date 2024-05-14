@@ -95,7 +95,7 @@ button {
   bottom: 30px;
   left: calc(50% - 30px);
   width: 60px;
-  border-top: 3px solid #333;
+  border-top: 3px solid #888;
   transform: translate(15px, 100%) rotate(-60deg);
 }
 #jacobs-ladder-button::after {
@@ -104,7 +104,7 @@ button {
   bottom: 30px;
   left: calc(50% - 30px);
   width: 60px;
-  border-top: 3px solid #333;
+  border-top: 3px solid #888;
   transform: translate(-15px, 100%) rotate(60deg);
 }
 #dark-crystal-button {

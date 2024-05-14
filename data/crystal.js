@@ -207,11 +207,12 @@ async function setWarpCore() {
 }
 
 let jacobsLadderData = {
-    // frequency: 0.6,
-    // color: "5f5fff",
-    // dual: false,
+    frequency: 0.6,
+    size: 0.15,
+    color: "ffffff",
+    jitterSize: 0.15,
+    jitterPeriod: 0.15,
 };
 async function setJacobsLadder(event) {
-    console.log("setJacobsLadder called");
     await fetch('/jacobsladder', {method: 'PUT', body: JSON.stringify(jacobsLadderData)});
 }
