@@ -62,7 +62,13 @@ function startup() {
     dataList.innerHTML = '<option value="0.0"><option value="0.06"></option><option value="1.0"></option>';
     document.getElementById('warp-core-dual').addEventListener('change', warpCoreDidChange);
 
-    document.getElementById('jacobs-ladder-button').addEventListener('click', setJacobsLadder);
+    let jacobsLadderColorSpeedIDs = ["jacobs-ladder"];
+    setupColorSpeeds(jacobsLadderColorSpeedIDs, jacobsLadderDidChange);
+    document.querySelector("#jacobs-ladder-speed").value = mapValue(jacobsLadderData.frequency, 0.3, 5.3, 0.0, 1.0);
+    document.querySelector("#jacobs-ladder-color").value = "#" + jacobsLadderData.color;
+    dataList = document.getElementById("color-speed-tickmarks");
+    dataList.innerHTML = '<option value="0.0"><option value="0.6"></option><option value="1.0"></option>';
+    document.getElementById('jacobs-ladder-squared').addEventListener('change', jacobsLadderDidChange);
 }
 
 function setupColorSpeeds(ids, listener) {
@@ -210,9 +216,24 @@ let jacobsLadderData = {
     frequency: 0.6,
     size: 0.15,
     color: "ffffff",
+    squared: false,
     jitterSize: 0.15,
     jitterPeriod: 0.15,
 };
+async function jacobsLadderDidChange(event) {
+    switch (event.target.id) {
+        case "jacobs-ladder-color":
+            jacobsLadderData.color = event.target.value.substring(1);
+            break;
+        case "jacobs-ladder-speed":
+            jacobsLadderData.frequency = mapValue(event.target.value, 0.0, 1.0, 0.3, 5.3);
+            break;
+        case "jacobs-ladder-squared":
+            jacobsLadderData.squared = event.target.checked;
+    }
+    await fetch('/jacobsladder', {method: 'PUT', body: JSON.stringify(jacobsLadderData)});
+}
+
 async function setJacobsLadder(event) {
     await fetch('/jacobsladder', {method: 'PUT', body: JSON.stringify(jacobsLadderData)});
 }

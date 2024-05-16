@@ -35,7 +35,7 @@ button {
 }
 
 #crystal-button {
-  background: radial-gradient(ellipse 100% 80%, purple, lightgray);
+  background: radial-gradient(ellipse 60% 200%, purple, lightslategray);
 }
 #rainbow-button {
   background-color: #87cefa !important;
@@ -56,12 +56,12 @@ button {
   0%, 33% { top: -15px; }
   100% { top: 100%; }
 }
-.warp-core {
+.warp-core-button {
   overflow: hidden;
   position: relative;
   background: linear-gradient(to right, #333, 10%, #333, 30%, #87B, 70%, #333, 90%, #333);
 }
-.warp-core::after {
+.warp-core-button::after {
   content: "";
   position: absolute;
   border-radius: 40%;
@@ -85,11 +85,11 @@ button {
   background-color: #ff8;
   animation: jacobsLadderAnim 1.2s ease-in infinite;
 }
-#jacobs-ladder-button {
+.jacobs-ladder-button {
   position: relative;
-  background-color: #846;
+  background-color: #363;
 }
-#jacobs-ladder-button::before {
+.jacobs-ladder-button::before {
   content: '';
   position: absolute;
   bottom: 30px;
@@ -98,7 +98,7 @@ button {
   border-top: 3px solid #888;
   transform: translate(15px, 100%) rotate(-60deg);
 }
-#jacobs-ladder-button::after {
+.jacobs-ladder-button::after {
   content: '';
   position: absolute;
   bottom: 30px;

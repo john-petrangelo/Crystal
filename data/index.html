@@ -70,9 +70,9 @@
       <div class="buttons-group">
         <button id="crystal-button">Crystal</button>
         <button id="rainbow-button">Rainbow</button>
+        <button id="warp-core-button" class="warp-core-button">Warp Core</button>
         <button id="flame-button" onclick="fetch('/flame', {method:'GET'})">Flame</button>
-        <button id="warp-core-button" class="warp-core">Warp Core</button>
-        <button id="jacobs-ladder-button"><span class="jacobs-ladder-arc"></span>Jacob's Ladder</button>
+        <button id="jacobs-ladder-button" class="jacobs-ladder-button"><span class="jacobs-ladder-arc"></span>Jacob's Ladder</button>
         <button id="other-button">Other</button>
       </div>
     </div>
@@ -121,13 +121,25 @@
     </div>
 
     <div id="warp-core-subpage" class="subpage" data-buttonid="warp-core-button" data-title="Warp Core">
-      <button id="warp-core-engage-button" class="center warp-core" onclick="setWarpCore()">Engage!</button>
+      <button id="warp-core-engage-button" class="center warp-core-button" onclick="setWarpCore()">Engage!</button>
       <hr>
       <span class="section-title">Advanced Settings</span>
       <div id="warp-core" class="color-speed" data-title="Warp Factor"></div>
       <br>
       <input type="checkbox" id="warp-core-dual" name="dual" value="true">
       <label for="warp-core-dual">Dual Injectors</label>
+    </div>
+
+    <div id="jacobs-ladder-subpage" class="subpage" data-buttonid="jacobs-ladder-button" data-title="Jacob's Ladder">
+      <button id="jacobs-ladder-zap-button" class="center jacobs-ladder-button">
+        <span class="jacobs-ladder-arc"></span>Zap!
+      </button>
+      <hr>
+      <span class="section-title">Advanced Settings</span>
+      <div id="jacobs-ladder" class="color-speed" data-title="Arc"></div>
+      <br>
+      <input type="checkbox" id="jacobs-ladder-squared" name="squared" value="true">
+      <label for="jacobs-ladder-squared">Steep Brightness Ramp</label>
     </div>
 
     <div id="other-subpage" class="subpage" data-buttonid="other-button" data-title="Other">
