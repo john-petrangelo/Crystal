@@ -46,36 +46,33 @@ function startup() {
     }
 
     let crystalColorSpeedIDs = ["crystal-upper", "crystal-middle", "crystal-lower"];
-    setupColorSpeeds(crystalColorSpeedIDs, crystalDidChange);
+    setupColorSpeeds(crystalColorSpeedIDs, crystalDidChange, [0, 0.1, 1]);
     document.querySelector("#crystal-upper-speed").value = crystalData.upper_speed;
     document.querySelector("#crystal-middle-speed").value = crystalData.middle_speed;
     document.querySelector("#crystal-lower-speed").value = crystalData.lower_speed;
 
     let rainbowUpDownIDs = ["rb-movement"];
-    setupUpDowns(rainbowUpDownIDs, rainbowDidChange);
+    setupUpDowns(rainbowUpDownIDs, rainbowDidChange, [-1, -0.1, 0.1, 1]);
 
     let warpCoreColorSpeedIDs = ["warp-core"];
-    setupColorSpeeds(warpCoreColorSpeedIDs, warpCoreDidChange);
+    setupColorSpeeds(warpCoreColorSpeedIDs, warpCoreDidChange, [0, 0.06, 1]);
     document.querySelector("#warp-core-speed").value = mapValue(warpCoreData.frequency, 0.3, 5.3, 0.0, 1.0);
     document.querySelector("#warp-core-color").value = "#" + warpCoreData.color;
-    let dataList = document.getElementById("color-speed-tickmarks");
-    dataList.innerHTML = '<option value="0.0"><option value="0.06"></option><option value="1.0"></option>';
     document.getElementById('warp-core-dual').addEventListener('change', warpCoreDidChange);
 
     let jacobsLadderColorSpeedIDs = ["jacobs-ladder"];
-    setupColorSpeeds(jacobsLadderColorSpeedIDs, jacobsLadderDidChange);
+    setupColorSpeeds(jacobsLadderColorSpeedIDs, jacobsLadderDidChange, [0, 0.06, 1]);
     document.querySelector("#jacobs-ladder-speed").value = mapValue(jacobsLadderData.frequency, 0.3, 5.3, 0.0, 1.0);
     document.querySelector("#jacobs-ladder-color").value = "#" + jacobsLadderData.color;
-    dataList = document.getElementById("color-speed-tickmarks");
-    dataList.innerHTML = '<option value="0.0"><option value="0.6"></option><option value="1.0"></option>';
     document.getElementById('jacobs-ladder-squared').addEventListener('change', jacobsLadderDidChange);
 }
 
-function setupColorSpeeds(ids, listener) {
+function setupColorSpeeds(ids, listener, tickmarks) {
     let colorSpeedTemplate = document.getElementById("color-speed-template");
     for (let id of ids) {
         let colorSpeed = document.getElementById(id);
         let clone = colorSpeedTemplate.content.cloneNode(true);
+        setupTickmarks(clone, "color-speed-tickmarks", tickmarks);
         colorSpeed.appendChild(clone);
         colorSpeed.querySelector("span").textContent = colorSpeed.dataset.title;
 
@@ -84,11 +81,14 @@ function setupColorSpeeds(ids, listener) {
         colorSpeed.addEventListener("input", listener);
     }
 }
-function setupUpDowns(rainbowUpDownIDs, listener) {
+function setupUpDowns(rainbowUpDownIDs, listener, tickmarks) {
     let upDownTemplate = document.getElementById("up-down-template");
     for (let id of rainbowUpDownIDs) {
         let upDown = document.getElementById(id);
         let clone = upDownTemplate.content.cloneNode(true);
+
+        setupTickmarks(clone, "up-down-tickmarks", tickmarks);
+
         upDown.appendChild(clone);
         if (upDown.dataset.title) {
             upDown.querySelector("span").textContent = upDown.dataset.title;
@@ -96,6 +96,14 @@ function setupUpDowns(rainbowUpDownIDs, listener) {
 
         upDown.querySelector("input[type='range']").id = upDown.id + "-range";
         upDown.addEventListener("input", listener);
+    }
+}
+
+function setupTickmarks(parent, tickmarksId, tickmarks) {
+    let dataList = parent.getElementById(tickmarksId);
+    dataList.innerHTML = "";
+    for (let tickmark of tickmarks) {
+        dataList.innerHTML += `<option value="${tickmark}"></option>`;
     }
 }
 
