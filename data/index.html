@@ -1,4 +1,4 @@
-<html>
+<html lang="en">
   <head>
     <title>Crystal Control</title>
     <meta name="viewport" content="width=device-width" initial-scale="1.0">
@@ -14,19 +14,50 @@
         <span class="subpage-title"></span>
       </div>
     </template>
+
+    <template id="color-template">
+      <span></span>
+      <span class="color-container">
+        <label>
+          <input type="color" value="#c00060"/>
+        </label>
+      </span>
+    </template>
+
+    <template id="speed-template">
+      <span class="speed-title"></span>
+      <span class="speed-container">
+        <span class="speed-icon">&#x1F422;</span>
+        <span class="speed-slider">
+          <label>
+            <input type="range" min="0" max="1.0" value="1.0" step="0.01" list="speed-tickmarks">
+          </label>
+          <datalist id="speed-tickmarks">
+          </datalist>
+        </span>
+        <span class="speed-icon">&#x1F407;</span>
+      </span>
+    </template>
+
+
     <template id="color-speed-template">
       <span></span>
       <div class="color-speed-container">
-        <input type="color" value="#c00060" id="colors"/>
+        <label>
+          <input type="color" value="#c00060"/>
+        </label>
         <span class="color-speed-icon">&#x1F422;</span>
-        <div class="color-speed-slider">
-          <input type="range" min="0" max="1.0" value="1.0" step="0.01" list="color-speed-tickmarks">
+        <span class="color-speed-slider">
+          <label>
+            <input type="range" min="0" max="1.0" value="1.0" step="0.01" list="color-speed-tickmarks">
+          </label>
           <datalist id="color-speed-tickmarks">
           </datalist>
-        </div>
-        <div class="color-speed-icon">&#x1F407;</div>
+        </span>
+        <span class="color-speed-icon">&#x1F407;</span>
       </div>
     </template>
+
     <template id="up-down-template">
       <span></span>
       <div class="up-down-container">
@@ -38,6 +69,7 @@
         <span>Up</span>
       </div>
     </template>
+
   </head>
   <body>
     <div id="home" class="home">
@@ -46,7 +78,7 @@
       </div>
 
       <img src="Crystal.png" class="center home-img">
-      
+
       <div id="brightness-box">
         <label for="brightness">
           Brightness
@@ -128,8 +160,17 @@
       </button>
       <hr>
       <span class="section-title">Advanced Settings</span>
+      <hr>
       <div id="jacobs-ladder" class="color-speed" data-title="Arc"></div>
-      <br>
+      <hr>
+      <div class="row">
+        <span id="jl-color" class="color" data-title="Color"></span>
+        <span id="jl-speed" class="speed" data-title="Speed"></span>
+      </div>
+      <hr>
+      size<br>
+      jitterSize<br>
+      jitterPeriod<br>
       <input type="checkbox" id="jacobs-ladder-squared" name="squared" value="true">
       <label for="jacobs-ladder-squared">Steep Brightness Ramp</label>
     </div>

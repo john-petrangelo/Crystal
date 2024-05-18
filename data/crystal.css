@@ -15,6 +15,11 @@ body {
   margin-right: auto;
 }
 
+.row {
+  display: flex;
+  flex-flow: row nowrap;
+}
+
 button {
   width: calc(33% - 6px);
   height: 60px;
@@ -255,6 +260,53 @@ button {
 .color-speed-slider {
   width: 100%;
 }
+
+.color-container {
+  display: flex;
+  flex-flow: row nowrap;
+}
+.color > span {
+  padding: 10px 0 0 0;
+  display: block;
+  text-align: center;
+  font-size: small;
+}
+.color input[type="color"] {
+  height: 36px;
+  width: 48px;
+}
+
+.speed {
+  /*display: flex;*/
+  /*flex-flow: row nowrap;*/
+  width: 100%;
+}
+.speed-container {
+  display: flex;
+  flex-flow: row nowrap;
+  width: 100%;
+}
+.speed-title {
+  padding: 10px 0 0 0;
+  display: block;
+  text-align: center;
+  font-size: small;
+}
+.speed-icon {
+  padding: 5px;
+}
+.speed input[type="range"] {
+  flex-grow: 1;
+  height: 35px;
+  width: 100%;
+}
+
+.speed-slider {
+  width: 100%;
+}
+
+
+
 #rb-classic-button {
   background: radial-gradient(circle at bottom left, 
     rgba(0,0,0,0.0) 35%,
