@@ -16,12 +16,9 @@
     </template>
 
     <template id="color-template">
-      <span></span>
-      <span class="color-container">
-        <label>
-          <input type="color" value="#c00060"/>
-        </label>
-      </span>
+      <label>
+        <input type="color" value="#c00060"/>
+      </label>
     </template>
 
     <template id="speed-template">
@@ -163,16 +160,20 @@
       <hr>
       <div id="jacobs-ladder" class="color-speed" data-title="Arc"></div>
       <hr>
+      <div class="row" style="gap: 40px">
+        <span id="jl-color" class="color" data-title=""></span>
+        <label>
+          <input type="checkbox" id="jacobs-ladder-squared" name="squared" value="true">
+          Brighter Arc
+        </label>
+      </div>
       <div class="row">
-        <span id="jl-color" class="color" data-title="Color"></span>
         <span id="jl-speed" class="speed" data-title="Speed"></span>
       </div>
       <hr>
       size<br>
       jitterSize<br>
       jitterPeriod<br>
-      <input type="checkbox" id="jacobs-ladder-squared" name="squared" value="true">
-      <label for="jacobs-ladder-squared">Steep Brightness Ramp</label>
     </div>
 
     <div id="other-subpage" class="subpage" data-buttonid="other-button" data-title="Other">

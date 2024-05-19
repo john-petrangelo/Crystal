@@ -18,6 +18,7 @@ body {
 .row {
   display: flex;
   flex-flow: row nowrap;
+  align-items: center;
 }
 
 button {
@@ -261,15 +262,10 @@ button {
   width: 100%;
 }
 
-.color-container {
+.color > label {
   display: flex;
   flex-flow: row nowrap;
-}
-.color > span {
   padding: 10px 0 0 0;
-  display: block;
-  text-align: center;
-  font-size: small;
 }
 .color input[type="color"] {
   height: 36px;
@@ -277,8 +273,8 @@ button {
 }
 
 .speed {
-  /*display: flex;*/
-  /*flex-flow: row nowrap;*/
+  display: flex;
+  flex-flow: row nowrap;
   width: 100%;
 }
 .speed-container {
@@ -300,7 +296,6 @@ button {
   height: 35px;
   width: 100%;
 }
-
 .speed-slider {
   width: 100%;
 }
