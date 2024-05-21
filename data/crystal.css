@@ -236,10 +236,11 @@ button {
   font-size: x-large;
 }
 
-.color > label {
+.color {
   display: flex;
   padding: 0 10px 0 10px;
   align-items: center;
+  font-size: small;
 }
 .color-speed input[type="color"],
 .color input[type="color"] {
@@ -249,18 +250,17 @@ button {
 }
 
 .speed {
+  display: block;
   width: 100%;
+  text-align: center;
+  font-size: small;
 }
 .color-speed-container,
 .speed-container {
   display: flex;
   flex-flow: row nowrap;
-}
-.speed-title {
-  padding: 10px 0 0 0;
-  display: block;
-  text-align: center;
-  font-size: small;
+  padding: 0 10px 0 10px;
+  align-items: center;
 }
 .speed-icon {
   padding: 5px;

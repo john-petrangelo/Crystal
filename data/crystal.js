@@ -82,13 +82,6 @@ function setupColors(ids, listener) {
         let color = document.getElementById(id);
         let clone = colorTemplate.content.cloneNode(true);
         color.appendChild(clone);
-        if (color.dataset.title) {
-            const label = color.querySelector("label");
-            const textNode = Array.from(label.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
-            if (textNode) {
-                textNode.nodeValue = color.dataset.title;
-            }
-        }
 
         // TODO Fix the "-color" suffix holdover
         color.querySelector("input[type='color']").id = color.id + "-color";
@@ -102,7 +95,6 @@ function setupSpeeds(ids, listener, tickmarks) {
         let clone = speedTemplate.content.cloneNode(true);
         setupTickmarks(clone, "speed-tickmarks", tickmarks);
         speed.appendChild(clone);
-        speed.querySelector(".speed-title").textContent = speed.dataset.title;
 
         // TODO Fix the "-speed" suffix holdover
         // speed.querySelector("input[type='range']").id = speed.id + "-speed";
