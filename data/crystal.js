@@ -130,21 +130,13 @@ function setupTickmarks(parent, tickmarks) {
     }
 }
 
-function setupTickmarks_old(parent, tickmarksId, tickmarks) {
-    let dataList = parent.getElementById(tickmarksId);
-    dataList.innerHTML = "";
-    for (let tickmark of tickmarks) {
-        dataList.innerHTML += `<option value="${tickmark}"></option>`;
-    }
-}
-
 function setupUpDowns(rainbowUpDownIDs, listener, tickmarks) {
     let upDownTemplate = document.getElementById("up-down-template");
     for (let id of rainbowUpDownIDs) {
         let upDown = document.getElementById(id);
         let clone = upDownTemplate.content.cloneNode(true);
 
-        setupTickmarks_old(clone, "up-down-tickmarks", tickmarks);
+        setupTickmarks(clone, tickmarks);
 
         upDown.appendChild(clone);
         if (upDown.dataset.title) {
