@@ -23,29 +23,18 @@
       <span class="speed-container">
         <span class="speed-icon">&#x1F422;</span>
         <span class="speed-slider">
-          <input type="range" min="0" max="1.0" value="1.0" step="0.01" list="speed-tickmarks">
-          <datalist id="speed-tickmarks"></datalist>
+          <input type="range" min="0" max="1.0" value="1.0" step="0.01">
+          <datalist></datalist>
         </span>
         <span class="speed-icon">&#x1F407;</span>
       </span>
     </template>
 
     <template id="color-speed-template">
-      <span class="speed-title"></span>
-      <div class="speed-container">
-        <label>
-          <input type="color" value="#c00060"/>
-        </label>
-        <span class="speed-icon">&#x1F422;</span>
-        <span class="speed-slider">
-          <label>
-            <input type="range" min="0" max="1.0" value="1.0" step="0.01" list="color-speed-tickmarks">
-          </label>
-          <datalist id="color-speed-tickmarks">
-          </datalist>
-        </span>
-        <span class="speed-icon">&#x1F407;</span>
-      </div>
+      <span class="color-speed-container">
+        <span class="color"></span>
+        <span class="speed">Speed</span>
+      </span>
     </template>
 
     <template id="up-down-template">
@@ -109,9 +98,11 @@
       <br><hr>
       <span class="section-title">Advanced Settings</span>
       <br>
-      <div id="crystal-upper" class="color-speed" data-title="Upper section"></div>
-      <div id="crystal-middle" class="color-speed" data-title="Middle section"></div>
-      <div id="crystal-lower" class="color-speed" data-title="Lower section"></div>
+      <div id="crystal-advanced">
+        <div id="crystal-upper" class="color-speed" data-title="Upper section"></div>
+        <div id="crystal-middle" class="color-speed" data-title="Middle section"></div>
+        <div id="crystal-lower" class="color-speed" data-title="Lower section"></div>
+      </div>
     </div>
 
     <div id="rainbow-subpage" class="subpage" data-buttonid="rainbow-button" data-title="Rainbow">
@@ -151,20 +142,20 @@
       <hr>
       <span class="section-title">Advanced Settings</span>
       <hr>
-      <div id="jacobs-ladder" class="color-speed" data-title="Arc"></div>
-      <hr>
-      <div class="row" style="gap: 40px">
-        <span id="jl-color" class="color">Arc color</span>
-        <label>
-          <input type="checkbox" id="jacobs-ladder-squared" name="squared" value="true">
-          Brighter Arc
-        </label>
+      <div id="jacobs-ladder-advanced">
+        <div class="row" style="gap: 40px">
+          <span id="jl-color" class="color">Arc color</span>
+          <label>
+            <input type="checkbox" id="jacobs-ladder-squared" name="squared" value="true">
+            Brighter Arc
+          </label>
+        </div>
+        <span id="jl-speed" class="speed">Arc speed</span>
+        <hr>
+        size<br>
+        jitterSize<br>
+        jitterPeriod<br>
       </div>
-      <span id="jl-speed" class="speed">Arc speed</span>
-      <hr>
-      size<br>
-      jitterSize<br>
-      jitterPeriod<br>
     </div>
 
     <div id="other-subpage" class="subpage" data-buttonid="other-button" data-title="Other">

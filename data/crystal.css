@@ -264,6 +264,7 @@ button {
 }
 .speed-icon {
   padding: 5px;
+  font-size: medium;
 }
 .color-speed input,
 .speed input[type="range"] {

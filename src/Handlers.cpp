@@ -260,7 +260,7 @@ void handleJacobsLadder() {
     ModelPtr jacobsLadder = JacobsLadder::make(size, frequency, color, jitterSize, jitterPeriod);
     Network::getRenderer()->setModel(jacobsLadder);
   }
-  
+
   Network::getServer().send(200, "text/plain");
 }
 

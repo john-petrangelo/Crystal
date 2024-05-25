@@ -45,83 +45,106 @@ function startup() {
         }
     }
 
-    let crystalColorSpeedIDs = ["crystal-upper", "crystal-middle", "crystal-lower"];
-    setupColorSpeeds(crystalColorSpeedIDs, crystalDidChange, [0, 0.1, 1]);
+    setupColorSpeeds();
+    setupColors();
+    setupSpeeds();
+
+    const crystalAdv = document.querySelector("#crystal-advanced");
+    crystalAdv.addEventListener("input", crystalDidChange);
+    setupTickmarks(crystalAdv, [0, 0.1, 1]);
     document.querySelector("#crystal-upper-speed").value = crystalData.upper_speed;
     document.querySelector("#crystal-middle-speed").value = crystalData.middle_speed;
     document.querySelector("#crystal-lower-speed").value = crystalData.lower_speed;
+    document.querySelector("#crystal-upper-color").value = crystalData.upper_color;
+    document.querySelector("#crystal-middle-color").value = crystalData.middle_color;
+    document.querySelector("#crystal-lower-color").value = crystalData.lower_color;
 
     let rainbowUpDownIDs = ["rb-movement"];
     setupUpDowns(rainbowUpDownIDs, rainbowDidChange, [-1, -0.1, 0.1, 1]);
 
-    let warpCoreColorSpeedIDs = ["warp-core"];
-    setupColorSpeeds(warpCoreColorSpeedIDs, warpCoreDidChange, [0, 0.06, 1]);
+    const wc = document.querySelector("#warp-core");
+    wc.addEventListener("input", warpCoreDidChange);
+    setupTickmarks(wc, [0, 0.06, 1]);
     document.querySelector("#warp-core-speed").value =
         mapValue(warpCoreData.frequency, 0.3, 5.3, 0.0, 1.0);
     document.querySelector("#warp-core-color").value = "#" + warpCoreData.color;
-    document.getElementById('warp-core-dual').addEventListener('change', warpCoreDidChange);
 
-    setupColorSpeeds(["jacobs-ladder"], jacobsLadderDidChange, [0, 0.06, 1]);
-    document.querySelector("#jacobs-ladder-speed").value =
-        mapValue(jacobsLadderData.frequency, 0.3, 5.3, 0.0, 1.0);
-    document.querySelector("#jacobs-ladder-color").value = "#" + jacobsLadderData.color;
+    const wcDual = document.getElementById('warp-core-dual');
+    wcDual.addEventListener('change', warpCoreDidChange);
 
-    setupColors(["jl-color"], jacobsLadderDidChange);
-    document.querySelector("#jl-color").value = "#" + jacobsLadderData.color;
+    const jlAdv = document.querySelector("#jacobs-ladder-advanced");
+    jlAdv.addEventListener("input", jacobsLadderDidChange);
 
-    setupSpeeds(["jl-speed"], jacobsLadderDidChange, [0, 0.06, 1]);
-    document.querySelector("#jl-speed").value =
-        mapValue(jacobsLadderData.frequency, 0.3, 5.3, 0.0, 1.0);
+    const jlColor = document.querySelector("#jl-color");
+    jlColor.value = "#" + jacobsLadderData.color;
 
-    document.getElementById('jacobs-ladder-squared').addEventListener('change', jacobsLadderDidChange);
+    const jlSpeed = document.querySelector("#jl-speed");
+    setupTickmarks(jlSpeed, [0, 0.06, 1]);
+    jlSpeed.value = mapValue(jacobsLadderData.frequency, 0.3, 5.3, 0.0, 1.0);
+
+    const jlSquared = document.getElementById('jacobs-ladder-squared');
 }
 
-function setupColors(ids, listener) {
+function setupColorSpeeds() {
+    let colorSpeedTemplate = document.getElementById("color-speed-template");
+    const colorSpeeds = document.getElementsByClassName('color-speed');
+    for (let colorSpeed of colorSpeeds) {
+        let clone = colorSpeedTemplate.content.cloneNode(true);
+        let container = clone.querySelector(".color-speed-container");
+        colorSpeed.appendChild(container);
+        colorSpeed.querySelector(".color").id = colorSpeed.id + "-color";
+        colorSpeed.querySelector(".speed").id = colorSpeed.id + "-speed";
+    }
+}
+function setupColors() {
     let colorTemplate = document.getElementById("color-template");
-    for (let id of ids) {
-        let color = document.getElementById(id);
+    const colors = document.getElementsByClassName('color');
+    for (let color of colors) {
         let clone = colorTemplate.content.cloneNode(true);
         color.appendChild(clone);
-
-        // TODO Fix the "-color" suffix holdover
-        color.querySelector("input[type='color']").id = color.id + "-color";
-        color.addEventListener("input", listener);
+        color.querySelector("input[type='color']").id = color.id + "-input";
     }
 }
-function setupSpeeds(ids, listener, tickmarks) {
+
+function setupSpeeds() {
     let speedTemplate = document.getElementById("speed-template");
-    for (let id of ids) {
-        let speed = document.getElementById(id);
+    const speeds = document.getElementsByClassName('speed');
+    for (let speed of speeds) {
         let clone = speedTemplate.content.cloneNode(true);
-        setupTickmarks(clone, "speed-tickmarks", tickmarks);
         speed.appendChild(clone);
-
-        // TODO Fix the "-speed" suffix holdover
-        // speed.querySelector("input[type='range']").id = speed.id + "-speed";
-        // speed.addEventListener("input", listener);
+        speed.querySelector("input[type='range']").id = speed.id + "-input";
     }
 }
-function setupColorSpeeds(ids, listener, tickmarks) {
-    let colorSpeedTemplate = document.getElementById("color-speed-template");
-    for (let id of ids) {
-        let colorSpeed = document.getElementById(id);
-        let clone = colorSpeedTemplate.content.cloneNode(true);
-        setupTickmarks(clone, "color-speed-tickmarks", tickmarks);
-        colorSpeed.appendChild(clone);
-        colorSpeed.querySelector("span").textContent = colorSpeed.dataset.title;
+function setupTickmarks(parent, tickmarks) {
+    const tickmarksID = parent.id + "-tickmarks";
 
-        colorSpeed.querySelector("input[type='color']").id = colorSpeed.id + "-color";
-        colorSpeed.querySelector("input[type='range']").id = colorSpeed.id + "-speed";
-        colorSpeed.addEventListener("input", listener);
+    const datalist = parent.querySelector("datalist");
+    datalist.id = tickmarksID;
+
+    const input = parent.querySelector('input[type="range"]')
+    input.setAttribute("list", tickmarksID);
+
+    datalist.innerHTML = "";
+    for (let tickmark of tickmarks) {
+        datalist.innerHTML += `<option value="${tickmark}"></option>`;
     }
 }
+
+function setupTickmarks_old(parent, tickmarksId, tickmarks) {
+    let dataList = parent.getElementById(tickmarksId);
+    dataList.innerHTML = "";
+    for (let tickmark of tickmarks) {
+        dataList.innerHTML += `<option value="${tickmark}"></option>`;
+    }
+}
+
 function setupUpDowns(rainbowUpDownIDs, listener, tickmarks) {
     let upDownTemplate = document.getElementById("up-down-template");
     for (let id of rainbowUpDownIDs) {
         let upDown = document.getElementById(id);
         let clone = upDownTemplate.content.cloneNode(true);
 
-        setupTickmarks(clone, "up-down-tickmarks", tickmarks);
+        setupTickmarks_old(clone, "up-down-tickmarks", tickmarks);
 
         upDown.appendChild(clone);
         if (upDown.dataset.title) {
@@ -130,14 +153,6 @@ function setupUpDowns(rainbowUpDownIDs, listener, tickmarks) {
 
         upDown.querySelector("input[type='range']").id = upDown.id + "-range";
         upDown.addEventListener("input", listener);
-    }
-}
-
-function setupTickmarks(parent, tickmarksId, tickmarks) {
-    let dataList = parent.getElementById(tickmarksId);
-    dataList.innerHTML = "";
-    for (let tickmark of tickmarks) {
-        dataList.innerHTML += `<option value="${tickmark}"></option>`;
     }
 }
 
