@@ -52,44 +52,38 @@ function startup() {
     const crystalAdv = document.querySelector("#crystal-advanced");
     crystalAdv.addEventListener("input", crystalDidChange);
     setupTickmarks(crystalAdv, [0, 0.1, 1]);
-    document.querySelector("#crystal-upper-speed").value = crystalData.upper_speed;
-    document.querySelector("#crystal-middle-speed").value = crystalData.middle_speed;
-    document.querySelector("#crystal-lower-speed").value = crystalData.lower_speed;
-    document.querySelector("#crystal-upper-color").value = crystalData.upper_color;
-    document.querySelector("#crystal-middle-color").value = crystalData.middle_color;
-    document.querySelector("#crystal-lower-color").value = crystalData.lower_color;
+    document.querySelector("#crystal-upper-color-input").value = "#" + crystalData.upper_color;
+    document.querySelector("#crystal-middle-color-input").value = "#" + crystalData.middle_color;
+    document.querySelector("#crystal-lower-color-input").value = "#" + crystalData.lower_color;
+    document.querySelector("#crystal-upper-speed-input").value = crystalData.upper_speed;
+    document.querySelector("#crystal-middle-speed-input").value = crystalData.middle_speed;
+    document.querySelector("#crystal-lower-speed-input").value = crystalData.lower_speed;
 
     let rainbowUpDownIDs = ["rb-movement"];
-    setupUpDowns(rainbowUpDownIDs, rainbowDidChange, [-1, -0.1, 0.1, 1]);
+    setupUpDowns(rainbowUpDownIDs, rainbowDidChange, [0, 0.45, 0.55, 1]);
 
     const wc = document.querySelector("#warp-core");
     wc.addEventListener("input", warpCoreDidChange);
     setupTickmarks(wc, [0, 0.06, 1]);
-    document.querySelector("#warp-core-speed").value =
+    document.querySelector("#warp-core-speed-input").value =
         mapValue(warpCoreData.frequency, 0.3, 5.3, 0.0, 1.0);
-    document.querySelector("#warp-core-color").value = "#" + warpCoreData.color;
+    document.querySelector("#warp-core-color-input").value = "#" + warpCoreData.color;
 
     const wcDual = document.getElementById('warp-core-dual');
     wcDual.addEventListener('change', warpCoreDidChange);
 
-    const jlAdv = document.querySelector("#jacobs-ladder-advanced");
+    const jlAdv = document.querySelector("#jacobs-ladder-advanced")
     jlAdv.addEventListener("input", jacobsLadderDidChange);
-
-    const jlColor = document.querySelector("#jl-color");
-    jlColor.value = "#" + jacobsLadderData.color;
-
-    const jlSpeed = document.querySelector("#jl-speed");
-    setupTickmarks(jlSpeed, [0, 0.06, 1]);
-    jlSpeed.value = mapValue(jacobsLadderData.frequency, 0.3, 5.3, 0.0, 1.0);
-
-    const jlSquared = document.getElementById('jacobs-ladder-squared');
+    setupTickmarks(jlAdv, [0, 0.06, 1]);
+    document.querySelector("#jl-color-input").value = "#" + jacobsLadderData.color;
+    document.querySelector("#jl-speed-input").value = mapValue(jacobsLadderData.frequency, 0.3, 5.3, 0.0, 1.0);
 }
 
 function setupColorSpeeds() {
-    let colorSpeedTemplate = document.getElementById("color-speed-template");
+    let template = document.getElementById("color-speed-template");
     const colorSpeeds = document.getElementsByClassName('color-speed');
     for (let colorSpeed of colorSpeeds) {
-        let clone = colorSpeedTemplate.content.cloneNode(true);
+        let clone = template.content.cloneNode(true);
         let container = clone.querySelector(".color-speed-container");
         colorSpeed.appendChild(container);
         colorSpeed.querySelector(".color").id = colorSpeed.id + "-color";
@@ -97,39 +91,24 @@ function setupColorSpeeds() {
     }
 }
 function setupColors() {
-    let colorTemplate = document.getElementById("color-template");
+    let template = document.getElementById("color-template");
     const colors = document.getElementsByClassName('color');
     for (let color of colors) {
-        let clone = colorTemplate.content.cloneNode(true);
+        let clone = template.content.cloneNode(true);
         color.appendChild(clone);
         color.querySelector("input[type='color']").id = color.id + "-input";
     }
 }
 
 function setupSpeeds() {
-    let speedTemplate = document.getElementById("speed-template");
+    let template = document.getElementById("speed-template");
     const speeds = document.getElementsByClassName('speed');
     for (let speed of speeds) {
-        let clone = speedTemplate.content.cloneNode(true);
+        let clone = template.content.cloneNode(true);
         speed.appendChild(clone);
         speed.querySelector("input[type='range']").id = speed.id + "-input";
     }
 }
-function setupTickmarks(parent, tickmarks) {
-    const tickmarksID = parent.id + "-tickmarks";
-
-    const datalist = parent.querySelector("datalist");
-    datalist.id = tickmarksID;
-
-    const input = parent.querySelector('input[type="range"]')
-    input.setAttribute("list", tickmarksID);
-
-    datalist.innerHTML = "";
-    for (let tickmark of tickmarks) {
-        datalist.innerHTML += `<option value="${tickmark}"></option>`;
-    }
-}
-
 function setupUpDowns(rainbowUpDownIDs, listener, tickmarks) {
     let upDownTemplate = document.getElementById("up-down-template");
     for (let id of rainbowUpDownIDs) {
@@ -145,6 +124,21 @@ function setupUpDowns(rainbowUpDownIDs, listener, tickmarks) {
 
         upDown.querySelector("input[type='range']").id = upDown.id + "-range";
         upDown.addEventListener("input", listener);
+    }
+}
+
+function setupTickmarks(parent, tickmarks) {
+    const tickmarksID = parent.id + "-tickmarks";
+
+    const datalist = parent.querySelector("datalist");
+    datalist.id = tickmarksID;
+
+    const input = parent.querySelector('input[type="range"]')
+    input.setAttribute("list", tickmarksID);
+
+    datalist.innerHTML = "";
+    for (let tickmark of tickmarks) {
+        datalist.innerHTML += `<option value="${tickmark}"></option>`;
     }
 }
 
@@ -216,6 +210,7 @@ async function setCrystal(color) {
     await fetch('/crystal', {method: 'PUT', body: JSON.stringify(crystalData)});
 }
 
+
 let rainbowData = {
     mode: "classic",
     speed: 0.3
@@ -224,8 +219,10 @@ let rainbowData = {
 async function rainbowDidChange(event) {
     switch (event.target.id) {
         case "rb-movement-range":
-            event.target.value = snapMin(event.target.value, 0.1);
-            rainbowData.speed = parseFloat(event.target.value);
+            let denormalizedValue = mapValue(event.target.value, 0, 1, -1, 1);
+            denormalizedValue = snapMin(denormalizedValue, 0.1);
+            event.target.value = mapValue(denormalizedValue, -1, 1, 0, 1);
+            rainbowData.speed = parseFloat(denormalizedValue);
             break;
     }
 
