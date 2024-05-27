@@ -48,6 +48,8 @@ function startup() {
     setupColorSpeeds();
     setupColors();
     setupSpeeds();
+    setupUpDowns(rainbowDidChange, [0, 0.45, 0.55, 1]);
+    setupSliders();
 
     const crystalAdv = document.querySelector("#crystal-advanced");
     crystalAdv.addEventListener("input", crystalDidChange);
@@ -59,8 +61,10 @@ function startup() {
     document.querySelector("#crystal-middle-speed-input").value = crystalData.middle_speed;
     document.querySelector("#crystal-lower-speed-input").value = crystalData.lower_speed;
 
-    let rainbowUpDownIDs = ["rb-movement"];
-    setupUpDowns(rainbowUpDownIDs, rainbowDidChange, [0, 0.45, 0.55, 1]);
+    const rbMovement = document.querySelector("#rb-movement");
+    rbMovement.addEventListener("input", rainbowDidChange);
+    setupTickmarks(rbMovement, [0, 0.45, 0.55, 1]);
+    document.querySelector("#rb-movement-input").value = mapValue(rainbowData.speed, -1, 1, 0, 1);
 
     const wc = document.querySelector("#warp-core");
     wc.addEventListener("input", warpCoreDidChange);
@@ -84,7 +88,7 @@ function setupColorSpeeds() {
     const colorSpeeds = document.getElementsByClassName('color-speed');
     for (let colorSpeed of colorSpeeds) {
         let clone = template.content.cloneNode(true);
-        let container = clone.querySelector(".color-speed-container");
+        let container = clone.querySelector(".slider-container");
         colorSpeed.appendChild(container);
         colorSpeed.querySelector(".color").id = colorSpeed.id + "-color";
         colorSpeed.querySelector(".speed").id = colorSpeed.id + "-speed";
@@ -101,29 +105,37 @@ function setupColors() {
 }
 
 function setupSpeeds() {
-    let template = document.getElementById("speed-template");
+    const template = document.getElementById("speed-template");
     const speeds = document.getElementsByClassName('speed');
-    for (let speed of speeds) {
-        let clone = template.content.cloneNode(true);
+    for (const speed of speeds) {
+        const clone = template.content.cloneNode(true);
         speed.appendChild(clone);
-        speed.querySelector("input[type='range']").id = speed.id + "-input";
+        speed.querySelector(".slider").id = speed.id + "-input";
     }
 }
-function setupUpDowns(rainbowUpDownIDs, listener, tickmarks) {
-    let upDownTemplate = document.getElementById("up-down-template");
-    for (let id of rainbowUpDownIDs) {
-        let upDown = document.getElementById(id);
-        let clone = upDownTemplate.content.cloneNode(true);
-
-        setupTickmarks(clone, tickmarks);
-
+function setupUpDowns() {
+    const upDownTemplate = document.getElementById("up-down-template");
+    const upDowns = document.getElementsByClassName('up-down');
+    for (const upDown of upDowns) {
+        const clone = upDownTemplate.content.cloneNode(true);
         upDown.appendChild(clone);
-        if (upDown.dataset.title) {
-            upDown.querySelector("span").textContent = upDown.dataset.title;
-        }
-
-        upDown.querySelector("input[type='range']").id = upDown.id + "-range";
-        upDown.addEventListener("input", listener);
+        upDown.querySelector(".slider").id = upDown.id + "-input";
+    }
+}
+function setupSliders() {
+    let template = document.getElementById("slider-template");
+    console.log(`slider template=${JSON.stringify(template)}`);
+    const sliders = document.getElementsByClassName('slider');
+    console.log(`slider sliders=${JSON.stringify(sliders)}`);
+    for (let slider of sliders) {
+        let clone = template.content.cloneNode(true);
+        slider.appendChild(clone);
+        console.log(`slider clone=${JSON.stringify(clone)}`);
+        console.log(`slider slider=${JSON.stringify(slider)}`);
+        console.log(`slider slider.qS=${JSON.stringify(slider.querySelector("input[type='range']"))}`);
+        const id = slider.id;
+        slider.removeAttribute("id");
+        slider.querySelector("input[type='range']").id = id;
     }
 }
 
@@ -198,8 +210,8 @@ async function crystalDidChange(event) {
 }
 
 async function setCrystal(color) {
-    let colorInputs = document.querySelectorAll(".color-speed-container > input[type='color']");
-    for (let colorInput of colorInputs) {
+    const colorInputs = document.querySelectorAll("#crystal-advanced input[type='color']");
+    for (const colorInput of colorInputs) {
         colorInput.value = "#" + color;
     }
 
@@ -210,7 +222,6 @@ async function setCrystal(color) {
     await fetch('/crystal', {method: 'PUT', body: JSON.stringify(crystalData)});
 }
 
-
 let rainbowData = {
     mode: "classic",
     speed: 0.3
@@ -218,7 +229,7 @@ let rainbowData = {
 
 async function rainbowDidChange(event) {
     switch (event.target.id) {
-        case "rb-movement-range":
+        case "rb-movement-input":
             let denormalizedValue = mapValue(event.target.value, 0, 1, -1, 1);
             denormalizedValue = snapMin(denormalizedValue, 0.1);
             event.target.value = mapValue(denormalizedValue, -1, 1, 0, 1);

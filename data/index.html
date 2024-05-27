@@ -15,40 +15,37 @@
       </div>
     </template>
 
+    <template id="slider-template">
+      <input type="range" min="0" max="1.0" value="1.0" step="0.01">
+      <datalist></datalist>
+    </template>
+
     <template id="color-template">
       <input type="color" value="#c00060"/>
     </template>
 
     <template id="speed-template">
-      <span class="speed-container">
+      <span class="slider-container">
         <span class="speed-icon">&#x1F422;</span>
-        <span class="speed-slider">
-          <input type="range" min="0" max="1.0" value="1.0" step="0.01">
-          <datalist></datalist>
-        </span>
+        <span class="slider"></span>
         <span class="speed-icon">&#x1F407;</span>
       </span>
     </template>
 
     <template id="color-speed-template">
-      <span class="color-speed-container">
+      <span class="slider-container">
         <span class="color"></span>
         <span class="speed">Speed</span>
       </span>
     </template>
 
     <template id="up-down-template">
-      <div class="up-down-container">
+      <div class="slider-container">
         <span>Down</span>
-        <div class="up-down-slider">
-          <input type="range" min="0.0" max="1.0" value="0.65" step="0.01">
-          <datalist></datalist>
-        </div>
+        <div class="slider"></div>
         <span>Up</span>
       </div>
     </template>
-
-
 
   </head>
   <body>
