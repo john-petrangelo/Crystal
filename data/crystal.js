@@ -88,7 +88,7 @@ function setupColorSpeeds() {
     const colorSpeeds = document.getElementsByClassName('color-speed');
     for (let colorSpeed of colorSpeeds) {
         let clone = template.content.cloneNode(true);
-        let container = clone.querySelector(".slider-container");
+        let container = clone.querySelector(".row");
         colorSpeed.appendChild(container);
         colorSpeed.querySelector(".color").id = colorSpeed.id + "-color";
         colorSpeed.querySelector(".speed").id = colorSpeed.id + "-speed";

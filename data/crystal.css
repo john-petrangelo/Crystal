@@ -17,8 +17,10 @@ body {
 
 .row {
   display: flex;
-  flex-flow: row nowrap;
-  align-items: center;
+  margin: 0 5px;
+}
+.row span {
+  margin: 0 5px;
 }
 
 button {
@@ -238,14 +240,14 @@ button {
 
 .color {
   display: flex;
-  padding: 0 10px 0 10px;
+  margin: 0 10px;
   align-items: center;
   font-size: small;
 }
 .color input[type="color"] {
   height: 36px;
   width: 36px;
-  margin: 0 10px 0 10px;
+  margin: 0 10px;
 }
 
 .speed {
@@ -254,24 +256,22 @@ button {
   text-align: center;
   font-size: small;
 }
+.speed-icon {
+  font-size: x-large;
+}
 
 .slider {
   width: 100%;
 }
 .slider-container {
   display: flex;
-  flex-flow: row nowrap;
-  padding: 0 10px 0 10px;
-  align-items: center;
-  flex-flow: row nowrap;
+  margin: 0 10px;
 }
 .slider-container span {
-  padding-left: 5px;
-  padding-right: 5px;
+  margin: auto 5px;
   font-size: small;
 }
 .slider input[type="range"] {
-  flex-grow: 1;
   height: 35px;
   width: 100%;
 }
