@@ -66,14 +66,14 @@ function startup() {
     setupTickmarks(rbMovement, [0, 0.45, 0.55, 1]);
     document.querySelector("#rb-movement-input").value = mapValue(rainbowData.speed, -1, 1, 0, 1);
 
-    const wc = document.querySelector("#warp-core");
+    const wc = document.querySelector("#wc");
     wc.addEventListener("input", warpCoreDidChange);
     setupTickmarks(wc, [0, 0.06, 1]);
-    document.querySelector("#warp-core-speed-input").value =
+    document.querySelector("#wc-speed-input").value =
         mapValue(warpCoreData.frequency, 0.3, 5.3, 0.0, 1.0);
-    document.querySelector("#warp-core-color-input").value = "#" + warpCoreData.color;
+    document.querySelector("#wc-color-input").value = "#" + warpCoreData.color;
 
-    const wcDual = document.getElementById('warp-core-dual');
+    const wcDual = document.getElementById('wc-dual');
     wcDual.addEventListener('change', warpCoreDidChange);
 
     const jlAdv = document.querySelector("#jacobs-ladder-advanced")
@@ -251,13 +251,13 @@ let warpCoreData = {
 
 async function warpCoreDidChange(event) {
     switch (event.target.id) {
-        case "warp-core-color":
+        case "wc-color-input":
             warpCoreData.color = event.target.value.substring(1);
             break;
-        case "warp-core-speed":
+        case "wc-speed-input":
             warpCoreData.frequency = mapValue(event.target.value, 0.0, 1.0, 0.3, 5.3);
             break;
-        case "warp-core-dual":
+        case "wc-dual":
             warpCoreData.dual = event.target.checked;
     }
     await fetch('/warpcore', {method: 'PUT', body: JSON.stringify(warpCoreData)});
@@ -277,22 +277,22 @@ let jacobsLadderData = {
 };
 async function jacobsLadderDidChange(event) {
     switch (event.target.id) {
-        case "jacobs-ladder-color":
+        case "jl-color-input":
             jacobsLadderData.color = event.target.value.substring(1);
             break;
-        case "jacobs-ladder-speed":
+        case "jl-speed-input":
             jacobsLadderData.frequency = mapValue(event.target.value, 0.0, 1.0, 0.3, 5.3);
             break;
-        case "jacobs-ladder-size":
+        case "jl-size":
             jacobsLadderData.size = mapValue(event.target.value, 0.0, 1.0, 0.0, 1.0);
             break;
-        case "jacobs-ladder-jitter-period":
+        case "jl-jitter-period":
             jacobsLadderData.jitterPeriod = event.target.value;
             break;
-        case "jacobs-ladder-jitter-size":
+        case "jl-jitter-size":
             jacobsLadderData.jitterSize = mapValue(event.target.value, 0.0, 1.0, 0.0, 0.5);
             break;
-        case "jacobs-ladder-squared":
+        case "jl-squared":
             jacobsLadderData.squared = event.target.checked;
     }
     await fetch('/jacobsladder', {method: 'PUT', body: JSON.stringify(jacobsLadderData)});
