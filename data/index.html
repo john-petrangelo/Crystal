@@ -1,4 +1,4 @@
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
   <head>
     <title>Crystal Control</title>
     <meta name="viewport" content="width=device-width" initial-scale="1.0">
@@ -134,7 +134,7 @@
     </div>
 
     <div id="jacobs-ladder-subpage" class="subpage" data-buttonid="jacobs-ladder-button" data-title="Jacob's Ladder">
-      <button id="jacobs-ladder-zap-button" class="center jacobs-ladder-button">
+      <button id="jacobs-ladder-zap-button" class="center jacobs-ladder-button" onclick="setJacobsLadder()">Zap!
         <span class="jacobs-ladder-arc"></span>Zap!
       </button>
       <hr>
@@ -149,10 +149,16 @@
           </label>
         </div>
         <span id="jl-speed" class="speed">Arc speed</span>
+        <span class="row">
+          <span id="jl-size" class="slider">Arc size</span>
+        </span>
         <hr>
-        size<br>
-        jitterSize<br>
-        jitterPeriod<br>
+        <span class="row">
+          <span id="jl-jitter-period" class="slider">Jitter Period</span>
+        </span>
+        <span class="row">
+          <span id="jl-jitter-size" class="slider">Jitter Size</span>
+        </span>
       </div>
     </div>
 

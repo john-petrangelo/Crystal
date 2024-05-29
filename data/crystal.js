@@ -81,6 +81,9 @@ function startup() {
     setupTickmarks(jlAdv, [0, 0.06, 1]);
     document.querySelector("#jl-color-input").value = "#" + jacobsLadderData.color;
     document.querySelector("#jl-speed-input").value = mapValue(jacobsLadderData.frequency, 0.3, 5.3, 0.0, 1.0);
+    document.querySelector("#jl-size").value = mapValue(jacobsLadderData.size, 0.0, 1.0, 0.0, 1.0);
+    document.querySelector("#jl-jitter-period").value = jacobsLadderData.jitterPeriod;
+    document.querySelector("#jl-jitter-size").value = mapValue(jacobsLadderData.jitterSize, 0.0, 0.5, 0.0, 1.0);
 }
 
 function setupColorSpeeds() {
@@ -124,15 +127,10 @@ function setupUpDowns() {
 }
 function setupSliders() {
     let template = document.getElementById("slider-template");
-    console.log(`slider template=${JSON.stringify(template)}`);
     const sliders = document.getElementsByClassName('slider');
-    console.log(`slider sliders=${JSON.stringify(sliders)}`);
     for (let slider of sliders) {
         let clone = template.content.cloneNode(true);
         slider.appendChild(clone);
-        console.log(`slider clone=${JSON.stringify(clone)}`);
-        console.log(`slider slider=${JSON.stringify(slider)}`);
-        console.log(`slider slider.qS=${JSON.stringify(slider.querySelector("input[type='range']"))}`);
         const id = slider.id;
         slider.removeAttribute("id");
         slider.querySelector("input[type='range']").id = id;
@@ -274,8 +272,8 @@ let jacobsLadderData = {
     size: 0.15,
     color: "ffffff",
     squared: false,
-    jitterSize: 0.15,
     jitterPeriod: 0.15,
+    jitterSize: 0.15,
 };
 async function jacobsLadderDidChange(event) {
     switch (event.target.id) {
@@ -284,6 +282,15 @@ async function jacobsLadderDidChange(event) {
             break;
         case "jacobs-ladder-speed":
             jacobsLadderData.frequency = mapValue(event.target.value, 0.0, 1.0, 0.3, 5.3);
+            break;
+        case "jacobs-ladder-size":
+            jacobsLadderData.size = mapValue(event.target.value, 0.0, 1.0, 0.0, 1.0);
+            break;
+        case "jacobs-ladder-jitter-period":
+            jacobsLadderData.jitterPeriod = event.target.value;
+            break;
+        case "jacobs-ladder-jitter-size":
+            jacobsLadderData.jitterSize = mapValue(event.target.value, 0.0, 1.0, 0.0, 0.5);
             break;
         case "jacobs-ladder-squared":
             jacobsLadderData.squared = event.target.checked;
