@@ -20,25 +20,25 @@ function startup() {
       });
     brightness.addEventListener("input", brightnessDidChange);
 
-    let home = document.getElementById("home");
-    let subpages = document.getElementsByClassName("subpage");
-    let subpageTopBarTemplate = document.getElementById("subpage-top-bar-template");
+    const home = document.getElementById("home");
+    const subpages = document.getElementsByClassName("subpage");
+    const subpageTopBarTemplate = document.getElementById("subpage-top-bar-template");
 
-    for (let subpage of subpages) {
-        let clone = subpageTopBarTemplate.content.cloneNode(true);
+    for (const subpage of subpages) {
+        const clone = subpageTopBarTemplate.content.cloneNode(true);
         subpage.insertBefore(clone, subpage.firstChild);
 
-        let label = subpage.querySelector(".subpage-title");
+        const label = subpage.querySelector(".subpage-title");
         label.textContent = subpage.dataset.title;
     
-        let button = document.getElementById(subpage.dataset.buttonid);
+        const button = document.getElementById(subpage.dataset.buttonid);
 
         button.onclick = function() {
             home.classList.add("homepage-out");
             subpage.classList.add("subpage-is-open");
         }
 
-        let back_button = subpage.getElementsByClassName("subpage-back")[0];
+        const back_button = subpage.getElementsByClassName("subpage-back")[0];
         back_button.onclick = function() {
             home.classList.remove("homepage-out");
             subpage.classList.remove("subpage-is-open");
@@ -86,21 +86,21 @@ function startup() {
 }
 
 function setupColorSpeeds() {
-    let template = document.getElementById("color-speed-template");
+    const template = document.getElementById("color-speed-template");
     const colorSpeeds = document.getElementsByClassName('color-speed');
-    for (let colorSpeed of colorSpeeds) {
-        let clone = template.content.cloneNode(true);
-        let container = clone.querySelector(".row");
+    for (const colorSpeed of colorSpeeds) {
+        const clone = template.content.cloneNode(true);
+        const container = clone.querySelector(".row");
         colorSpeed.appendChild(container);
         colorSpeed.querySelector(".color").id = colorSpeed.id + "-color";
         colorSpeed.querySelector(".speed").id = colorSpeed.id + "-speed";
     }
 }
 function setupColors() {
-    let template = document.getElementById("color-template");
+    const template = document.getElementById("color-template");
     const colors = document.getElementsByClassName('color');
-    for (let color of colors) {
-        let clone = template.content.cloneNode(true);
+    for (const color of colors) {
+        const clone = template.content.cloneNode(true);
         color.appendChild(clone);
         color.querySelector("input[type='color']").id = color.id + "-input";
     }
@@ -125,10 +125,10 @@ function setupUpDowns() {
     }
 }
 function setupSliders() {
-    let template = document.getElementById("slider-template");
+    const template = document.getElementById("slider-template");
     const sliders = document.getElementsByClassName('slider');
-    for (let slider of sliders) {
-        let clone = template.content.cloneNode(true);
+    for (const slider of sliders) {
+        const clone = template.content.cloneNode(true);
         slider.appendChild(clone);
         const id = slider.id;
         slider.removeAttribute("id");
@@ -143,12 +143,12 @@ function setupTickmarks(parent, tickmarks) {
     datalist.id = tickmarksID;
 
     const inputs = parent.querySelectorAll('input[type="range"]');
-    for (let input of inputs) {
+    for (const input of inputs) {
         input.setAttribute("list", tickmarksID);
     }
 
     datalist.innerHTML = "";
-    for (let tickmark of tickmarks) {
+    for (const tickmark of tickmarks) {
         datalist.innerHTML += `<option value="${tickmark}"></option>`;
     }
 }
@@ -167,7 +167,7 @@ function mapValue(value, fromLow, fromHigh, toLow, toHigh) {
 
 async function brightnessDidChange(event) {
     event.target.value = snapMin(event.target.value, 40);
-    let url = `/brightness?value=${event.target.value}`;
+    const url = `/brightness?value=${event.target.value}`;
     await fetch(url, {method:'PUT'});
 }
 
@@ -221,7 +221,7 @@ async function setCrystal(color) {
     await fetch('/crystal', {method: 'PUT', body: JSON.stringify(crystalData)});
 }
 
-let rainbowData = {
+const rainbowData = {
     mode: "classic",
     speed: 0.3
 };
@@ -244,7 +244,7 @@ async function setRainbow(mode) {
     await fetch('/rainbow', {method: 'PUT', body: JSON.stringify(rainbowData)});
 }
 
-let warpCoreData = {
+const warpCoreData = {
     frequency: 0.6,
     color: "5f5fff",
     dual: false,
@@ -268,7 +268,7 @@ async function setWarpCore() {
     await fetch('/warpcore', {method: 'PUT', body: JSON.stringify(warpCoreData)})
 }
 
-let jacobsLadderData = {
+const jacobsLadderData = {
     frequency: 0.6,
     size: 0.15,
     color: "ffffff",
