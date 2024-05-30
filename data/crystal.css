@@ -250,8 +250,8 @@ button {
   margin: 0 10px;
 }
 
+.slider,
 .speed {
-  display: block;
   width: 100%;
   text-align: center;
   font-size: small;
@@ -260,10 +260,6 @@ button {
   font-size: x-large;
 }
 
-.slider {
-  width: 100%;
-  padding: 0 10px;
-}
 .slider-container {
   display: flex;
   padding: 0 10px;

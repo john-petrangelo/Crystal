@@ -271,7 +271,6 @@ let jacobsLadderData = {
     frequency: 0.6,
     size: 0.15,
     color: "ffffff",
-    squared: false,
     jitterPeriod: 0.15,
     jitterSize: 0.15,
 };
@@ -292,8 +291,6 @@ async function jacobsLadderDidChange(event) {
         case "jl-jitter-size":
             jacobsLadderData.jitterSize = mapValue(event.target.value, 0.0, 1.0, 0.0, 0.5);
             break;
-        case "jl-squared":
-            jacobsLadderData.squared = event.target.checked;
     }
     await fetch('/jacobsladder', {method: 'PUT', body: JSON.stringify(jacobsLadderData)});
 }
