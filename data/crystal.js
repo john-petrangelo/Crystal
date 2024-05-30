@@ -78,7 +78,6 @@ function startup() {
 
     const jlAdv = document.querySelector("#jacobs-ladder-advanced")
     jlAdv.addEventListener("input", jacobsLadderDidChange);
-    setupTickmarks(jlAdv, [0, 0.06, 1]);
     document.querySelector("#jl-color-input").value = "#" + jacobsLadderData.color;
     document.querySelector("#jl-speed-input").value = mapValue(jacobsLadderData.frequency, 0.3, 5.3, 0.0, 1.0);
     document.querySelector("#jl-size").value = mapValue(jacobsLadderData.size, 0.0, 1.0, 0.0, 1.0);
@@ -143,8 +142,10 @@ function setupTickmarks(parent, tickmarks) {
     const datalist = parent.querySelector("datalist");
     datalist.id = tickmarksID;
 
-    const input = parent.querySelector('input[type="range"]')
-    input.setAttribute("list", tickmarksID);
+    const inputs = parent.querySelectorAll('input[type="range"]');
+    for (let input of inputs) {
+        input.setAttribute("list", tickmarksID);
+    }
 
     datalist.innerHTML = "";
     for (let tickmark of tickmarks) {
