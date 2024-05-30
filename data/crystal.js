@@ -79,7 +79,7 @@ function startup() {
     const jlAdv = document.querySelector("#jacobs-ladder-advanced")
     jlAdv.addEventListener("input", jacobsLadderDidChange);
     document.querySelector("#jl-color-input").value = "#" + jacobsLadderData.color;
-    document.querySelector("#jl-speed-input").value = mapValue(jacobsLadderData.frequency, 0.3, 5.3, 0.0, 1.0);
+    document.querySelector("#jl-speed-input").value = mapValue(jacobsLadderData.frequency, 0.3, 2.3, 0.0, 1.0);
     document.querySelector("#jl-size").value = mapValue(jacobsLadderData.size, 0.0, 1.0, 0.0, 1.0);
     document.querySelector("#jl-jitter-period").value = jacobsLadderData.jitterPeriod;
     document.querySelector("#jl-jitter-size").value = mapValue(jacobsLadderData.jitterSize, 0.0, 0.5, 0.0, 1.0);
@@ -281,7 +281,7 @@ async function jacobsLadderDidChange(event) {
             jacobsLadderData.color = event.target.value.substring(1);
             break;
         case "jl-speed-input":
-            jacobsLadderData.frequency = mapValue(event.target.value, 0.0, 1.0, 0.3, 5.3);
+            jacobsLadderData.frequency = mapValue(event.target.value, 0.0, 1.0, 0.3, 2.3);
             break;
         case "jl-size":
             jacobsLadderData.size = mapValue(event.target.value, 0.0, 1.0, 0.0, 1.0);
