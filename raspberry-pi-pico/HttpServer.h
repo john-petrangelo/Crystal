@@ -6,8 +6,8 @@
 
 class HTTPServer {
 public:
-    HTTPServer();
-    ~HTTPServer();
+    HTTPServer() = default; // Default constructor
+    ~HTTPServer() = default; // Default destructor
 
     void init();
 
