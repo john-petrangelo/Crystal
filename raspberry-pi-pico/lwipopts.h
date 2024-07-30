@@ -58,6 +58,9 @@
 #define LWIP_STATS_DISPLAY          1
 #endif
 
+#define LWIP_HTTPD_SSI              0
+#define LWIP_HTTPD_CGI              1
+
 #define ETHARP_DEBUG                LWIP_DBG_OFF
 #define NETIF_DEBUG                 LWIP_DBG_OFF
 #define PBUF_DEBUG                  LWIP_DBG_OFF
