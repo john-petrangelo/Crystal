@@ -15,22 +15,22 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
 add_executable(
-        Crystal
+        crystal-pi-pico
         ${SRC}/Crystal.cpp
         ${SRC}/HttpServer.h
         ${SRC}/HttpServer.cpp
 )
 
-target_include_directories(Crystal PRIVATE
+target_include_directories(crystal-pi-pico PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/${SRC}
 )
 
 target_link_libraries(
-        Crystal
+        crystal-pi-pico
         pico_stdlib
         pico_cyw43_arch_lwip_poll)
 
-pico_add_extra_outputs(Crystal)
+pico_add_extra_outputs(crystal-pi-pico)
 
 ###############################
 # ESP 8266
