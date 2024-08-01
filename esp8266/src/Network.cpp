@@ -15,7 +15,7 @@
 // Secrets are defined in another file called "secrets.h" to avoid committing secrets
 // into a public repo. You will need to change the secret values in secrets.h to
 // connect your device to your network.
-#include "../secrets.h"
+#include "../../../secrets.h"
 
 String Network::hostname = "crystal";
 
