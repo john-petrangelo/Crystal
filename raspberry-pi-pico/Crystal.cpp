@@ -1,11 +1,7 @@
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
-#include "hardware/timer.h"
 
-#include "../secrets.h"
-#include "HttpServer.h"
 #include "Network.h"
-
 
 int main() {
   stdio_init_all();
@@ -16,10 +12,6 @@ int main() {
 
   printf("Connecting to network...\n");
   Network::setup();
-
-  printf("Starting HTTP server\n");
-  HTTPServer server;
-  server.init();
 
   while (true) {
     absolute_time_t start_time = get_absolute_time();
@@ -32,7 +24,6 @@ int main() {
     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
     sleep_ms(200);
 
-    // Call poll to give the network a change run each iteration
-    cyw43_arch_poll();
+    Network::loop();
   }
 }

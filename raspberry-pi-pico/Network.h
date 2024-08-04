@@ -2,18 +2,11 @@
 
 #include <string>
 
-//#include <ESP8266WebServer.h>
-
 //#include "Renderer.h"
 
 class Network {
 private:
     static std::string hostname;
-
-//    static ESP8266WebServer server;
-//
-//    static WiFiServer logServer;
-//    static WiFiClient logClient;
 
 //    static Renderer *networkRenderer;
 
@@ -29,7 +22,7 @@ private:
 public:
 //    static void setup(Renderer *renderer);
     static void setup();
-//    static void loop();
+    static void loop();
 //    static void getStatus(JsonObject obj);
 //
 //    static Renderer* getRenderer() { return networkRenderer; }

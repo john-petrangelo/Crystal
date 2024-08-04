@@ -1,10 +1,8 @@
 #include <pico/cyw43_arch.h>
-#include <lwip/api.h>
-
-//#include "lwip/pbuf.h"
 
 //#include "Filesystem.h"
 //#include "Handlers.h"
+#include "HttpServer.h"
 #include "Network.h"
 
 //#include "lumos-arduino/Colors.h"
@@ -112,7 +110,12 @@ void Network::setupWiFiSoftAP() {
 
 // Set up the web server and handlers
 void Network::setupHTTP() {
-//  server.on("/", HTTP_GET, handleRoot);
+  printf("Starting HTTP server\n");
+  HTTPServer server;
+  server.init();
+
+
+  //  server.on("/", HTTP_GET, handleRoot);
 //  server.on("/crystal.css", HTTP_GET, handleCSS);
 //  server.on("/crystal.js", HTTP_GET, handleJS);
 //  server.on("/status", HTTP_GET, handleStatus);
@@ -183,21 +186,20 @@ void Network::setup() {
     setupWiFiSoftAP();
   }
 
-//  setupHTTP();
+  setupHTTP();
 
-    setupMDNS();
+  setupMDNS();
 
 //  logServer.begin();
 //  Logger::logMsgLn("Network set up complete");
 }
 
-//void Network::loop() {
-//  // Check for network activity.
-//  server.handleClient();
-//  MDNS.update();
-//  ArduinoOTA.handle();
-//  checkLogger();
-//}
+void Network::loop() {
+  // Call poll to give the network a change run each iteration
+  cyw43_arch_poll();
+
+  checkLogger();
+}
 //
 //void Network::getStatus(JsonObject obj) {
 //  obj["hostname"] = Network::getHostname() + ".local";
