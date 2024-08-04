@@ -36,9 +36,9 @@ set(SRC_FILES
         ${SRC_DIR}/src/Models/WarpCore.cpp
 )
 
-add_executable(crystal-esp8266x ${SRC_FILES})
+add_executable(crystal-esp8266 ${SRC_FILES})
 
-target_include_directories(crystal-esp8266x PRIVATE
+target_include_directories(crystal-esp8266 PRIVATE
         src
         ${HOME}/Documents/Arduino/libraries/NeoPixelBus_by_Makuna/src
         ${HOME}/Documents/Arduino/Libraries

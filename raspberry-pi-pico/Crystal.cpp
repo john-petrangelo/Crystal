@@ -4,6 +4,7 @@
 
 #include "../secrets.h"
 #include "HttpServer.h"
+#include "Network.h"
 
 
 int main() {
@@ -13,39 +14,25 @@ int main() {
     return -1;
   }
 
-  // Connect to an access point in station mode
-  cyw43_arch_enable_sta_mode();
-
-  printf("Connecting to WiFi...\n");
-  int connect_error = cyw43_arch_wifi_connect_timeout_ms(
-          SECRET_SSID, SECRET_PASSWORD,
-          CYW43_AUTH_WPA2_AES_PSK, 30000);
-  if (connect_error) {
-    printf("failed to connect: error=%d\n", connect_error);
-    return 1;
-  } else {
-    printf("Connected.\n");
-
-    extern cyw43_t cyw43_state;
-    auto ip_addr = cyw43_state.netif[CYW43_ITF_STA].ip_addr.addr;
-    printf("IP Address: %lu.%lu.%lu.%lu\n", ip_addr & 0xFF, (ip_addr >> 8) & 0xFF, (ip_addr >> 16) & 0xFF, ip_addr >> 24);
-  }
+  printf("Connecting to network...\n");
+  Network::setup();
 
   printf("Starting HTTP server\n");
   HTTPServer server;
   server.init();
 
   while (true) {
-    printf("Setting pin to 1\n");
-    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
-    sleep_ms(500);
+    absolute_time_t start_time = get_absolute_time();
+    uint32_t msSinceBoot = to_ms_since_boot(start_time);
+    printf("%4lu.%03lu Blink\n", msSinceBoot / 1000, msSinceBoot % 1000);
 
-    printf("Setting pin to 0\n");
+    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
+    sleep_ms(800);
+
     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
-    sleep_ms(500);
+    sleep_ms(200);
 
     // Call poll to give the network a change run each iteration
     cyw43_arch_poll();
   }
-
 }

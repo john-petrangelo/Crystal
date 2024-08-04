@@ -1,4 +1,4 @@
-src/lumos-arduino
+esp8266/src/lumos-arduino
 src/Crystal2.png
 .vscode
 commands.sed
