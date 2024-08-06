@@ -1,8 +1,8 @@
 #include <pico/cyw43_arch.h>
 
 //#include "Filesystem.h"
-//#include "Handlers.h"
-#include "HttpServer.h"
+#include "Handlers.h"
+#include "HTTPServer.h"
 #include "Network.h"
 
 //#include "lumos-arduino/Colors.h"
@@ -114,8 +114,12 @@ void Network::setupHTTP() {
   HTTPServer server;
   server.init();
 
+//  server.onGet("/solid", handleSolid);
+  server.onGet("/test", [](const HTTPRequest& request) {
+    return HTTPResponse{200, "test passed"};
+  });
 
-  //  server.on("/", HTTP_GET, handleRoot);
+//  server.on("/", HTTP_GET, handleRoot);
 //  server.on("/crystal.css", HTTP_GET, handleCSS);
 //  server.on("/crystal.js", HTTP_GET, handleJS);
 //  server.on("/status", HTTP_GET, handleStatus);
@@ -127,7 +131,7 @@ void Network::setupHTTP() {
 //  server.on("/crystal", HTTP_PUT, handleCrystal);
 //  server.on("/rainbow", HTTP_PUT, handleRainbow);
 //  server.on("/flame", HTTP_GET, handleFlame);
-//  server.on("/solid", HTTP_GET, handleSolid);
+  server.onGet("/solid", handleSolid);
 //  server.on("/warpcore", HTTP_PUT, handleWarpCore);
 //  server.on("/jacobsladder", HTTP_PUT, handleJacobsLadder);
 //  server.on("/demo1", HTTP_GET, handleDemo1);
