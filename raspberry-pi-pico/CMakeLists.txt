@@ -15,6 +15,9 @@ add_executable(crystal-pi-pico
         Network.cpp
         Handlers.h
         Handlers.cpp
+        HTTPReqeuestParser.cpp
+        HTTPReqeuestParser.h
+        HTTPRequest.h
 )
 
 target_include_directories(crystal-pi-pico PRIVATE

@@ -4,6 +4,8 @@
 #include <string>
 #include <utility>
 
+#include "HTTPRequest.h"
+#include "HTTPReqeuestParser.h"
 #include "HTTPServer.h"
 
 const std::string HTTPServer::httpResponseGet =
@@ -46,108 +48,29 @@ err_t HTTPServer::onAccept(void *arg, struct tcp_pcb *newpcb, [[maybe_unused]] e
   return ERR_OK;
 }
 
-HTTPRequest HTTPServer::parseRequest(const std::string& requestStr) {
-  HTTPRequest request;
-  std::string_view const requestView(requestStr);
-
-  // First extract the method
-  size_t const methodEnd = requestView.find(' ');
-  request.method = requestView.substr(0, methodEnd);
-
-  // Next extract the path, which may or may not include query parameters
-  size_t const pathEnd = requestView.find(' ', methodEnd + 1);
-  size_t const queryStart = requestView.find('?', methodEnd + 1);
-
-  if (queryStart != std::string_view::npos && queryStart < pathEnd) {
-    // There are query parameters, extract the path first
-    request.path = requestView.substr(methodEnd + 1, queryStart - methodEnd - 1);
-
-    // Now extract the query parameters
-    auto query = requestView.substr(queryStart + 1, pathEnd - queryStart - 1);
-
-    size_t paramStart = 0;
-    while (paramStart < query.length()) {
-      size_t paramEnd = query.find('&', paramStart);
-      if (paramEnd == std::string_view::npos) {
-        paramEnd = query.length();
-      }
-      auto equalPos = query.find('=', paramStart);
-      if (equalPos != std::string_view::npos && equalPos < paramEnd) {
-        std::string_view const key = query.substr(paramStart, equalPos - paramStart);
-        std::string_view const value = query.substr(equalPos + 1, paramEnd - equalPos - 1);
-        request.queryParams.emplace(trim(key), trim(value));
-      }
-      paramStart = paramEnd + 1;
-    }
-
-  } else {
-    // No query parameters, just set the path
-    request.path = requestView.substr(methodEnd + 1, pathEnd - methodEnd - 1);
-  }
-
-  // Parse headers
-  size_t headerStart = requestView.find("\r\n", pathEnd) + 2;
-  while (headerStart < requestView.length()) {
-    size_t headerEnd = requestView.find("\r\n", headerStart);
-    if (headerEnd == std::string_view::npos) {
-      break;
-    }
-    size_t colonPos = requestView.find(':', headerStart);
-    if (colonPos != std::string_view::npos && colonPos < headerEnd) {
-      auto const key = requestView.substr(headerStart, colonPos - headerStart);
-      auto const value = requestView.substr(colonPos + 1, headerEnd - colonPos - 1);
-      request.headers.emplace(trim(key), trim(value));
-    }
-    headerStart = headerEnd + 2;
-  }
-
-  logHTTPRequest(request);
-
-  return request;
-}
-
-void HTTPServer::logHTTPRequest(HTTPRequest const &request) {
-  std::cout << "Method: " << request.method << std::endl;
-  std::cout << "Path: " << request.path << std::endl;
-  if (request.queryParams.empty()) {
-    std::cout << "No query parameters" << std::endl;
-  } else {
-    std::cout << "Query params:" << std::endl;
-    for (const auto& param : request.queryParams) {
-      std::cout << "  " << param.first << ": " << param.second << std::endl;
-    }
-  }
-  if (request.headers.empty()) {
-    std::cout << "No headers" << std::endl;
-  } else {
-    std::cout << "Headers:" << std::endl;
-    for (const auto& header : request.headers) {
-      std::cout << "  " << header.first << ": " << header.second << std::endl;
-    }
-  }
-}
-
 err_t HTTPServer::onReceive(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err) {
   auto server = static_cast<HTTPServer*>(arg);
   if (err == ERR_OK) {
     if (p != nullptr) {
       std::string data(static_cast<char*>(p->payload));
-      auto request = parseRequest(data);
+      auto request = HTTPRequestParser::parse(data);
+      logHTTPRequest(request);
 
       // Process the request and send a response
       if (request.method == "GET") {
-        auto it = server->onGetHandlers.find(request.path);
-        if (it != server->onGetHandlers.end()) {
-          auto response = it->second(request);  // Call the handler
-        }
+        server->sendResponse(tpcb, httpResponseGet);
+//        auto it = server->onGetHandlers.find(request.path);
+//        if (it != server->onGetHandlers.end()) {
+//          auto response = it->second(request);  // Call the handler
+//        }
         server->sendResponse(tpcb, httpResponseGet);
       } else if (request.method == "PUT") {
         server->sendResponse(tpcb, httpResponsePut);
       } else {
         server->sendResponse(tpcb, "HTTP/1.1 400 Bad Request\r\n\r\n");
       }
-      // TODO Create an easier way to send a response using HTTPResponse object
-      // TODO Send 404 if path not found
+//      // TODO Create an easier way to send a response using HTTPResponse object
+//      // TODO Send 404 if path not found
 
       pbuf_free(p); // Free the pbuf after processing
       printf("Request processed\n");
@@ -222,5 +145,26 @@ void HTTPServer::closeConnection(struct tcp_pcb *tpcb) {
   err_t err = tcp_close(tpcb);
   if (err != ERR_OK) {
     printf("Error in tcp_close: %d\n", err);
+  }
+}
+
+void HTTPServer::logHTTPRequest(HTTPRequest const &request) {
+  std::cout << "Method: " << request.method << std::endl;
+  std::cout << "Path: " << request.path << std::endl;
+  if (request.queryParams.empty()) {
+    std::cout << "No query parameters" << std::endl;
+  } else {
+    std::cout << "Query params:" << std::endl;
+    for (const auto& param : request.queryParams) {
+      std::cout << "  " << param.first << ": " << param.second << std::endl;
+    }
+  }
+  if (request.headers.empty()) {
+    std::cout << "No headers" << std::endl;
+  } else {
+    std::cout << "Headers:" << std::endl;
+    for (const auto& header : request.headers) {
+      std::cout << "  " << header.first << ": " << header.second << std::endl;
+    }
   }
 }
