@@ -58,22 +58,18 @@ err_t HTTPServer::onReceive(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err
 
       // Process the request and send a response
       if (request.method == "GET") {
-        server->sendResponse(tpcb, httpResponseGet);
-
-        logHandlers(server->onGetHandlers);
-
-//        auto it = server->onGetHandlers.find(request.path);
-//        if (it != server->onGetHandlers.end()) {
-//          auto response = it->second(request);  // Call the handler
-//        }
-        server->sendResponse(tpcb, httpResponseGet);
+        auto it = server->onGetHandlers.find(std::string(request.path));
+        if (it != server->onGetHandlers.end()) {
+          auto response = it->second(request);  // Call the handler
+          server->sendResponse(tpcb, response);
+        } else {
+          server->sendResponse(tpcb, {404, ""});
+        }
       } else if (request.method == "PUT") {
-        server->sendResponse(tpcb, httpResponsePut);
+        server->sendRawResponse(tpcb, httpResponsePut);
       } else {
-        server->sendResponse(tpcb, "HTTP/1.1 400 Bad Request\r\n\r\n");
+        server->sendRawResponse(tpcb, "HTTP/1.1 400 Bad Request\r\n\r\n");
       }
-//      // TODO Create an easier way to send a response using HTTPResponse object
-//      // TODO Send 404 if path not found
 
       pbuf_free(p); // Free the pbuf after processing
       printf("Request processed\n");
@@ -113,13 +109,38 @@ void HTTPServer::onPut(const std::string &path, HTTPHandler func) {
 //  onPutHandlers[path] = {std::move(func)};
 }
 
-err_t HTTPServer::sendResponse(struct tcp_pcb *tpcb, const std::string &response) {
+err_t HTTPServer::sendResponse(struct tcp_pcb *tpcb, HTTPResponse const& response) {
+  std::ostringstream responseStream;
+
+  // Status line
+  responseStream << "HTTP/1.1 " << response.status_code << " ";
+  switch (response.status_code) {
+    case 200: responseStream << "OK"; break;
+    case 400: responseStream << "Bad Request"; break;
+    case 404: responseStream << "Not Found"; break;
+    case 500: responseStream << "Internal Server Error"; break;
+    default: responseStream << "Unknown Status"; break;
+  }
+  responseStream << "\r\n";
+
+  // Add headers
+  responseStream << "Content-Type: text/plain\r\n";
+  responseStream << "Content-Length: " << response.body.size() << "\r\n";
+  responseStream << "\r\n";
+
+  // Add the response body
+  responseStream << response.body;
+
+  return sendRawResponse(tpcb, responseStream.str());
+}
+
+err_t HTTPServer::sendRawResponse(struct tcp_pcb *tpcb, const std::string &rawResponse) {
   err_t err;
-  u16_t len = response.size();
-  printf("Sending response: %s\n", response.c_str());
+  u16_t len = rawResponse.size();
+  printf("Sending response: %s\n", rawResponse.c_str());
 
   // Ensure the response fits within the TCP buffer
-  const char* response_data = response.c_str();
+  const char* response_data = rawResponse.c_str();
   while (len > 0) {
     u16_t send_len = tcp_sndbuf(tpcb);
     if (send_len > len) {
@@ -172,7 +193,7 @@ void HTTPServer::logHTTPRequest(HTTPRequest const &request) {
   }
 }
 
-void HTTPServer::logHandlers(const std::unordered_map<std::string, HTTPHandler>& handlers) {
+[[maybe_unused]] void HTTPServer::logHandlers(const std::unordered_map<std::string, HTTPHandler>& handlers) {
   if (handlers.empty()) {
     std::cout << "No query parameters" << std::endl;
   } else {

@@ -19,10 +19,10 @@ int main() {
     printf("%4lu.%03lu Blink\n", msSinceBoot / 1000, msSinceBoot % 1000);
 
     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
-    sleep_ms(800);
+    sleep_ms(700);
 
     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
-    sleep_ms(200);
+    sleep_ms(300);
 
     Network::loop();
   }

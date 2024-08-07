@@ -35,7 +35,8 @@ private:
     static err_t onSent(void *arg, struct tcp_pcb *tpcb, u16_t len);
     static void onError(void *arg, err_t err);
 
-    err_t sendResponse(struct tcp_pcb *tpcb, const std::string &response);
+    err_t sendResponse(tcp_pcb *tpcb, const HTTPResponse &response);
+    err_t sendRawResponse(struct tcp_pcb *tpcb, const std::string &rawResponse);
 
     void closeConnection(struct tcp_pcb *tpcb);
 
@@ -46,5 +47,6 @@ private:
     std::unordered_map<std::string, HTTPHandler> onPutHandlers;
 
     static void logHTTPRequest(const HTTPRequest &request);
-    static void logHandlers(const std::unordered_map<std::string, HTTPHandler>& handlers);
+
+    [[maybe_unused]] static void logHandlers(const std::unordered_map<std::string, HTTPHandler>& handlers);
 };
