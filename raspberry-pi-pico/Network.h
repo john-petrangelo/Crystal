@@ -9,7 +9,7 @@
 class Network {
 private:
     static std::string hostname;
-    static HTTPServer server;
+    static HTTPServer httpServer;
 
 //    static Renderer *networkRenderer;
 

@@ -19,7 +19,7 @@
 #include "../secrets.h"
 
 std::string Network::hostname = "pico";
-HTTPServer Network::server;
+HTTPServer Network::httpServer;
 
 //// Server used for HTTP requests
 //ESP8266WebServer Network::server(80);
@@ -112,10 +112,10 @@ void Network::setupWiFiSoftAP() {
 // Set up the web server and handlers
 void Network::setupHTTP() {
   printf("Starting HTTP server\n");
-  server.init();
+  httpServer.init();
 
 //  server.onGet("/solid", handleSolid);
-  server.onGet("/test", [](const HTTPRequest& request) {
+  httpServer.onGet("/test", [](const HTTPRequest& request) {
     return HTTPResponse{200, "test passed"};
   });
 
@@ -131,7 +131,7 @@ void Network::setupHTTP() {
 //  server.on("/crystal", HTTP_PUT, handleCrystal);
 //  server.on("/rainbow", HTTP_PUT, handleRainbow);
 //  server.on("/flame", HTTP_GET, handleFlame);
-  server.onGet("/solid", handleSolid);
+  httpServer.onGet("/solid", handleSolid);
 //  server.on("/warpcore", HTTP_PUT, handleWarpCore);
 //  server.on("/jacobsladder", HTTP_PUT, handleJacobsLadder);
 //  server.on("/demo1", HTTP_GET, handleDemo1);
@@ -204,7 +204,7 @@ void Network::loop() {
 
   checkLogger();
 }
-//
+
 //void Network::getStatus(JsonObject obj) {
 //  obj["hostname"] = Network::getHostname() + ".local";
 //  obj["wifiMACAddress"] = WiFi.macAddress();
