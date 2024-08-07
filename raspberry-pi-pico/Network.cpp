@@ -19,6 +19,7 @@
 #include "../secrets.h"
 
 std::string Network::hostname = "pico";
+HTTPServer Network::server;
 
 //// Server used for HTTP requests
 //ESP8266WebServer Network::server(80);
@@ -111,7 +112,6 @@ void Network::setupWiFiSoftAP() {
 // Set up the web server and handlers
 void Network::setupHTTP() {
   printf("Starting HTTP server\n");
-  HTTPServer server;
   server.init();
 
 //  server.onGet("/solid", handleSolid);

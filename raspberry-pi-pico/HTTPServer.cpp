@@ -59,6 +59,9 @@ err_t HTTPServer::onReceive(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err
       // Process the request and send a response
       if (request.method == "GET") {
         server->sendResponse(tpcb, httpResponseGet);
+
+        logHandlers(server->onGetHandlers);
+
 //        auto it = server->onGetHandlers.find(request.path);
 //        if (it != server->onGetHandlers.end()) {
 //          auto response = it->second(request);  // Call the handler
@@ -165,6 +168,17 @@ void HTTPServer::logHTTPRequest(HTTPRequest const &request) {
     std::cout << "Headers:" << std::endl;
     for (const auto& header : request.headers) {
       std::cout << "  " << header.first << ": " << header.second << std::endl;
+    }
+  }
+}
+
+void HTTPServer::logHandlers(const std::unordered_map<std::string, HTTPHandler>& handlers) {
+  if (handlers.empty()) {
+    std::cout << "No query parameters" << std::endl;
+  } else {
+    std::cout << "Handlers (" << handlers.size() << "):" << std::endl;
+    for (const auto& [path, handler] : handlers) {
+      std::cout << "Path: " << path << ", Handler address: " << &handler << std::endl;
     }
   }
 }

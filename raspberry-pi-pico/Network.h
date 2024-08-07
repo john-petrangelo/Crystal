@@ -2,11 +2,14 @@
 
 #include <string>
 
+#include "HTTPServer.h"
+
 //#include "Renderer.h"
 
 class Network {
 private:
     static std::string hostname;
+    static HTTPServer server;
 
 //    static Renderer *networkRenderer;
 
