@@ -1,9 +1,10 @@
+#include <hardware/clocks.h>
 #include <iomanip>
+#include <malloc.h>
+#include <pico/cyw43_arch.h>
 #include <sstream>
 
 #include "System.h"
-
-#include "pico/cyw43_arch.h"
 
 void System::setup() {
   // TODO still need setup?
@@ -16,15 +17,13 @@ std::string System::getStatus() {
 
   oss << "timeSinceBoot: " << getTime() << std::endl;
 
-//  obj["freeHeapBytes"] = EspClass::getFreeHeap();
-//  obj["heapFragmentation"] = EspClass::getHeapFragmentation();
-//  obj["maxFreeBlockSize"] = EspClass::getMaxFreeBlockSize();
-//  obj["sketchUsedBytes"] = EspClass::getSketchSize();
-//  obj["sketchFreeBytes"] = EspClass::getFreeSketchSpace();
-//  obj["lastResetReason"] = EspClass::getResetReason();
-//  obj["cpuFreqMHz"] = EspClass::getCpuFreqMHz();
-//  obj["flashChipSize"] = EspClass::getFlashChipSize();
-//  obj["realFlashChipSize"] = EspClass::getFlashChipRealSize();
+  oss << "heapTotal: " << getHeapTotal() << std::endl;
+  oss << "heapAvailable: " << getHeapAvailable() << std::endl;
+  oss << "heapHighWater: " << getHeapHighWater() << std::endl;
+  oss << "heapAllocated: " << getHeapAllocated() << std::endl;
+  oss << "heapFreed: " << getHeapFreed() << std::endl;
+
+  oss << "cpuFreqMhz: " << getCpuFreqMHz() << std::endl;
 
 return oss.str();
 }
@@ -47,4 +46,32 @@ std::string System::getTime() {
       << seconds << "." << std::setfill('0') << std::setw(3) << milliSeconds << "s";
 
   return oss.str();
+}
+
+uint32_t System::getHeapTotal() {
+  extern char __StackLimit;
+  extern char __bss_end__;
+  return &__StackLimit  - &__bss_end__;
+}
+
+uint32_t System::getHeapAvailable() {
+  struct mallinfo m = mallinfo();
+  return getHeapTotal() - m.uordblks;
+}
+
+uint32_t System::getHeapHighWater() {
+  return mallinfo().arena;
+}
+
+uint32_t System::getHeapAllocated() {
+  return mallinfo().uordblks;
+}
+
+uint32_t System::getHeapFreed() {
+  return mallinfo().fordblks;
+}
+
+uint32_t System::getCpuFreqMHz() {
+  // Convert frequency from Hz to MHz
+  return clock_get_hz(clk_sys) / 1000000;
 }
