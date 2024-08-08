@@ -2,7 +2,7 @@
 
 class HTTPRequestParser {
 public:
-    static HTTPRequest parse(const std::string& requestStr);
+    static HTTPRequest parse(const std::string_view& requestStr);
 
 private:
     static inline std::string_view trim(const std::string_view &str) {
