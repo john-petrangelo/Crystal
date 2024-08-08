@@ -8,7 +8,6 @@
 #include "Handlers.h"
 #include "HTTPServer.h"
 //#include "Network.h"
-//#include "Status.h"
 //#include "utils.h"
 //
 //#include "Models/Crystal.h"
@@ -106,11 +105,7 @@
 //    Logger::logf("handleJS sentBytes=%d open=%dms stream=%dms close=%dms total=%dms\n",
 //      sent, openedMS - startMS, streamedMS - openedMS, closedMS - streamedMS, closedMS - startMS);
 //}
-//
-//void handleStatus() {
-//  Network::getServer().send(200, "application/json", getStatus());
-//}
-//
+
 //void handleGetBrightness() {
 //  // Create the response.
 //  JsonDocument doc;
@@ -135,23 +130,7 @@
 //  Network::getRenderer()->setBrightness(value);
 //  Network::getServer().send(200, "text/plain");
 //}
-//
-//void handleNotFound() {
-//  String message = "File Not Found\n\n";
-//  message += "URI: " + Network::getServer().uri();
-//  message += "\nMethod: ";
-//  if (Network::getServer().method() == HTTP_GET) {
-//    message += "GET";
-//  } else {
-//    message += "POST";
-//  }
-//  message += String("\nArguments: ") + String(Network::getServer().args()) + "\n";
-//  for (int i = 0; i < Network::getServer().args(); i++) {
-//    message += " " + Network::getServer().argName(i) + ": " + Network::getServer().arg(i) + "\n";
-//  }
-//  Network::getServer().send(404, "text/plain", message);
-//}
-//
+
 //void handleCrystal() {
 //  JsonDocument doc = parseJsonBody("handleCrystal");
 //

@@ -4,10 +4,9 @@
 //extern void handleRoot();
 //extern void handleCSS();
 //extern void handleJS();
-//extern void handleStatus();
+
 //extern void handleGetBrightness();
 //extern void handleSetBrightness();
-//extern void handleNotFound();
 
 //extern void handleCrystal();
 //extern void handleFlame();
