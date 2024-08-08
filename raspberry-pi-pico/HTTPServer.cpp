@@ -52,23 +52,19 @@ err_t HTTPServer::onReceive(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err
   auto server = static_cast<HTTPServer*>(arg);
   if (err == ERR_OK) {
     if (p != nullptr) {
-      std::string data(static_cast<char*>(p->payload));
+      // Parse the raw request payload
+      std::string_view data(static_cast<char*>(p->payload));
       auto request = HTTPRequestParser::parse(data);
       logHTTPRequest(request);
 
-      // Process the request and send a response
-      if (request.method == "GET") {
-        auto it = server->onGetHandlers.find(std::string(request.path));
-        if (it != server->onGetHandlers.end()) {
-          auto response = it->second(request);  // Call the handler
-          server->sendResponse(tpcb, response);
-        } else {
-          server->sendResponse(tpcb, {404, ""});
-        }
-      } else if (request.method == "PUT") {
-        server->sendRawResponse(tpcb, httpResponsePut);
+      // Match the method and path to a handler, otherwise return a not found error
+      std::string handlersKey = makeHandlersKey(request.method, request.path);
+      auto it = server->onGetHandlers.find(handlersKey);
+      if (it != server->onGetHandlers.end()) {
+        auto response = it->second(request);  // Call the handler
+        server->sendResponse(tpcb, response);
       } else {
-        server->sendRawResponse(tpcb, "HTTP/1.1 400 Bad Request\r\n\r\n");
+        server->sendResponse(tpcb, {404, ""});
       }
 
       pbuf_free(p); // Free the pbuf after processing
@@ -100,13 +96,17 @@ void HTTPServer::onError(void *arg, err_t err) {
 }
 
 void HTTPServer::onGet(const std::string& path, HTTPHandler func) {
-  // Store only the last handler for the specified path
-  onGetHandlers[path] = {std::move(func)};
+  std::string handlersKey = makeHandlersKey("GET", path);
+
+  // Store only the last handler for the specified method and path
+  onGetHandlers[handlersKey] = {std::move(func)};
 }
 
 void HTTPServer::onPut(const std::string &path, HTTPHandler func) {
-  // Store only the last handler for the specified path
-//  onPutHandlers[path] = {std::move(func)};
+  std::string handlersKey = makeHandlersKey("PUT", path);
+
+  // Store only the last handler for the specified method and path
+  onGetHandlers[handlersKey] = {std::move(func)};
 }
 
 err_t HTTPServer::sendResponse(struct tcp_pcb *tpcb, HTTPResponse const& response) {
@@ -170,6 +170,16 @@ void HTTPServer::closeConnection(struct tcp_pcb *tpcb) {
   if (err != ERR_OK) {
     printf("Error in tcp_close: %d\n", err);
   }
+}
+
+std::string HTTPServer::makeHandlersKey(std::string_view method, std::string_view path) {
+  std::string handlersKey;
+  handlersKey.reserve(method.size() + 1 + path.size()); // Preallocate memory
+  handlersKey.append(method);
+  handlersKey.append(" ");
+  handlersKey.append(path);
+
+  return handlersKey;
 }
 
 void HTTPServer::logHTTPRequest(HTTPRequest const &request) {

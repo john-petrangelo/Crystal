@@ -46,7 +46,8 @@ private:
     std::unordered_map<std::string, HTTPHandler> onGetHandlers;
     std::unordered_map<std::string, HTTPHandler> onPutHandlers;
 
-    static void logHTTPRequest(const HTTPRequest &request);
+    static std::string makeHandlersKey(std::string_view method, std::string_view path);
 
+      static void logHTTPRequest(const HTTPRequest &request);
     [[maybe_unused]] static void logHandlers(const std::unordered_map<std::string, HTTPHandler>& handlers);
 };
