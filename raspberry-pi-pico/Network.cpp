@@ -1,6 +1,5 @@
 #include <iomanip>
 #include <iostream>
-#include <sstream>
 
 #include <pico/cyw43_arch.h>
 
@@ -52,6 +51,16 @@ std::string Network::macAddrToString(const uint8_t* mac) {
       oss << ':'; // Add colon separator except for the last byte
     }
   }
+  return oss.str();
+}
+
+std::string Network::getStatus() {
+  std::ostringstream oss;
+  oss << "hostname: " << hostname << std::endl;
+  oss << "ipAddress: " << ipAddress << std::endl;
+  oss << "macAddress: " << macAddress << std::endl;
+  oss << "wifiMode: " << wifiMode << std::endl;
+
   return oss.str();
 }
 
@@ -135,7 +144,7 @@ void Network::setupHTTP() {
 //  server.on("/crystal.css", HTTP_GET, handleCSS);
 //  server.on("/crystal.js", HTTP_GET, handleJS);
 
-  httpServer.onGet("/status", Network::handleStatus);
+  httpServer.onGet("/status", handleStatus);
 
 //  server.on("/brightness", HTTP_GET, handleGetBrightness);
 //  server.on("/brightness", HTTP_PUT, handleSetBrightness);
@@ -180,17 +189,6 @@ void Network::checkLogger() {
 //    Logger::setStream(&Serial);
 //    logClient.stop();
 //  }
-}
-
-
-HTTPResponse Network::handleStatus(const HTTPRequest& request) {
-  std::ostringstream oss;
-  oss << "hostname: " << hostname << std::endl;
-  oss << "ipAddress: " << ipAddress << std::endl;
-  oss << "macAddress: " << macAddress << std::endl;
-  oss << "wifiMode: " << wifiMode << std::endl;
-
-  return {200, oss.str()};
 }
 
 // One-stop to set up all the network components

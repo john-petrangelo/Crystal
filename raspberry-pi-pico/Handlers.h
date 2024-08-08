@@ -5,6 +5,8 @@
 //extern void handleCSS();
 //extern void handleJS();
 
+extern HTTPResponse handleStatus(const HTTPRequest& request);
+
 //extern void handleGetBrightness();
 //extern void handleSetBrightness();
 

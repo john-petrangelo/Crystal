@@ -1,12 +1,12 @@
 #pragma once
 
-#include <Arduino.h>
+#include <string>
 
 class System {
 private:
-    static void getTime(JsonObject obj);
+    static std::string getTime();
 
 public:
     static void setup();
-    static void getStatus(JsonObject obj);
+    static std::string getStatus();
 };

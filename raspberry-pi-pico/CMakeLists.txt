@@ -13,6 +13,8 @@ add_executable(crystal-pi-pico
         Handlers.cpp
         Network.h
         Network.cpp
+        System.h
+        System.cpp
         HTTP/HTTPRequest.h
         HTTP/HTTPRequestParser.cpp
         HTTP/HTTPRequestParser.h

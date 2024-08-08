@@ -1,3 +1,5 @@
+#include <sstream>
+
 //#include <ArduinoJson.h>
 //#include <LittleFS.h>
 //
@@ -6,8 +8,9 @@
 //
 //#include "Demos.h"
 #include "Handlers.h"
-#include "HTTP/HTTPServer.h"
-//#include "Network.h"
+//#include "HTTP/HTTPServer.h"
+#include "Network.h"
+#include "System.h"
 //#include "utils.h"
 //
 //#include "Models/Crystal.h"
@@ -105,6 +108,17 @@
 //    Logger::logf("handleJS sentBytes=%d open=%dms stream=%dms close=%dms total=%dms\n",
 //      sent, openedMS - startMS, streamedMS - openedMS, closedMS - streamedMS, closedMS - startMS);
 //}
+
+HTTPResponse handleStatus(const HTTPRequest& request) {
+  std::ostringstream oss;
+  oss << "NETWORK" << std::endl;
+  oss << Network::getStatus();
+  oss << std::endl;
+  oss << "SYSTEM" << std::endl;
+  oss << System::getStatus();
+
+  return {200, oss.str()};
+}
 
 //void handleGetBrightness() {
 //  // Create the response.

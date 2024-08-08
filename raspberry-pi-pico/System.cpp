@@ -1,46 +1,50 @@
-#include <ArduinoJson.h>
+#include <iomanip>
+#include <sstream>
 
 #include "System.h"
 
-#ifdef ENABLE_GDB_STUB
-#include <GDBStub.h>
-#endif
+#include "pico/cyw43_arch.h"
 
 void System::setup() {
-  Serial.begin(115200);
-  Serial.println("Serial started");
-
-#ifdef ENABLE_GDB_STUB
-  gdbstub_init();
-#endif
+  // TODO still need setup?
+//  Serial.begin(115200);
+//  Serial.println("Serial started");
 }
 
-void System::getStatus(JsonObject obj) {
-  getTime(obj);
+std::string System::getStatus() {
+  std::ostringstream oss;
 
-  obj["freeHeapBytes"] = EspClass::getFreeHeap();
-  obj["heapFragmentation"] = EspClass::getHeapFragmentation();
-  obj["maxFreeBlockSize"] = EspClass::getMaxFreeBlockSize();
-  obj["sketchUsedBytes"] = EspClass::getSketchSize();
-  obj["sketchFreeBytes"] = EspClass::getFreeSketchSpace();
-  obj["lastResetReason"] = EspClass::getResetReason();
-  obj["cpuFreqMHz"] = EspClass::getCpuFreqMHz();
-  obj["flashChipSize"] = EspClass::getFlashChipSize();
-  obj["realFlashChipSize"] = EspClass::getFlashChipRealSize();
+  oss << "timeSinceBoot: " << getTime() << std::endl;
+
+//  obj["freeHeapBytes"] = EspClass::getFreeHeap();
+//  obj["heapFragmentation"] = EspClass::getHeapFragmentation();
+//  obj["maxFreeBlockSize"] = EspClass::getMaxFreeBlockSize();
+//  obj["sketchUsedBytes"] = EspClass::getSketchSize();
+//  obj["sketchFreeBytes"] = EspClass::getFreeSketchSpace();
+//  obj["lastResetReason"] = EspClass::getResetReason();
+//  obj["cpuFreqMHz"] = EspClass::getCpuFreqMHz();
+//  obj["flashChipSize"] = EspClass::getFlashChipSize();
+//  obj["realFlashChipSize"] = EspClass::getFlashChipRealSize();
+
+return oss.str();
 }
 
-void System::getTime(JsonObject obj) {
-  auto now = millis();
-  auto days = now / (24*60*60*1000);
-  now %= 24*60*60*1000;
-  auto hours = now / (1000*60*60);
-  now %= 1000*60*60;
-  auto mins = now / (1000*60);
-  now %= 1000*60;
-  auto secs = now / 1000;
-  auto milliSecs = now % 1000;
+std::string System::getTime() {
+  absolute_time_t start_time = get_absolute_time();
+  uint32_t msSinceBoot = to_ms_since_boot(start_time);
 
-  char buffer[32];
-  sprintf(buffer,"%lud %luh %lum %lu.%0.3lus", days, hours, mins, secs, milliSecs);
-  obj["time"] = String(buffer);
+  auto days = msSinceBoot / (24 * 60 * 60 * 1000);
+  msSinceBoot %= 24 * 60 * 60 * 1000;
+  auto hours = msSinceBoot / (1000 * 60 * 60);
+  msSinceBoot %= 1000 * 60 * 60;
+  auto minutes = msSinceBoot / (1000 * 60);
+  msSinceBoot %= 1000 * 60;
+  auto seconds = msSinceBoot / 1000;
+  auto milliSeconds = msSinceBoot % 1000;
+
+  std::ostringstream oss;
+  oss << days << "d " << hours << "h " << minutes << "m "
+      << seconds << "." << std::setfill('0') << std::setw(3) << milliSeconds << "s";
+
+  return oss.str();
 }

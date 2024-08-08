@@ -26,8 +26,6 @@ private:
 
     static void checkLogger();
 
-    static HTTPResponse handleStatus(const HTTPRequest& request);
-
     static std::string ipAddrToString(u32_t ipAddr);
     static std::string macAddrToString(const uint8_t *mac);
 
@@ -35,7 +33,7 @@ public:
 //    static void setup(Renderer *renderer);
     static void setup();
     static void loop();
-//    static void getStatus(JsonObject obj);
+    static std::string getStatus();
 //
 //    static Renderer* getRenderer() { return networkRenderer; }
 //    static String &getHostname() { return hostname; }
