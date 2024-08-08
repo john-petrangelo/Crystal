@@ -89,10 +89,6 @@ bool Network::setupWiFiStation() {
   return true;
 }
 
-void on_station_connect(const char *mac_address) {
-  printf("Station connected: %s\n", mac_address);
-}
-
 // Create our own network using Soft AP mode
 // NOTE: This code does not work yet. It does create a new network, but it's
 //       not possible to connect to the web server yet.
