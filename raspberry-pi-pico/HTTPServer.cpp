@@ -8,20 +8,6 @@
 #include "HTTPReqeuestParser.h"
 #include "HTTPServer.h"
 
-const std::string HTTPServer::httpResponseGet =
-        "HTTP/1.1 200 OK\r\n"
-        "Content-Type: text/plain\r\n"
-        "Content-Length: 13\r\n"
-        "\r\n"
-        "Hello, World!";
-
-const std::string HTTPServer::httpResponsePut =
-        "HTTP/1.1 200 OK\r\n"
-        "Content-Type: text/plain\r\n"
-        "Content-Length: 8\r\n"
-        "\r\n"
-        "Put Done";
-
 void HTTPServer::init() {
   auto pcb = tcp_new();
   if (pcb != nullptr) {
