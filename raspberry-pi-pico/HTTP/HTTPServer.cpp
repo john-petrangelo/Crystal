@@ -5,7 +5,7 @@
 #include <utility>
 
 #include "HTTPRequest.h"
-#include "HTTPReqeuestParser.h"
+#include "HTTPRequestParser.h"
 #include "HTTPServer.h"
 
 void HTTPServer::init() {

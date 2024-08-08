@@ -1,5 +1,5 @@
 #include "HTTPRequest.h"
-#include "HTTPReqeuestParser.h"
+#include "HTTPRequestParser.h"
 
 HTTPRequest HTTPRequestParser::parse(const std::string_view& requestStr) {
   HTTPRequest request;

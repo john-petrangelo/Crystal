@@ -6,5 +6,5 @@
 
 ////////////////////////////////////////////////////////////////////////////
 // Set the name and password for your WiFi network here.
-#define SECRET_SSID "MyNetworkName"
-#define SECRET_PASSWORD "MyPassword"
+#define SECRET_SSID "BlueFi"
+#define SECRET_PASSWORD "takeoutmenus"

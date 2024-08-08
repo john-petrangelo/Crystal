@@ -9,15 +9,15 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_executable(crystal-pi-pico
         Crystal.cpp
-        HTTPServer.h
-        HTTPServer.cpp
-        Network.h
-        Network.cpp
         Handlers.h
         Handlers.cpp
-        HTTPReqeuestParser.cpp
-        HTTPReqeuestParser.h
-        HTTPRequest.h
+        Network.h
+        Network.cpp
+        HTTP/HTTPRequest.h
+        HTTP/HTTPRequestParser.cpp
+        HTTP/HTTPRequestParser.h
+        HTTP/HTTPServer.h
+        HTTP/HTTPServer.cpp
 )
 
 target_include_directories(crystal-pi-pico PRIVATE
