@@ -9,6 +9,10 @@
 class Network {
 private:
     static std::string hostname;
+    static std::string ipAddress;
+    static std::string macAddress;
+    static std::string wifiMode;
+
     static HTTPServer httpServer;
 
 //    static Renderer *networkRenderer;
@@ -22,6 +26,11 @@ private:
 
     static void checkLogger();
 
+    static HTTPResponse handleStatus(const HTTPRequest& request);
+
+    static std::string ipAddrToString(u32_t ipAddr);
+    static std::string macAddrToString(const uint8_t *mac);
+
 public:
 //    static void setup(Renderer *renderer);
     static void setup();
@@ -30,5 +39,4 @@ public:
 //
 //    static Renderer* getRenderer() { return networkRenderer; }
 //    static String &getHostname() { return hostname; }
-//    static ESP8266WebServer &getServer() { return server; }
 };

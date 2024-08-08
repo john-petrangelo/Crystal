@@ -1,3 +1,7 @@
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+
 #include <pico/cyw43_arch.h>
 
 //#include "Filesystem.h"
@@ -19,25 +23,37 @@
 #include "../secrets.h"
 
 std::string Network::hostname = "pico";
+std::string Network::ipAddress = "undefined";
+std::string Network::macAddress = "undefined";
+std::string Network::wifiMode = "undefined";
+
+// Server used for HTTP requests
 HTTPServer Network::httpServer;
 
-//// Server used for HTTP requests
-//ESP8266WebServer Network::server(80);
-//
 //// Server used for logging.
 //WiFiServer Network::logServer(8000);
 //WiFiClient Network::logClient;
 
 //Renderer* Network::networkRenderer = nullptr;
 
-static std::string macToString(const unsigned char* mac) {
-  constexpr std::size_t MAC_STRING_LENGTH = 17; // 17 characters for MAC
-  std::string macString(MAC_STRING_LENGTH, '\0');
+std::string Network::ipAddrToString(u32_t ip) {
+  std::ostringstream oss;
+  oss << (ip & 0xFF) << '.'
+      << ((ip >> 8) & 0xFF) << '.'
+      << ((ip >> 16) & 0xFF) << '.'
+      << ((ip >> 24) & 0xFF);
+  return oss.str();
+}
 
-  std::snprintf(&macString[0], macString.size() + 1, "%02x:%02x:%02x:%02x:%02x:%02x",
-                mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-
-  return macString;
+std::string Network::macAddrToString(const uint8_t* mac) {
+  std::ostringstream oss;
+  for (size_t i = 0; i < 6; ++i) {
+    oss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(mac[i]);
+    if (i < 5) {
+      oss << ':'; // Add colon separator except for the last byte
+    }
+  }
+  return oss.str();
 }
 
 // Connect to an existing access point. Returns true on success, false if did not connect.
@@ -49,8 +65,9 @@ bool Network::setupWiFiStation() {
 //  networkRenderer->setModel(pulsate);
 
   // Connect to an access point in station mode
-  printf("Enabling Wi-Fi station mode\n");
   cyw43_arch_enable_sta_mode();
+  printf("Enabled Wi-Fi station mode\n");
+  wifiMode = "station";
 
   // Setup Wi-Fi station mode
   printf("Connecting to %s...\n", SECRET_SSID);
@@ -62,8 +79,11 @@ bool Network::setupWiFiStation() {
     return false;
   }
 
-  auto ip_addr = cyw43_state.netif[CYW43_ITF_STA].ip_addr.addr;
-  printf("Connected to Wi-Fi, IP Address: %lu.%lu.%lu.%lu\n", ip_addr & 0xFF, (ip_addr >> 8) & 0xFF, (ip_addr >> 16) & 0xFF, ip_addr >> 24);
+  // Save the network properties so we can report them later
+  ipAddress = ipAddrToString(cyw43_state.netif[CYW43_ITF_STA].ip_addr.addr);
+  macAddress = macAddrToString(cyw43_state.netif[CYW43_ITF_STA].hwaddr);
+
+  std::cout << "Connected to Wi-Fi, IP Address: " << ipAddress << std::endl;
 
   // Success
   return true;
@@ -80,6 +100,7 @@ void Network::setupWiFiSoftAP() {
 //  // Setup wifi soft AP mode
 //  cyw43_arch_enable_ap_mode("crystal.local", nullptr, CYW43_AUTH_WPA2_AES_PSK);
 //  printf("Soft AP started: SSID = %s\n", "crystal.local");
+//  wifiMode = "softAP";
 //
 //  // Set the address we can be reached at
 //  ip4_addr_t addr;
@@ -122,9 +143,9 @@ void Network::setupHTTP() {
 //  server.on("/", HTTP_GET, handleRoot);
 //  server.on("/crystal.css", HTTP_GET, handleCSS);
 //  server.on("/crystal.js", HTTP_GET, handleJS);
-//  server.on("/status", HTTP_GET, handleStatus);
-//  server.onNotFound(handleNotFound);
-//
+
+  httpServer.onGet("/status", Network::handleStatus);
+
 //  server.on("/brightness", HTTP_GET, handleGetBrightness);
 //  server.on("/brightness", HTTP_PUT, handleSetBrightness);
 //
@@ -170,17 +191,22 @@ void Network::checkLogger() {
 //  }
 }
 
+
+HTTPResponse Network::handleStatus(const HTTPRequest& request) {
+  std::ostringstream oss;
+  oss << "hostname: " << hostname << std::endl;
+  oss << "ipAddress: " << ipAddress << std::endl;
+  oss << "macAddress: " << macAddress << std::endl;
+  oss << "wifiMode: " << wifiMode << std::endl;
+
+  return {200, oss.str()};
+}
+
 // One-stop to set up all the network components
 //void Network::setup(Renderer *renderer) {
 void Network::setup() {
   // Use this renderer if we ever want to use the LEDs for network status
 //  networkRenderer = renderer;
-
-  // Initialize the Wi-Fi stack
-//  if (cyw43_arch_init()) {
-//    printf("Failed to initialize Wi-Fi\n");
-//    return;
-//  }
 
   // First try to connect to a known base station
   bool networkDidConnect = setupWiFiStation();
@@ -191,7 +217,6 @@ void Network::setup() {
   }
 
   setupHTTP();
-
   setupMDNS();
 
 //  logServer.begin();
@@ -204,46 +229,3 @@ void Network::loop() {
 
   checkLogger();
 }
-
-//void Network::getStatus(JsonObject obj) {
-//  obj["hostname"] = Network::getHostname() + ".local";
-//  obj["wifiMACAddress"] = WiFi.macAddress();
-//  obj["ipAddress"] = WiFi.localIP().toString();
-//  obj["mode"] = "unknown";
-//  switch(WiFi.getMode()) {
-//    case WIFI_OFF:
-//      obj["mode"] = "WIFI_OFF";
-//      break;
-//    case WIFI_STA:
-//      obj["mode"] = "WIFI_STA";
-//      break;
-//    case WIFI_AP:
-//      obj["mode"] = "WIFI_AP";
-//      break;
-//    case WIFI_AP_STA:
-//      obj["mode"] = "WIFI_AP_STA";
-//      break;
-//    default:
-//      obj["mode"] = String(WiFi.getMode());
-//      break;
-//  }
-//  obj["phyMode"] = "unknown";
-//  switch(WiFi.getPhyMode()) {
-//    case WIFI_PHY_MODE_11B:
-//      obj["phyMode"] = "WIFI_PHY_MODE_11B";
-//      break;
-//    case WIFI_PHY_MODE_11G:
-//      obj["phyMode"] = "WIFI_PHY_MODE_11G";
-//      break;
-//    case WIFI_PHY_MODE_11N:
-//      obj["phyMode"] = "WIFI_PHY_MODE_11N";
-//      break;
-//    default:
-//      obj["phyMode"] = String(WiFi.getPhyMode());
-//      break;
-//  }
-//  obj["softAPssid"] = "<ssid TBD>";
-//  obj["softAPStationNum"] = WiFi.softAPgetStationNum();
-//  obj["softAPIP"] = WiFi.softAPIP().toString();
-//  obj["softAPmacAddress"] = WiFi.softAPmacAddress();
-//}
