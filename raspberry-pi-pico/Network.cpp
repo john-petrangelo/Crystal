@@ -12,7 +12,6 @@
 //#include "lumos-arduino/Colors.h"
 //#include "lumos-arduino/Logger.h"
 
-//#include "Models/Gauge.h"
 //#include "Models/Pulsate.h"
 //#include "Models/Solid.h"
 //#include "Models/Triangle.h"
@@ -132,10 +131,6 @@ void Network::setupHTTP() {
   httpServer.init();
 
 //  server.onGet("/solid", handleSolid);
-  httpServer.onGet("/test", [](const HTTPRequest& request) {
-    return HTTPResponse{200, "test passed"};
-  });
-
 //  server.on("/", HTTP_GET, handleRoot);
 //  server.on("/crystal.css", HTTP_GET, handleCSS);
 //  server.on("/crystal.js", HTTP_GET, handleJS);
