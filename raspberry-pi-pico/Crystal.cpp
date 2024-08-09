@@ -2,6 +2,7 @@
 #include "pico/cyw43_arch.h"
 
 #include "Network.h"
+#include "Utils.h"
 
 int main() {
   stdio_init_all();
@@ -16,7 +17,7 @@ int main() {
   while (true) {
     absolute_time_t start_time = get_absolute_time();
     uint32_t msSinceBoot = to_ms_since_boot(start_time);
-    printf("%4lu.%03lu Blink\n", msSinceBoot / 1000, msSinceBoot % 1000);
+    printf("%s Blink\n", msToString(msSinceBoot).c_str());
 
     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
     sleep_ms(700);

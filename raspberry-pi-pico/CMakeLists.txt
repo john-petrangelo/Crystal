@@ -26,10 +26,12 @@ add_executable(crystal-pi-pico
 
 target_include_directories(crystal-pi-pico PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
+        ${CMAKE_SOURCE_DIR}/lib/ArduinoJson/src
 )
 
 target_link_libraries(crystal-pi-pico
         pico_stdlib
-        pico_cyw43_arch_lwip_poll)
+        pico_cyw43_arch_lwip_poll
+)
 
 pico_add_extra_outputs(crystal-pi-pico)

@@ -3,6 +3,8 @@
 #include <pico/cyw43_arch.h>
 #include <sstream>
 
+#include <ArduinoJson.h>
+
 #include "System.h"
 #include "Utils.h"
 
@@ -12,20 +14,31 @@ void System::setup() {
 //  Serial.println("Serial started");
 }
 
-std::string System::getStatus() {
-  std::ostringstream oss;
+//std::string System::getStatus() {
+//  std::ostringstream oss;
+//
+//  oss << "timeSinceBoot: " << getTime() << std::endl;
+//
+//  oss << "heapTotal: " << getHeapTotal() << std::endl;
+//  oss << "heapAvailable: " << getHeapAvailable() << std::endl;
+//  oss << "heapHighWater: " << getHeapHighWater() << std::endl;
+//  oss << "heapAllocated: " << getHeapAllocated() << std::endl;
+//  oss << "heapFreed: " << getHeapFreed() << std::endl;
+//
+//  oss << "cpuFreqMhz: " << getCpuFreqMHz() << std::endl;
+//
+//return oss.str();
 
-  oss << "timeSinceBoot: " << getTime() << std::endl;
+  void System::getStatus(JsonObject obj) {
+    obj["timeSinceBoot: "] = getTime();
 
-  oss << "heapTotal: " << getHeapTotal() << std::endl;
-  oss << "heapAvailable: " << getHeapAvailable() << std::endl;
-  oss << "heapHighWater: " << getHeapHighWater() << std::endl;
-  oss << "heapAllocated: " << getHeapAllocated() << std::endl;
-  oss << "heapFreed: " << getHeapFreed() << std::endl;
+    obj["heapTotal: "] = getHeapTotal();
+    obj["heapAvailable: "] = getHeapAvailable();
+    obj["heapHighWater: "] = getHeapHighWater();
+    obj["heapAllocated: "] = getHeapAllocated();
+    obj["heapFreed: "] = getHeapFreed();
 
-  oss << "cpuFreqMhz: " << getCpuFreqMHz() << std::endl;
-
-return oss.str();
+    obj["cpuFreqMhz: "] = getCpuFreqMHz();
 }
 
 std::string System::getTime() {

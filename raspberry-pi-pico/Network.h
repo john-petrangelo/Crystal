@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include <ArduinoJson.h>
+
 #include "HTTP/HTTPServer.h"
 
 //#include "Renderer.h"
@@ -33,7 +35,7 @@ public:
 //    static void setup(Renderer *renderer);
     static void setup();
     static void loop();
-    static std::string getStatus();
+    static void getStatus(JsonObject obj);
 //
 //    static Renderer* getRenderer() { return networkRenderer; }
 //    static String &getHostname() { return hostname; }

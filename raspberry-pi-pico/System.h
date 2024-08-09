@@ -17,5 +17,5 @@ private:
 public:
     static void setup();
 
-    static std::string getStatus();
+    static void getStatus(JsonObject obj);
 };

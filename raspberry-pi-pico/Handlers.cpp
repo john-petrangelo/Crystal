@@ -2,17 +2,17 @@
 
 //#include <ArduinoJson.h>
 //#include <LittleFS.h>
+#include <ArduinoJson.h>
 //
 //#include "lumos-arduino/Colors.h"
 //#include "lumos-arduino/Logger.h"
-//
+
 //#include "Demos.h"
 #include "Handlers.h"
 //#include "HTTP/HTTPServer.h"
 #include "Network.h"
 #include "System.h"
-//#include "utils.h"
-//
+
 //#include "Models/Crystal.h"
 //#include "Models/Flame.h"
 //#include "Models/Gradient.h"
@@ -110,14 +110,18 @@
 //}
 
 HTTPResponse handleStatus(const HTTPRequest& request) {
-  std::ostringstream oss;
-  oss << "NETWORK" << std::endl;
-  oss << Network::getStatus();
-  oss << std::endl;
-  oss << "SYSTEM" << std::endl;
-  oss << System::getStatus();
+    JsonDocument doc;
 
-  return {200, oss.str()};
+    System::getStatus(doc["system"].to<JsonObject>());
+//    Network::getRenderer()->getStatus(doc["renderer"].to<JsonObject>());
+//    Filesystem::getStatus(doc["filesystem"].to<JsonObject>());
+    Network::getStatus(doc["network"].to<JsonObject>());
+
+    std::string output;
+    serializeJsonPretty(doc, output);
+    output += "\n";
+
+    return {200, output};
 }
 
 //void handleGetBrightness() {
