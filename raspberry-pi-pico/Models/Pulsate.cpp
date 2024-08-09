@@ -1,5 +1,5 @@
 #include "Pulsate.h"
-#include "../utils.h"
+#include "../Utils.h"
 
 void Pulsate::update(float timeStamp) {
   timeStamp = fmod(timeStamp, periodSecs);

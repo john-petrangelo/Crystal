@@ -1,10 +1,10 @@
 #include <hardware/clocks.h>
-#include <iomanip>
 #include <malloc.h>
 #include <pico/cyw43_arch.h>
 #include <sstream>
 
 #include "System.h"
+#include "Utils.h"
 
 void System::setup() {
   // TODO still need setup?
@@ -32,20 +32,7 @@ std::string System::getTime() {
   absolute_time_t start_time = get_absolute_time();
   uint32_t msSinceBoot = to_ms_since_boot(start_time);
 
-  auto days = msSinceBoot / (24 * 60 * 60 * 1000);
-  msSinceBoot %= 24 * 60 * 60 * 1000;
-  auto hours = msSinceBoot / (1000 * 60 * 60);
-  msSinceBoot %= 1000 * 60 * 60;
-  auto minutes = msSinceBoot / (1000 * 60);
-  msSinceBoot %= 1000 * 60;
-  auto seconds = msSinceBoot / 1000;
-  auto milliSeconds = msSinceBoot % 1000;
-
-  std::ostringstream oss;
-  oss << days << "d " << hours << "h " << minutes << "m "
-      << seconds << "." << std::setfill('0') << std::setw(3) << milliSeconds << "s";
-
-  return oss.str();
+  return msToString(msSinceBoot);
 }
 
 uint32_t System::getHeapTotal() {

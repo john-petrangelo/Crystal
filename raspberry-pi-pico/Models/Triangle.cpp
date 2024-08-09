@@ -1,5 +1,5 @@
 #include "Triangle.h"
-#include "../utils.h"
+#include "../Utils.h"
 
 Color Triangle::render(float pos) {
   if (pos < rangeMin || pos > rangeMax) {

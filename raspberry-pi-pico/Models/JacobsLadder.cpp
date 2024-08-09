@@ -1,5 +1,5 @@
 #include "../lumos-arduino/Logger.h"
-#include "../utils.h"
+#include "../Utils.h"
 
 #include "Gradient.h"
 #include "JacobsLadder.h"

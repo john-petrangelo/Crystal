@@ -1,4 +1,7 @@
-#include <Arduino.h>
+#pragma once
+
+#include <cstdint>
+#include <string>
 
 /**
  * Re-maps a number from one range to another. That is, a value of fromLow would get mapped to toLow,
@@ -16,9 +19,7 @@ inline float fmap(float x, float in_min, float in_max, float out_min, float out_
 /**
  * Return a random float between fmin and fmax.
  */
-inline float frand(float fmin, float fmax) {
-  return fmin + float(random(1UL << 31)) * (fmax - fmin) / (1UL << 31);
-}
+inline float frand(float fmin, float fmax);
 
 /**
  * Returns an interpolation between two inputs (v0, v1) for a parameter (t)
@@ -44,3 +45,5 @@ template <typename T>
 inline T sign(T val) {
   return (T(0) < val) - (val < T(0));
 }
+
+std::string msToString(uint32_t timeMS);
