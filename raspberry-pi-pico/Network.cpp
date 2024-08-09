@@ -55,10 +55,10 @@ std::string Network::macAddrToString(const uint8_t* mac) {
 }
 
 void Network::getStatus(JsonObject obj) {
-  obj["hostname: "] = hostname;
-  obj["ipAddress: "] = ipAddress;
-  obj["macAddress: "] = macAddress;
-  obj["wifiMode: "] = wifiMode;
+  obj["hostname"] = hostname;
+  obj["ipAddress"] = ipAddress;
+  obj["macAddress"] = macAddress;
+  obj["wifiMode"] = wifiMode;
 }
 
 // Connect to an existing access point. Returns true on success, false if did not connect.
