@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <NeoPixelBus.h>
 
-#include "src/lumos-arduino/Logger.h"
+#include "lumos-arduino/Logger.h"
 
 #include "src/Filesystem.h"
 #include "src/Models/Crystal.h"

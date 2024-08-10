@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../lumos-arduino/Colors.h"
+#include "lumos-arduino/Colors.h"
 #include "Model.h"
 
 class WarpCore;

@@ -1,4 +1,4 @@
-#include "../lumos-arduino/Logger.h"
+#include "lumos-arduino/Logger.h"
 #include "../utils.h"
 
 #include "Gradient.h"
