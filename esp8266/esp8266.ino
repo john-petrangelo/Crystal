@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <NeoPixelBus.h>
 
+#include "lumos-arduino/ArduinoStreamLogger.h"
 #include "lumos-arduino/Logger.h"
 
 #include "src/Filesystem.h"
@@ -18,6 +19,7 @@ long const logDurationIntervalMS = 10000;
 
 void setup() {
   System::setup();
+  Logger::set(new ArduinoStreamLogger(&Serial));
 
   Serial.println("Creating renderer");
   renderer = new Esp8266_NeoPixelBus_Renderer(PIXELS_COUNT);

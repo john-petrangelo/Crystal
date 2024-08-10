@@ -27,6 +27,7 @@ set(SRC_FILES
         src/Models/Triangle.cpp
         src/Models/WarpCore.cpp
         src/Models/Window.cpp
+        src/lib/lumos-arduino/ArduinoStreamLogger.cpp
         src/lib/lumos-arduino/Colors.cpp
         src/lib/lumos-arduino/Logger.cpp
         src/lib/lumos-arduino/Patterns.cpp

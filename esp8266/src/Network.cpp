@@ -5,6 +5,7 @@
 #include "Handlers.h"
 #include "Network.h"
 #include "lumos-arduino/Colors.h"
+#include "lumos-arduino/ArduinoStreamLogger.h"
 #include "lumos-arduino/Logger.h"
 
 #include "Models/Gauge.h"
@@ -152,7 +153,7 @@ void Network::setupOTA() {
   ArduinoOTA.onEnd([]() {
     Logger::logf("\nOTA End\n");
 
-      Logger::setStream(&Serial);
+      Logger::set(new ArduinoStreamLogger(&Serial));
       logClient.stop();
 
       ModelPtr model = std::make_shared<Solid>(BLACK);
@@ -183,17 +184,17 @@ void Network::setupOTA() {
 void Network::checkLogger() {
   if (!logClient) {
     // No log client. Check the server for new clients.
-    logClient = logServer.available();
+    logClient = logServer.accept();
     if (logClient) {
       // We've got a new log client.
-      Logger::setStream(&logClient);
+      Logger::set(new ArduinoStreamLogger(&logClient));
       Logger::logf("Connected to %s...\n", hostname.c_str());
     }
   }
 
   if (logClient && !logClient.connected()) {
     // Not connected anymore, switch logging back to serial.
-    Logger::setStream(&Serial);
+    Logger::set(new ArduinoStreamLogger(&Serial));
     logClient.stop();
   }
 }
