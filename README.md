@@ -19,12 +19,12 @@ To compile the code, run the build script in the esp8266 directory:
 
 To upload to device over serial:
 ```
-arduino-cli upload -p /dev/cu.usbserial-114230 --fqbn esp8266:esp8266:generic Crystal.ino
+> arduino-cli upload -p /dev/cu.usbserial-114230 --fqbn esp8266:esp8266:generic Crystal.ino
 ```
 
 To upload to device over network OTA:
 ```
-arduino-cli upload --fqbn esp8266:esp8266:generic  --protocol=network --port 192.168.4.169 Crystal.ino
+> upload-ota.sh
 ```
 # Build for Raspberry Pi Pico W
 
