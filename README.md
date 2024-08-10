@@ -12,9 +12,9 @@ TODO: I need to fix this so that it's not reaching into the esp8266 directory.
 
 # Build for ESP8266 using Arduino tools
 
-To compile the code:
+To compile the code, run the build script in the esp8266 directory:
 ```
-arduino-cli compile --fqbn esp8266:esp8266:generic -v Crystal.ino
+> build.sh
 ```
 
 To upload to device over serial:
