@@ -6,6 +6,7 @@ set(ESP8266_LIB_DIR ${HOME}/Library/Arduino15/packages/esp8266/hardware/esp8266/
 # Define source files for the project
 set(SRC_FILES
         esp8266.ino
+        src/ArduinoStreamLogger.cpp
         src/Demos.cpp
         src/Filesystem.cpp
         src/Handlers.cpp
@@ -27,7 +28,6 @@ set(SRC_FILES
         src/Models/Triangle.cpp
         src/Models/WarpCore.cpp
         src/Models/Window.cpp
-        src/lib/lumos-arduino/ArduinoStreamLogger.cpp
         src/lib/lumos-arduino/Colors.cpp
         src/lib/lumos-arduino/Logger.cpp
         src/lib/lumos-arduino/Patterns.cpp
