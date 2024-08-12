@@ -45,8 +45,8 @@ err_t HTTPServer::onReceive(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err
 
       // Match the method and path to a handler, otherwise return a not found error
       std::string handlersKey = makeHandlersKey(request.method, request.path);
-      auto it = server->onGetHandlers.find(handlersKey);
-      if (it != server->onGetHandlers.end()) {
+      auto it = server->handlers.find(handlersKey);
+      if (it != server->handlers.end()) {
         auto response = it->second(request);  // Call the handler
         server->sendResponse(tpcb, response);
       } else {
@@ -85,14 +85,14 @@ void HTTPServer::onGet(const std::string& path, HTTPHandler func) {
   std::string handlersKey = makeHandlersKey("GET", path);
 
   // Store only the last handler for the specified method and path
-  onGetHandlers[handlersKey] = {std::move(func)};
+  handlers[handlersKey] = {std::move(func)};
 }
 
 void HTTPServer::onPut(const std::string &path, HTTPHandler func) {
   std::string handlersKey = makeHandlersKey("PUT", path);
 
   // Store only the last handler for the specified method and path
-  onGetHandlers[handlersKey] = {std::move(func)};
+  handlers[handlersKey] = {std::move(func)};
 }
 
 err_t HTTPServer::sendResponse(struct tcp_pcb *tpcb, HTTPResponse const& response) {

@@ -43,8 +43,7 @@ private:
     static const std::string httpResponseGet;
     static const std::string httpResponsePut;
 
-    std::unordered_map<std::string, HTTPHandler> onGetHandlers;
-    std::unordered_map<std::string, HTTPHandler> onPutHandlers;
+    std::unordered_map<std::string, HTTPHandler> handlers;
 
     static std::string makeHandlersKey(std::string_view method, std::string_view path);
 
