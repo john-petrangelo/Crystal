@@ -9,21 +9,6 @@ void Logger::logMsg(char const *msg) {
   stream->print(msg);
 }
 
-void Logger::logMsgLn(char const *msg) {
-  stream->println(msg);
-}
-
-void Logger::logColor(char const *name, Color value) {
-  logName(name);
-  stream->print(value, HEX);
-  stream->print(" ");
-}
-
-void Logger::logName(char const *name) {
-  stream->print(name);
-  stream->print("=");  
-}
-
 void Logger::logf(char const *format,...)
 {
   char buff[256];

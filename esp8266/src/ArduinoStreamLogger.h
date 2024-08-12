@@ -10,8 +10,6 @@ public:
     explicit ArduinoStreamLogger(Stream *newStream) : stream(newStream) {}
 
     virtual void logMsg(char const *msg);
-    virtual void logMsgLn(char const *msg);
-
     virtual void logf(char const *format,...);
 
   private:

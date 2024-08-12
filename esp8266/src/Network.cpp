@@ -234,7 +234,7 @@ void Network::setup(Renderer *renderer) {
 
   logServer.begin();
 
-  Logger::logMsgLn("Network set up complete");
+  Logger::logMsg("Network set up complete\n");
 }
 
 void Network::loop() {

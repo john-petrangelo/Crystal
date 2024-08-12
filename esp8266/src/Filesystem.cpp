@@ -5,9 +5,9 @@
 
 void Filesystem::setup() {
   if (!LittleFS.begin()) {
-    Logger::logMsgLn("Failed to start LittleFS");
+    Logger::logMsg("Failed to start LittleFS\n");
   } else {
-    Logger::logMsgLn("Started LittleFS");
+    Logger::logMsg("Started LittleFS\n");
   }
 }
 
@@ -41,5 +41,5 @@ void Filesystem::getStatus(JsonObject obj) {
 
 void Filesystem::end() {
   LittleFS.end();
-  Logger::logMsgLn("Ended LittleFS");
+  Logger::logMsg("Ended LittleFS\n");
 }

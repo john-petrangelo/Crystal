@@ -43,6 +43,7 @@ void loop() {
 
   if (now_ms - lastUpdateMS >= logDurationIntervalMS) {
     lastUpdateMS = now_ms;
-    Logger::logMsgLn(getStatus().c_str());
+    Logger::logMsg(getStatus().c_str());
+    Logger::logMsg("\n");
   }
 }

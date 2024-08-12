@@ -11,10 +11,6 @@ void ArduinoStreamLogger::logMsg(char const *msg) {
   stream->print(msg);
 }
 
-void ArduinoStreamLogger::logMsgLn(char const *msg) {
-  stream->println(msg);
-}
-
 void ArduinoStreamLogger::logf(char const *format, ...)
 {
   char buff[256];
