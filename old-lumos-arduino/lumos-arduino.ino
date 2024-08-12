@@ -107,7 +107,7 @@ void loop() {
 
   long stopTime = millis();
   Logger::logFloat((char*)"elapsed=", (stopTime - startTime) / 1000.0, 3);
-  Logger::logMsg("\n");
+  Logger::log("\n");
 }
 
 void demo_noise() {

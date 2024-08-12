@@ -5,7 +5,7 @@ Logger logger;
 
 static Stream *stream = &Serial;
 
-void Logger::logMsg(char const *msg) {
+void Logger::log(char const *msg) {
   stream->print(msg);
 }
 
@@ -17,7 +17,7 @@ void Logger::logf(char const *format,...)
   vsnprintf(buff,sizeof(buff),format,args);
   va_end (args);
   buff[sizeof(buff)/sizeof(buff[0])-1]='\0';
-  Logger::logMsg(buff);
+  Logger::log(buff);
 }
 
 void Logger::setStream(Stream *newStream) {

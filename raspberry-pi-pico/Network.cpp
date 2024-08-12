@@ -206,7 +206,7 @@ void Network::setup() {
   setupMDNS();
 
 //  logServer.begin();
-//  Logger::logMsg("Network set up complete\n");
+//  Logger::log("Network set up complete\n");
 }
 
 void Network::loop() {

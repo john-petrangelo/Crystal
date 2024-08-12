@@ -9,7 +9,7 @@ class ArduinoStreamLogger : public ILogger {
 public:
     explicit ArduinoStreamLogger(Stream *newStream) : stream(newStream) {}
 
-    virtual void logMsg(char const *msg);
+    virtual void log(char const *msg);
     virtual void logf(char const *format,...);
 
   private:

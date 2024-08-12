@@ -11,14 +11,14 @@ Lumos::Lumos(uint16_t num_pixels, int8_t pin) : strip(num_pixels, pin, STRIP_FLA
 void Lumos::loop() {
   // Bail out if there is no action.
   if (action == NULL) {
-    Logger::logMsg("No action");
+    Logger::log("No action");
     return;
   }
   
   char buffer[256];
   snprintf(buffer, 256, "LUMOS action=%s isDone=%d endTimeMS=%d\n", action->name, action->isDone(), endTimeMS);
   buffer[255] = '\0';
-  Logger::logMsg(buffer);
+  Logger::log(buffer);
   
   if (!action->isDone() && (endTimeMS == FOREVER || millis() < endTimeMS)) {
     Logger::logf("LUMOS Did loop\n");

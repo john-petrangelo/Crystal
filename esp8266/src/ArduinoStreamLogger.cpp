@@ -7,7 +7,7 @@
 
 ILogger *logger;
 
-void ArduinoStreamLogger::logMsg(char const *msg) {
+void ArduinoStreamLogger::log(char const *msg) {
   stream->print(msg);
 }
 
@@ -19,5 +19,5 @@ void ArduinoStreamLogger::logf(char const *format, ...)
   vsnprintf(buff,sizeof(buff),format,args);
   va_end (args);
   buff[sizeof(buff)/sizeof(buff[0])-1]='\0';
-  ArduinoStreamLogger::logMsg(buff);
+  ArduinoStreamLogger::log(buff);
 }

@@ -7,7 +7,7 @@
 
 class Logger {
   public:
-    static void logMsg(char const *msg);
+    static void log(char const *msg);
     static void logf(char const *format,...);
 
     static void setStream(Stream *newStream);

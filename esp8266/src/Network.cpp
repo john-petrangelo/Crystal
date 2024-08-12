@@ -165,11 +165,11 @@ void Network::setupOTA() {
 
   ArduinoOTA.onError([](ota_error_t error) {
     Logger::logf("OTA Error[%u]: ", error);
-    if (error == OTA_AUTH_ERROR) Logger::logMsg("OTA Auth Failed\n");
-    else if (error == OTA_BEGIN_ERROR) Logger::logMsg("OTA Begin Failed\n");
-    else if (error == OTA_CONNECT_ERROR) Logger::logMsg("OTA Connect Failed\n");
-    else if (error == OTA_RECEIVE_ERROR) Logger::logMsg("OTA Receive Failed\n");
-    else if (error == OTA_END_ERROR) Logger::logMsg("OTA End Failed\n");
+    if (error == OTA_AUTH_ERROR) Logger::log("OTA Auth Failed\n");
+    else if (error == OTA_BEGIN_ERROR) Logger::log("OTA Begin Failed\n");
+    else if (error == OTA_CONNECT_ERROR) Logger::log("OTA Connect Failed\n");
+    else if (error == OTA_RECEIVE_ERROR) Logger::log("OTA Receive Failed\n");
+    else if (error == OTA_END_ERROR) Logger::log("OTA End Failed\n");
 
     for (int i = 0; i < networkRenderer->pixelsCount(); ++i) {
       networkRenderer->setPixel(i, RED);
@@ -178,7 +178,7 @@ void Network::setupOTA() {
   });
 
   ArduinoOTA.begin();
-    Logger::logMsg("OTA ready\n");
+    Logger::log("OTA ready\n");
 }
 
 
@@ -234,7 +234,7 @@ void Network::setup(Renderer *renderer) {
 
   logServer.begin();
 
-  Logger::logMsg("Network set up complete\n");
+  Logger::log("Network set up complete\n");
 }
 
 void Network::loop() {
