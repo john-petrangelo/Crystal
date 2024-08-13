@@ -15,6 +15,8 @@ add_executable(crystal-pi-pico
         Crystal.cpp
         Handlers.h
         Handlers.cpp
+        LogServer.h
+        LogServer.cpp
         Network.h
         Network.cpp
         System.h
