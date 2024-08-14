@@ -17,7 +17,7 @@
 #define DUMP_DATA 0
 
 #define DEBUG_printf(...)
-#define ERROR_printf printf
+#define ERROR_printf Logger::logf
 
 typedef struct dns_header_t_ {
     uint16_t id;
@@ -63,13 +63,13 @@ static void dump_bytes(const uint8_t *bptr, uint32_t len) {
 
     for (i = 0; i < len;) {
         if ((i & 0x0f) == 0) {
-            printf("\n");
+            Logger::logf("\n");
         } else if ((i & 0x07) == 0) {
-            printf(" ");
+            Logger::logf(" ");
         }
-        printf("%02x ", bptr[i++]);
+        Logger::logf("%02x ", bptr[i++]);
     }
-    printf("\n");
+    Logger::logf("\n");
 }
 #endif
 

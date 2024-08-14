@@ -1,23 +1,28 @@
-#include "pico/stdlib.h"
-#include "pico/cyw43_arch.h"
+#include <pico/stdlib.h>
+#include <pico/cyw43_arch.h>
 
+#include <lumos-arduino/Logger.h>
+
+#include "ConsoleLogger.h"
 #include "Network.h"
 #include "Utils.h"
 
 int main() {
   stdio_init_all();
+  Logger::set(new ConsoleLogger());
+
   if (cyw43_arch_init()) {
-    printf("Wi-Fi init failed");
+    Logger::logf("Wi-Fi init failed\n");
     return -1;
   }
 
-  printf("Connecting to network...\n");
+  Logger::logf("Connecting to network...\n");
   Network::setup();
 
   while (true) {
     absolute_time_t start_time = get_absolute_time();
     uint32_t msSinceBoot = to_ms_since_boot(start_time);
-    printf("%s Blink\n", msToString(msSinceBoot).c_str());
+    Logger::logf("%s Blink\n", msToString(msSinceBoot).c_str());
 
     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
     sleep_ms(700);

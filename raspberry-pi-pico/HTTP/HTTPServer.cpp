@@ -4,6 +4,8 @@
 #include <string>
 #include <utility>
 
+#include <lumos-arduino/Logger.h>
+
 #include "HTTPRequest.h"
 #include "HTTPRequestParser.h"
 #include "HTTPServer.h"
@@ -16,12 +18,12 @@ void HTTPServer::init() {
       pcb = tcp_listen(pcb);
       tcp_arg(pcb, this);
       tcp_accept(pcb, onAccept);
-      printf("HTTP server listening on port 80\n");
+      Logger::logf("HTTP server listening on port 80\n");
     } else {
-      printf("Error in tcp_bind: %d\n", err);
+      Logger::logf("Error in tcp_bind: %d\n", err);
     }
   } else {
-    printf("Error in tcp_new\n");
+    Logger::logf("Error in tcp_new\n");
   }
 }
 
@@ -54,15 +56,15 @@ err_t HTTPServer::onReceive(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err
       }
 
       pbuf_free(p); // Free the pbuf after processing
-      printf("Request processed\n");
+      Logger::logf("Request processed\n");
       return ERR_OK; // Return ERR_OK to continue receiving
     } else {
-      printf("Connection closed by client\n");
+      Logger::logf("Connection closed by client\n");
       server->closeConnection(tpcb); // Close connection if pbuf is NULL
       return ERR_OK;
     }
   } else {
-    printf("Error in onReceive: %d\n", err);
+    Logger::logf("Error in onReceive: %d\n", err);
     server->closeConnection(tpcb); // Close on error
     return err;
   }
@@ -70,14 +72,14 @@ err_t HTTPServer::onReceive(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err
 
 err_t HTTPServer::onSent(void *arg, struct tcp_pcb *tpcb, u16_t len) {
   auto server = static_cast<HTTPServer*>(arg);
-  printf("Response sent, closing connection\n");
+  Logger::logf("Response sent, closing connection\n");
   server->closeConnection(tpcb); // Close the connection after sending the response
   return ERR_OK;
 }
 
 void HTTPServer::onError(void *arg, err_t err) {
   auto server = static_cast<HTTPServer*>(arg);
-  printf("Connection error: %d\n", err);
+  Logger::logf("Connection error: %d\n", err);
   server->closeConnection(static_cast<struct tcp_pcb*>(arg)); // Handle error
 }
 
@@ -123,7 +125,7 @@ err_t HTTPServer::sendResponse(struct tcp_pcb *tpcb, HTTPResponse const& respons
 err_t HTTPServer::sendRawResponse(struct tcp_pcb *tpcb, const std::string &rawResponse) {
   err_t err;
   u16_t len = rawResponse.size();
-  printf("Sending response: %s\n", rawResponse.c_str());
+  Logger::logf("Sending response: %s\n", rawResponse.c_str());
 
   // Ensure the response fits within the TCP buffer
   const char* response_data = rawResponse.c_str();
@@ -135,7 +137,7 @@ err_t HTTPServer::sendRawResponse(struct tcp_pcb *tpcb, const std::string &rawRe
 
     err = tcp_write(tpcb, response_data, send_len, TCP_WRITE_FLAG_COPY);
     if (err != ERR_OK) {
-      printf("Error in tcp_write: %d\n", err);
+      Logger::logf("Error in tcp_write: %d\n", err);
       return err;
     }
 
@@ -146,7 +148,7 @@ err_t HTTPServer::sendRawResponse(struct tcp_pcb *tpcb, const std::string &rawRe
   // Ensure data is sent
   err = tcp_output(tpcb);
   if (err != ERR_OK) {
-    printf("Error in tcp_output: %d\n", err);
+    Logger::logf("Error in tcp_output: %d\n", err);
   }
   return err;
 }
@@ -154,7 +156,7 @@ err_t HTTPServer::sendRawResponse(struct tcp_pcb *tpcb, const std::string &rawRe
 void HTTPServer::closeConnection(struct tcp_pcb *tpcb) {
   err_t err = tcp_close(tpcb);
   if (err != ERR_OK) {
-    printf("Error in tcp_close: %d\n", err);
+    Logger::logf("Error in tcp_close: %d\n", err);
   }
 }
 

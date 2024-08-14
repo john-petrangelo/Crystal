@@ -3,6 +3,8 @@
 
 #include <lwip/tcp.h>
 
+#include <lumos-arduino/Logger.h>
+
 #include "LogServer.h"
 
 err_t LogServer::onAccept(void *arg, struct tcp_pcb *newpcb, [[maybe_unused]] err_t err) {
@@ -27,15 +29,15 @@ err_t LogServer::onReceive(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_
       server->sendMessage(tpcb, data);
 
       pbuf_free(p); // Free the pbuf after processing
-      printf("Request processed\n");
+      Logger::log("Request processed\n");
       return ERR_OK; // Return ERR_OK to continue receiving
     } else {
-      printf("Connection closed by client\n");
+      Logger::logf("Connection closed by client\n");
       server->closeConnection(tpcb); // Close connection if pbuf is NULL
       return ERR_OK;
     }
   } else {
-    printf("Error in onReceive: %d\n", err);
+    Logger::logf("Error in onReceive: %d\n", err);
     server->closeConnection(tpcb); // Close on error
     return err;
   }
@@ -43,21 +45,21 @@ err_t LogServer::onReceive(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_
 
 err_t LogServer::onSent(void *arg, struct tcp_pcb *tpcb, u16_t len) {
   auto server = static_cast<LogServer*>(arg);
-  printf("Response sent, closing connection\n");
+  Logger::logf("Response sent, closing connection\n");
   server->closeConnection(tpcb); // Close the connection after sending the response
   return ERR_OK;
 }
 
 void LogServer::onError(void *arg, err_t err) {
   auto server = static_cast<LogServer*>(arg);
-  printf("Connection error: %d\n", err);
+  Logger::logf("Connection error: %d\n", err);
   server->closeConnection(static_cast<struct tcp_pcb*>(arg)); // Handle error
 }
 
 void LogServer::closeConnection(struct tcp_pcb *tpcb) {
   err_t err = tcp_close(tpcb);
   if (err != ERR_OK) {
-    printf("Error in tcp_close: %d\n", err);
+    Logger::logf("Error in tcp_close: %d\n", err);
   }
 }
 
@@ -74,7 +76,7 @@ void LogServer::sendMessage(struct tcp_pcb *tpcb, char const *msg) {
 
     err = tcp_write(tpcb, msg, send_len, TCP_WRITE_FLAG_COPY);
     if (err != ERR_OK) {
-      printf("Error in tcp_write: %d\n", err);
+      Logger::logf("Error in tcp_write: %d\n", err);
     }
 
     msg += send_len;
@@ -84,7 +86,7 @@ void LogServer::sendMessage(struct tcp_pcb *tpcb, char const *msg) {
   // Ensure data is sent
   err = tcp_output(tpcb);
   if (err != ERR_OK) {
-    printf("Error in tcp_output: %d\n", err);
+    Logger::logf("Error in tcp_output: %d\n", err);
   }
 }
 
@@ -96,12 +98,12 @@ void LogServer::init() {
       pcb = tcp_listen(pcb);
       tcp_arg(pcb, this);
       tcp_accept(pcb, onAccept);
-      printf("Log server listening on port %d\n", PORT);
+      Logger::logf("Log server listening on port %d\n", PORT);
     } else {
-      printf("Error in tcp_bind: %d\n", err);
+      Logger::logf("Error in tcp_bind: %d\n", err);
     }
   } else {
-    printf("Error in tcp_new\n");
+    Logger::logf("Error in tcp_new\n");
   }
 }
 

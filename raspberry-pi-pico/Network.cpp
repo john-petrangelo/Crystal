@@ -3,13 +3,14 @@
 
 #include <pico/cyw43_arch.h>
 
+#include "lumos-arduino/Logger.h"
+
 //#include "Filesystem.h"
 #include "Handlers.h"
 #include "HTTP/HTTPServer.h"
 #include "Network.h"
 
 //#include "lumos-arduino/Colors.h"
-//#include "lumos-arduino/Logger.h"
 
 //#include "Models/Pulsate.h"
 //#include "Models/Solid.h"
@@ -27,10 +28,6 @@ std::string Network::wifiMode = "undefined";
 
 // Server used for HTTP requests
 HTTPServer Network::httpServer;
-
-//// Server used for logging.
-//WiFiServer Network::logServer(8000);
-//WiFiClient Network::logClient;
 
 //Renderer* Network::networkRenderer = nullptr;
 
@@ -71,16 +68,16 @@ bool Network::setupWiFiStation() {
 
   // Connect to an access point in station mode
   cyw43_arch_enable_sta_mode();
-  printf("Enabled Wi-Fi station mode\n");
+  Logger::log("Enabled Wi-Fi station mode\n");
   wifiMode = "station";
 
   // Setup Wi-Fi station mode
-  printf("Connecting to %s...\n", SECRET_SSID);
+  Logger::logf("Connecting to %s...\n", SECRET_SSID);
   int connect_error = cyw43_arch_wifi_connect_timeout_ms(
           SECRET_SSID, SECRET_PASSWORD,
           CYW43_AUTH_WPA2_AES_PSK, 10000);
   if (connect_error) {
-    printf("Failed to connect: error=%d\n", connect_error);
+    Logger::logf("Failed to connect: error=%d\n", connect_error);
     return false;
   }
 
@@ -88,7 +85,7 @@ bool Network::setupWiFiStation() {
   ipAddress = ipAddrToString(cyw43_state.netif[CYW43_ITF_STA].ip_addr.addr);
   macAddress = macAddrToString(cyw43_state.netif[CYW43_ITF_STA].hwaddr);
 
-  std::cout << "Connected to Wi-Fi, IP Address: " << ipAddress << std::endl;
+  Logger::logf("Connected to Wi-Fi, IP Address: %s\n", ipAddress.c_str());
 
   // Success
   return true;
@@ -100,7 +97,7 @@ bool Network::setupWiFiStation() {
 void Network::setupWiFiSoftAP() {
 //  // Setup wifi soft AP mode
 //  cyw43_arch_enable_ap_mode("crystal.local", nullptr, CYW43_AUTH_WPA2_AES_PSK);
-//  printf("Soft AP started: SSID = %s\n", "crystal.local");
+//  Logger::logf("Soft AP started: SSID = %s\n", "crystal.local");
 //  wifiMode = "softAP";
 //
 //  // Set the address we can be reached at
@@ -123,17 +120,17 @@ void Network::setupWiFiSoftAP() {
 ////      Logger::logf("Station disconnected: %s\n", macToString(evt.mac).c_str());
 ////  });
 ////
-////  Serial.printf("Soft AP status: %s\n", softAPStarted ? "Ready" : "Failed");
-////  Serial.printf("Soft AP IP address: %s\n", WiFi.softAPIP().toString().c_str());
-////  Serial.printf("Soft AP MAC address = %s\n", WiFi.softAPmacAddress().c_str());
-////  Serial.printf("Soft AP SSID = %s\n", WiFi.softAPSSID().c_str());
-////  Serial.printf("Soft AP PSK = %s\n", WiFi.softAPPSK().c_str());
-////  Serial.printf("Soft AP has %d stations connected\n", WiFi.softAPgetStationNum());
+////  Logger::logf("Soft AP status: %s\n", softAPStarted ? "Ready" : "Failed");
+////  Logger::logf("Soft AP IP address: %s\n", WiFi.softAPIP().toString().c_str());
+////  Logger::logf("Soft AP MAC address = %s\n", WiFi.softAPmacAddress().c_str());
+////  Logger::logf("Soft AP SSID = %s\n", WiFi.softAPSSID().c_str());
+////  Logger::logf("Soft AP PSK = %s\n", WiFi.softAPPSK().c_str());
+////  Logger::logf("Soft AP has %d stations connected\n", WiFi.softAPgetStationNum());
 }
 
 // Set up the web server and handlers
 void Network::setupHTTP() {
-  printf("Starting HTTP server\n");
+  Logger::log("Starting HTTP server\n");
   httpServer.init();
 
 //  server.onGet("/solid", handleSolid);
@@ -168,6 +165,10 @@ void Network::setupMDNS() {
 //  // Advertise the HTTP service
 //  cyw43_arch_mdns_add_service(hostname, "_http._tcp.local", 80, "path=/");
 }
+
+//// Server used for logging.
+//WiFiServer Network::logServer(8000);
+//WiFiClient Network::logClient;
 
 // Check to see if the network logger needs to be setup or torn down
 void Network::checkLogger() {

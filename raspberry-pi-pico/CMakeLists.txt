@@ -12,6 +12,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 # Define the executable target
 add_executable(crystal-pi-pico
+        ConsoleLogger.h
         Crystal.cpp
         Handlers.h
         Handlers.cpp
@@ -34,10 +35,16 @@ target_sources(crystal-pi-pico PRIVATE
         HTTP/HTTPServer.cpp
 )
 
+# Add arduino-json sources to the target
+target_sources(crystal-pi-pico PRIVATE
+        ${CMAKE_SOURCE_DIR}/lib/lumos-arduino/Logger.cpp
+)
+
 # Add include directories
 target_include_directories(crystal-pi-pico PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
         ${CMAKE_SOURCE_DIR}/lib/ArduinoJson/src
+        ${CMAKE_SOURCE_DIR}/lib
 )
 
 target_link_libraries(crystal-pi-pico
