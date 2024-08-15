@@ -12,17 +12,17 @@ int main() {
   Logger::set(new ConsoleLogger());
 
   if (cyw43_arch_init()) {
-    Logger::logf("Wi-Fi init failed\n");
+    logger << "Wi-Fi init failed" << std::endl;
     return -1;
   }
 
-  Logger::logf("Connecting to network...\n");
+  logger << "Connecting to network" << std::endl;
   Network::setup();
 
   while (true) {
     absolute_time_t start_time = get_absolute_time();
     uint32_t msSinceBoot = to_ms_since_boot(start_time);
-    Logger::logf("%s Blink\n", msToString(msSinceBoot).c_str());
+    logger << msToString(msSinceBoot) << " Blonk" << std::endl;
 
     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
     sleep_ms(700);

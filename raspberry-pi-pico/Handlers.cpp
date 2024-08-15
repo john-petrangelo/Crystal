@@ -25,7 +25,7 @@
 //  JsonDocument doc;
 //  DeserializationError error = deserializeJson(doc, Network::getServer().arg("plain"));
 //  if (error) {
-//    Logger::logf("%s failed to parse JSON: %s\n", handlerName, error.c_str());
+//    logger << handlerName << " failed to parse JSON: " << error.c_str() << std::endl;
 //    Network::getServer().send(400, "text/plain", error.c_str());
 //  }
 //

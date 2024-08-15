@@ -68,16 +68,16 @@ bool Network::setupWiFiStation() {
 
   // Connect to an access point in station mode
   cyw43_arch_enable_sta_mode();
-  Logger::log("Enabled Wi-Fi station mode\n");
+  logger << "Enabled Wi-Fi station mode" << std::endl;
   wifiMode = "station";
 
   // Setup Wi-Fi station mode
-  Logger::logf("Connecting to %s...\n", SECRET_SSID);
+  logger << "Connecting to " << SECRET_SSID << "..." << std::endl;
   int connect_error = cyw43_arch_wifi_connect_timeout_ms(
           SECRET_SSID, SECRET_PASSWORD,
           CYW43_AUTH_WPA2_AES_PSK, 10000);
   if (connect_error) {
-    Logger::logf("Failed to connect: error=%d\n", connect_error);
+    logger << "Failed to connect: error=" << connect_error << std::endl;
     return false;
   }
 
@@ -85,7 +85,7 @@ bool Network::setupWiFiStation() {
   ipAddress = ipAddrToString(cyw43_state.netif[CYW43_ITF_STA].ip_addr.addr);
   macAddress = macAddrToString(cyw43_state.netif[CYW43_ITF_STA].hwaddr);
 
-  Logger::logf("Connected to Wi-Fi, IP Address: %s\n", ipAddress.c_str());
+  logger << "Connected to Wi-Fi, IP Address: " << ipAddress << std::endl;
 
   // Success
   return true;
@@ -97,7 +97,7 @@ bool Network::setupWiFiStation() {
 void Network::setupWiFiSoftAP() {
 //  // Setup wifi soft AP mode
 //  cyw43_arch_enable_ap_mode("crystal.local", nullptr, CYW43_AUTH_WPA2_AES_PSK);
-//  Logger::logf("Soft AP started: SSID = %s\n", "crystal.local");
+//  logger << "Soft AP started: SSID = " << "crystal.local" << std::endl;
 //  wifiMode = "softAP";
 //
 //  // Set the address we can be reached at
@@ -117,20 +117,20 @@ void Network::setupWiFiSoftAP() {
 //
 ////  //   Log each time a station connects or disconnects
 ////  WiFi.onSoftAPModeStationDisconnected([](const WiFiEventSoftAPModeStationDisconnected& evt) {
-////      Logger::logf("Station disconnected: %s\n", macToString(evt.mac).c_str());
+////      logger << "Station disconnected " << macToString(evt.mac) << std::endl;
 ////  });
 ////
-////  Logger::logf("Soft AP status: %s\n", softAPStarted ? "Ready" : "Failed");
-////  Logger::logf("Soft AP IP address: %s\n", WiFi.softAPIP().toString().c_str());
-////  Logger::logf("Soft AP MAC address = %s\n", WiFi.softAPmacAddress().c_str());
-////  Logger::logf("Soft AP SSID = %s\n", WiFi.softAPSSID().c_str());
-////  Logger::logf("Soft AP PSK = %s\n", WiFi.softAPPSK().c_str());
-////  Logger::logf("Soft AP has %d stations connected\n", WiFi.softAPgetStationNum());
+////  logger << "Soft AP status: " << softAPStarted ? "Ready" : "Failed" << std::endl;
+////  logger << "Soft AP IP address: " << WiFi.softAPIP().toString() << str::endl;
+////  logger << "Soft AP MAC address = " << WiFi.softAPmacAddress() << str::endl
+////  logger << "Soft AP SSID = " << WiFi.softAPSSID() << str::endl
+////  logger << "Soft AP PSK = " << WiFi.softAPPSK() << str::endl
+////  logger << "Soft AP has " << WiFi.softAPgetStationNum() << "stations connected\n" << str::endl
 }
 
 // Set up the web server and handlers
 void Network::setupHTTP() {
-  Logger::log("Starting HTTP server\n");
+  logger << "Starting HTTP server" << std::endl;
   httpServer.init();
 
 //  server.onGet("/solid", handleSolid);
@@ -178,7 +178,7 @@ void Network::checkLogger() {
 //    if (logClient) {
 //      // We've got a new log client.
 //      Logger::setStream(&logClient);
-//      Logger::logf("Connected to %s...\n", hostname.c_str());
+//      logger << "Connected to " << hostname << "..." << std::endl;
 //    }
 //  }
 //
@@ -207,12 +207,11 @@ void Network::setup() {
   setupMDNS();
 
 //  logServer.begin();
-//  Logger::log("Network set up complete\n");
+  logger << "Network set up complete" << std::endl;
 }
 
 void Network::loop() {
   // Call poll to give the network a change run each iteration
   cyw43_arch_poll();
-
   checkLogger();
 }

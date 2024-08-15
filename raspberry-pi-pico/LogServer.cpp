@@ -29,15 +29,15 @@ err_t LogServer::onReceive(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_
       server->sendMessage(tpcb, data);
 
       pbuf_free(p); // Free the pbuf after processing
-      Logger::log("Request processed\n");
+      logger << "Request processed" << std::endl;
       return ERR_OK; // Return ERR_OK to continue receiving
     } else {
-      Logger::logf("Connection closed by client\n");
+      logger << "Connection closed by client" << std::endl;
       server->closeConnection(tpcb); // Close connection if pbuf is NULL
       return ERR_OK;
     }
   } else {
-    Logger::logf("Error in onReceive: %d\n", err);
+    logger << "Error in onReceive: " << err << std::endl;
     server->closeConnection(tpcb); // Close on error
     return err;
   }
@@ -45,21 +45,21 @@ err_t LogServer::onReceive(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_
 
 err_t LogServer::onSent(void *arg, struct tcp_pcb *tpcb, u16_t len) {
   auto server = static_cast<LogServer*>(arg);
-  Logger::logf("Response sent, closing connection\n");
+  logger << "Response sent, closing connection" << std::endl;
   server->closeConnection(tpcb); // Close the connection after sending the response
   return ERR_OK;
 }
 
 void LogServer::onError(void *arg, err_t err) {
   auto server = static_cast<LogServer*>(arg);
-  Logger::logf("Connection error: %d\n", err);
+  logger << "Connection error: " << err << std::endl;
   server->closeConnection(static_cast<struct tcp_pcb*>(arg)); // Handle error
 }
 
 void LogServer::closeConnection(struct tcp_pcb *tpcb) {
   err_t err = tcp_close(tpcb);
   if (err != ERR_OK) {
-    Logger::logf("Error in tcp_close: %d\n", err);
+    logger << "Error in tcp_close: " << std::endl;
   }
 }
 
@@ -76,7 +76,7 @@ void LogServer::sendMessage(struct tcp_pcb *tpcb, char const *msg) {
 
     err = tcp_write(tpcb, msg, send_len, TCP_WRITE_FLAG_COPY);
     if (err != ERR_OK) {
-      Logger::logf("Error in tcp_write: %d\n", err);
+      logger << "Error in tcp_write: " << err << std::endl;
     }
 
     msg += send_len;
@@ -86,7 +86,7 @@ void LogServer::sendMessage(struct tcp_pcb *tpcb, char const *msg) {
   // Ensure data is sent
   err = tcp_output(tpcb);
   if (err != ERR_OK) {
-    Logger::logf("Error in tcp_output: %d\n", err);
+    logger << "Error in tcp_output: " << err << std::endl;
   }
 }
 
@@ -98,12 +98,12 @@ void LogServer::init() {
       pcb = tcp_listen(pcb);
       tcp_arg(pcb, this);
       tcp_accept(pcb, onAccept);
-      Logger::logf("Log server listening on port %d\n", PORT);
+      logger << "Log server listening on port " << PORT << std::endl;
     } else {
-      Logger::logf("Error in tcp_bind: %d\n", err);
+      logger << "Error in tcp_bind: "<< err << std::endl;
     }
   } else {
-    Logger::logf("Error in tcp_new\n");
+    logger << "Error in tcp_new" << std::endl;
   }
 }
 

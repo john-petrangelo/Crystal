@@ -18,12 +18,12 @@ void HTTPServer::init() {
       pcb = tcp_listen(pcb);
       tcp_arg(pcb, this);
       tcp_accept(pcb, onAccept);
-      Logger::logf("HTTP server listening on port 80\n");
+      logger << "HTTP server listening on port 80" << std::endl;
     } else {
-      Logger::logf("Error in tcp_bind: %d\n", err);
+      logger << "Error in tcp_bind: " << err << std::endl;
     }
   } else {
-    Logger::logf("Error in tcp_new\n");
+    logger << "Error in tcp_new" << std::endl;
   }
 }
 
@@ -56,15 +56,15 @@ err_t HTTPServer::onReceive(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err
       }
 
       pbuf_free(p); // Free the pbuf after processing
-      Logger::logf("Request processed\n");
+      logger << "Request processed" << std::endl;
       return ERR_OK; // Return ERR_OK to continue receiving
     } else {
-      Logger::logf("Connection closed by client\n");
+      logger << "Connection closed by client" << std::endl;
       server->closeConnection(tpcb); // Close connection if pbuf is NULL
       return ERR_OK;
     }
   } else {
-    Logger::logf("Error in onReceive: %d\n", err);
+    logger <<"Error in onReceive: " <<  err << std::endl;
     server->closeConnection(tpcb); // Close on error
     return err;
   }
@@ -72,14 +72,14 @@ err_t HTTPServer::onReceive(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err
 
 err_t HTTPServer::onSent(void *arg, struct tcp_pcb *tpcb, u16_t len) {
   auto server = static_cast<HTTPServer*>(arg);
-  Logger::logf("Response sent, closing connection\n");
+  logger << "Response sent, closing connection" << std::endl;
   server->closeConnection(tpcb); // Close the connection after sending the response
   return ERR_OK;
 }
 
 void HTTPServer::onError(void *arg, err_t err) {
   auto server = static_cast<HTTPServer*>(arg);
-  Logger::logf("Connection error: %d\n", err);
+  logger << "Connection error: " << err << std::endl;
   server->closeConnection(static_cast<struct tcp_pcb*>(arg)); // Handle error
 }
 
@@ -125,7 +125,7 @@ err_t HTTPServer::sendResponse(struct tcp_pcb *tpcb, HTTPResponse const& respons
 err_t HTTPServer::sendRawResponse(struct tcp_pcb *tpcb, const std::string &rawResponse) {
   err_t err;
   u16_t len = rawResponse.size();
-  Logger::logf("Sending response: %s\n", rawResponse.c_str());
+  logger << "Sending response: " << rawResponse.c_str() << std::endl;
 
   // Ensure the response fits within the TCP buffer
   const char* response_data = rawResponse.c_str();
@@ -137,7 +137,7 @@ err_t HTTPServer::sendRawResponse(struct tcp_pcb *tpcb, const std::string &rawRe
 
     err = tcp_write(tpcb, response_data, send_len, TCP_WRITE_FLAG_COPY);
     if (err != ERR_OK) {
-      Logger::logf("Error in tcp_write: %d\n", err);
+      logger << "Error in tcp_write: " << err << std::endl;
       return err;
     }
 
@@ -148,7 +148,7 @@ err_t HTTPServer::sendRawResponse(struct tcp_pcb *tpcb, const std::string &rawRe
   // Ensure data is sent
   err = tcp_output(tpcb);
   if (err != ERR_OK) {
-    Logger::logf("Error in tcp_output: %d\n", err);
+    logger << "Error in tcp_output: " << err << std::endl;
   }
   return err;
 }
@@ -156,7 +156,7 @@ err_t HTTPServer::sendRawResponse(struct tcp_pcb *tpcb, const std::string &rawRe
 void HTTPServer::closeConnection(struct tcp_pcb *tpcb) {
   err_t err = tcp_close(tpcb);
   if (err != ERR_OK) {
-    Logger::logf("Error in tcp_close: %d\n", err);
+    logger << "Error in tcp_close: " << err << std::endl;
   }
 }
 
@@ -171,33 +171,33 @@ std::string HTTPServer::makeHandlersKey(std::string_view method, std::string_vie
 }
 
 void HTTPServer::logHTTPRequest(HTTPRequest const &request) {
-  std::cout << "Method: " << request.method << std::endl;
-  std::cout << "Path: " << request.path << std::endl;
+  logger << "Method: " << request.method << std::endl;
+  logger << "Path: " << request.path << std::endl;
   if (request.queryParams.empty()) {
-    std::cout << "No query parameters" << std::endl;
+    logger << "No query parameters" << std::endl;
   } else {
-    std::cout << "Query params:" << std::endl;
+    logger << "Query params:" << std::endl;
     for (const auto& param : request.queryParams) {
-      std::cout << "  " << param.first << ": " << param.second << std::endl;
+      logger << "  " << param.first << ": " << param.second << std::endl;
     }
   }
   if (request.headers.empty()) {
-    std::cout << "No headers" << std::endl;
+    logger << "No headers" << std::endl;
   } else {
-    std::cout << "Headers:" << std::endl;
+    logger << "Headers:" << std::endl;
     for (const auto& header : request.headers) {
-      std::cout << "  " << header.first << ": " << header.second << std::endl;
+      logger << "  " << header.first << ": " << header.second << std::endl;
     }
   }
 }
 
 [[maybe_unused]] void HTTPServer::logHandlers(const std::unordered_map<std::string, HTTPHandler>& handlers) {
   if (handlers.empty()) {
-    std::cout << "No query parameters" << std::endl;
+    logger << "No query parameters" << std::endl;
   } else {
-    std::cout << "Handlers (" << handlers.size() << "):" << std::endl;
+    logger << "Handlers (" << handlers.size() << "):" << std::endl;
     for (const auto& [path, handler] : handlers) {
-      std::cout << "Path: " << path << ", Handler address: " << &handler << std::endl;
+      logger << "Path: " << path << ", Handler address: " << &handler << std::endl;
     }
   }
 }
