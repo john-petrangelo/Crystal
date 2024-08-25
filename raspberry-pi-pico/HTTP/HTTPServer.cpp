@@ -27,7 +27,7 @@ void HTTPServer::init() {
   }
 }
 
-err_t HTTPServer::onAccept(void *arg, struct tcp_pcb *newpcb, [[maybe_unused]] err_t err) {
+err_t HTTPServer::onAccept(void *arg, tcp_pcb *newpcb, [[maybe_unused]] err_t err) {
   auto server = static_cast<HTTPServer*>(arg);
   tcp_arg(newpcb, server);
   tcp_recv(newpcb, onReceive);
@@ -36,7 +36,7 @@ err_t HTTPServer::onAccept(void *arg, struct tcp_pcb *newpcb, [[maybe_unused]] e
   return ERR_OK;
 }
 
-err_t HTTPServer::onReceive(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err) {
+err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t err) {
   auto server = static_cast<HTTPServer*>(arg);
   if (err == ERR_OK) {
     if (p != nullptr) {
@@ -70,9 +70,9 @@ err_t HTTPServer::onReceive(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err
   }
 }
 
-err_t HTTPServer::onSent(void *arg, struct tcp_pcb *tpcb, u16_t len) {
+err_t HTTPServer::onSent(void *arg, tcp_pcb *tpcb, u16_t len) {
   auto server = static_cast<HTTPServer*>(arg);
-  logger << "Response sent, closing connection" << std::endl;
+  logger << "Response sent (" << len << "bytes), closing connection" << std::endl;
   server->closeConnection(tpcb); // Close the connection after sending the response
   return ERR_OK;
 }
@@ -97,7 +97,7 @@ void HTTPServer::onPut(const std::string &path, HTTPHandler func) {
   handlers[handlersKey] = {std::move(func)};
 }
 
-err_t HTTPServer::sendResponse(struct tcp_pcb *tpcb, HTTPResponse const& response) {
+err_t HTTPServer::sendResponse(tcp_pcb *tpcb, HTTPResponse const& response) {
   std::ostringstream responseStream;
 
   // Status line
@@ -122,7 +122,7 @@ err_t HTTPServer::sendResponse(struct tcp_pcb *tpcb, HTTPResponse const& respons
   return sendRawResponse(tpcb, responseStream.str());
 }
 
-err_t HTTPServer::sendRawResponse(struct tcp_pcb *tpcb, const std::string &rawResponse) {
+err_t HTTPServer::sendRawResponse(tcp_pcb *tpcb, const std::string &rawResponse) {
   err_t err;
   u16_t len = rawResponse.size();
   logger << "Sending response: " << rawResponse.c_str() << std::endl;
@@ -153,7 +153,7 @@ err_t HTTPServer::sendRawResponse(struct tcp_pcb *tpcb, const std::string &rawRe
   return err;
 }
 
-void HTTPServer::closeConnection(struct tcp_pcb *tpcb) {
+void HTTPServer::closeConnection(tcp_pcb *tpcb) {
   err_t err = tcp_close(tpcb);
   if (err != ERR_OK) {
     logger << "Error in tcp_close: " << err << std::endl;

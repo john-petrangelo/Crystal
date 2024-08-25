@@ -21,8 +21,8 @@ using HTTPHandler = std::function<HTTPResponse(const HTTPRequest&)>;
 
 class HTTPServer {
 public:
-    HTTPServer() = default; // Default constructor
-    ~HTTPServer() = default; // Default destructor
+    HTTPServer() = default;
+    ~HTTPServer() = default;
 
     void init();
 
@@ -30,15 +30,15 @@ public:
     void onPut(const std::string &path, HTTPHandler func);
 
 private:
-    static err_t onAccept(void *arg, struct tcp_pcb *newpcb, [[maybe_unused]] err_t err);
-    static err_t onReceive(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err);
-    static err_t onSent(void *arg, struct tcp_pcb *tpcb, u16_t len);
+    static err_t onAccept(void *arg, tcp_pcb *newpcb, [[maybe_unused]] err_t err);
+    static err_t onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t err);
+    static err_t onSent(void *arg, tcp_pcb *tpcb, u16_t len);
     static void onError(void *arg, err_t err);
 
     err_t sendResponse(tcp_pcb *tpcb, const HTTPResponse &response);
-    err_t sendRawResponse(struct tcp_pcb *tpcb, const std::string &rawResponse);
+    err_t sendRawResponse(tcp_pcb *tpcb, const std::string &rawResponse);
 
-    void closeConnection(struct tcp_pcb *tpcb);
+    void closeConnection(tcp_pcb *tpcb);
 
     static const std::string httpResponseGet;
     static const std::string httpResponsePut;
