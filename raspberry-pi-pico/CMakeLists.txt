@@ -20,6 +20,7 @@ add_executable(crystal-pi-pico
         LogServer.cpp
         Network.h
         Network.cpp
+        NetworkLogger.h
         System.h
         System.cpp
         Utils.h
