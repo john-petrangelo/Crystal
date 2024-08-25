@@ -4,7 +4,7 @@
 
 #include <ArduinoJson.h>
 
-#include "LogServer.h"
+#include "Logging/LogServer.h"
 #include "HTTP/HTTPServer.h"
 
 //#include "Renderer.h"

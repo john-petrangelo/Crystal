@@ -12,19 +12,23 @@ set(CMAKE_CXX_STANDARD 17)
 
 # Define the executable target
 add_executable(crystal-pi-pico
-        ConsoleLogger.h
         Crystal.cpp
         Handlers.h
         Handlers.cpp
-        LogServer.h
-        LogServer.cpp
         Network.h
         Network.cpp
-        NetworkLogger.h
         System.h
         System.cpp
         Utils.h
         Utils.cpp
+)
+
+# Add Logging classes to the target
+target_sources(crystal-pi-pico PRIVATE
+        Logging/ConsoleLogger.h
+        Logging/LogServer.h
+        Logging/LogServer.cpp
+        Logging/NetworkLogger.h
 )
 
 # Add HTTPServer classes to the target

@@ -3,7 +3,7 @@
 
 #include <lumos-arduino/Logger.h>
 
-#include "ConsoleLogger.h"
+#include "Logging/ConsoleLogger.h"
 #include "Network.h"
 #include "Utils.h"
 

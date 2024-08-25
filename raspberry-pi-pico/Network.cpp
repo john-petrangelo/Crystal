@@ -8,6 +8,7 @@
 //#include "Filesystem.h"
 #include "Handlers.h"
 #include "HTTP/HTTPServer.h"
+#include "Logging/LogServer.h"
 #include "Network.h"
 
 //#include "lumos-arduino/Colors.h"
@@ -19,7 +20,6 @@
 // Secrets are defined in another file called "secrets.h" to avoid committing secrets
 // into a public repo. You will need to change the secret values in secrets.h to
 // connect your device to your network.
-#include "LogServer.h"
 #include "../secrets.h"
 
 std::string Network::hostname = "pico";
