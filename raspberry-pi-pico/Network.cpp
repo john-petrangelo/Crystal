@@ -19,6 +19,7 @@
 // Secrets are defined in another file called "secrets.h" to avoid committing secrets
 // into a public repo. You will need to change the secret values in secrets.h to
 // connect your device to your network.
+#include "LogServer.h"
 #include "../secrets.h"
 
 std::string Network::hostname = "pico";
@@ -28,6 +29,9 @@ std::string Network::wifiMode = "undefined";
 
 // Server used for HTTP requests
 HTTPServer Network::httpServer;
+
+// Server used for logging over the network
+LogServer Network::logServer;
 
 //Renderer* Network::networkRenderer = nullptr;
 
@@ -130,7 +134,6 @@ void Network::setupWiFiSoftAP() {
 
 // Set up the web server and handlers
 void Network::setupHTTP() {
-  logger << "Starting HTTP server" << std::endl;
   httpServer.init();
 
 //  server.onGet("/solid", handleSolid);
@@ -153,8 +156,6 @@ void Network::setupHTTP() {
 //  server.on("/demo2", HTTP_GET, handleDemo2);
 //  server.on("/demo3", HTTP_GET, handleDemo3);
 //
-//  server.begin();
-//  Serial.println("HTTP server started");
 }
 
 // Set up an MDNS responder, so we can be found by <host>.local instead of IP address
@@ -206,7 +207,7 @@ void Network::setup() {
   setupHTTP();
   setupMDNS();
 
-//  logServer.begin();
+  logServer.init();
   logger << "Network set up complete" << std::endl;
 }
 

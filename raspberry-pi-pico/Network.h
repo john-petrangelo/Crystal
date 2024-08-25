@@ -4,6 +4,7 @@
 
 #include <ArduinoJson.h>
 
+#include "LogServer.h"
 #include "HTTP/HTTPServer.h"
 
 //#include "Renderer.h"
@@ -16,6 +17,7 @@ private:
     static std::string wifiMode;
 
     static HTTPServer httpServer;
+    static LogServer logServer;
 
 //    static Renderer *networkRenderer;
 

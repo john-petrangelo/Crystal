@@ -1,15 +1,17 @@
 #pragma once
 
-#include <Stream.h>
+#include "LogServer.h"
 
 #include <lumos-arduino/ILogger.h>
 
-class ArduinoStreamLogger : public ILogger {
+class NetworkLogger : public ILogger {
 public:
-    explicit ArduinoStreamLogger(Stream *newStream) : stream(newStream) {}
+  explicit NetworkLogger(struct tcp_pcb *newTpcb, LogServer &newLogServer) :
+    tpcb(newTpcb), logServer(newLogServer) {}
 
-    virtual void log(char const *msg);
+  void log(char const *msg) override { logServer.sendMessage(tpcb, msg, strlen(msg)); }
 
   private:
-    Stream *stream;
+  struct tcp_pcb *tpcb;
+  LogServer &logServer;
 };
