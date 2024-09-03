@@ -72,48 +72,19 @@
 //  return true; // No error
 //}
 
-HTTPResponse handleRoot(const HTTPRequest& request) {
-    // Start timing
-    auto startTime = get_absolute_time();
-
-    // File file = LittleFS.open("/index.html", "r");
-    // size_t sent = Network::getServer().streamFile(file, "text/html");
-    std::string output = INDEX_HTML;
-
-    // Calculate the duration
-    auto endTime = get_absolute_time();    // Get the end time
-    uint64_t durationMS = absolute_time_diff_us(startTime, endTime) / 1000;
-
-    Logger::logf("handleRoot bytes=%d duration=%dms\n", output.size(), durationMS);
-
-    return {200, "text/html", output};
+HTTPResponse handleRoot(HTTPRequest const &request) {
+    return {200, "text/html", INDEX_HTML};
 }
 
-//void handleCSS() {
-//    auto startMS = millis();
-//    File file = LittleFS.open("/crystal.css", "r");
-//    auto openedMS = millis();
-//    size_t sent = Network::getServer().streamFile(file, "text/css");
-//    auto streamedMS = millis();
-//    file.close();
-//    auto closedMS = millis();
-//    Logger::logf("handleCSS sentBytes=%d open=%dms stream=%dms close=%dms total=%dms\n",
-//      sent, openedMS - startMS, streamedMS - openedMS, closedMS - streamedMS, closedMS - startMS);
-//}
-//
-//void handleJS() {
-//    auto startMS = millis();
-//    File file = LittleFS.open("/crystal.js", "r");
-//    auto openedMS = millis();
-//    size_t sent = Network::getServer().streamFile(file, "text/javascript");
-//    auto streamedMS = millis();
-//    file.close();
-//    auto closedMS = millis();
-//    Logger::logf("handleJS sentBytes=%d open=%dms stream=%dms close=%dms total=%dms\n",
-//      sent, openedMS - startMS, streamedMS - openedMS, closedMS - streamedMS, closedMS - startMS);
-//}
+HTTPResponse handleCSS(HTTPRequest const &request) {
+    return {200, "text/css", CRYSTAL_CSS};
+}
 
-HTTPResponse handleStatus(const HTTPRequest& request) {
+HTTPResponse handleJS(HTTPRequest const &request) {
+    return {200, "application/javascript", CRYSTAL_JS};
+}
+
+HTTPResponse handleStatus(HTTPRequest const &request) {
     JsonDocument doc;
 
     System::getStatus(doc["system"].to<JsonObject>());

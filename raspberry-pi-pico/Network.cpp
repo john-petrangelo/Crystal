@@ -136,8 +136,8 @@ void Network::setupHTTP() {
   httpServer.init();
 
   httpServer.onGet("/", handleRoot);
-  //  server.on("/crystal.css", HTTP_GET, handleCSS);
-  //  server.on("/crystal.js", HTTP_GET, handleJS);
+  httpServer.onGet("/crystal.css", handleCSS);
+  httpServer.onGet("/crystal.js", handleJS);
 
   httpServer.onGet("/status", handleStatus);
 

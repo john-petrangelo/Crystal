@@ -3,8 +3,8 @@
 #include "HTTP/HTTPServer.h"
 
 extern HTTPResponse handleRoot(HTTPRequest const &request);
-//extern void handleCSS();
-//extern void handleJS();
+extern HTTPResponse handleCSS(HTTPRequest const &request);
+extern HTTPResponse handleJS(HTTPRequest const &request);
 
 extern HTTPResponse handleStatus(HTTPRequest const &request);
 
