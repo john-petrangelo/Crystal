@@ -5,7 +5,6 @@
 
 #include "lumos-arduino/Logger.h"
 
-//#include "Filesystem.h"
 #include "Handlers.h"
 #include "HTTP/HTTPServer.h"
 #include "Logging/LogServer.h"
@@ -136,12 +135,13 @@ void Network::setupWiFiSoftAP() {
 void Network::setupHTTP() {
   httpServer.init();
 
-//  server.onGet("/solid", handleSolid);
-//  server.on("/", HTTP_GET, handleRoot);
-//  server.on("/crystal.css", HTTP_GET, handleCSS);
-//  server.on("/crystal.js", HTTP_GET, handleJS);
+  httpServer.onGet("/", handleRoot);
+  //  server.on("/crystal.css", HTTP_GET, handleCSS);
+  //  server.on("/crystal.js", HTTP_GET, handleJS);
 
   httpServer.onGet("/status", handleStatus);
+
+//  server.onGet("/solid", handleSolid);
 
 //  server.on("/brightness", HTTP_GET, handleGetBrightness);
 //  server.on("/brightness", HTTP_PUT, handleSetBrightness);

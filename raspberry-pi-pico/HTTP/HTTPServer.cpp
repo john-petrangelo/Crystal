@@ -72,8 +72,7 @@ err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t err) {
 
 err_t HTTPServer::onSent(void *arg, tcp_pcb *tpcb, u16_t len) {
   auto server = static_cast<HTTPServer*>(arg);
-  logger << "Response sent (" << len << "bytes), closing connection" << std::endl;
-  server->closeConnection(tpcb); // Close the connection after sending the response
+  logger << "Response sent (" << len << "bytes)" << std::endl;
   return ERR_OK;
 }
 
@@ -97,7 +96,7 @@ void HTTPServer::onPut(const std::string &path, HTTPHandler func) {
   handlers[handlersKey] = {std::move(func)};
 }
 
-err_t HTTPServer::sendResponse(tcp_pcb *tpcb, HTTPResponse const& response) {
+err_t HTTPServer::sendResponse(tcp_pcb *tpcb, HTTPResponse const &response) {
   std::ostringstream responseStream;
 
   // Status line
@@ -112,7 +111,7 @@ err_t HTTPServer::sendResponse(tcp_pcb *tpcb, HTTPResponse const& response) {
   responseStream << "\r\n";
 
   // Add headers
-  responseStream << "Content-Type: text/plain\r\n";
+  responseStream << "Content-Type: " << response.contentType << "\r\n";
   responseStream << "Content-Length: " << response.body.size() << "\r\n";
   responseStream << "\r\n";
 
@@ -122,10 +121,9 @@ err_t HTTPServer::sendResponse(tcp_pcb *tpcb, HTTPResponse const& response) {
   return sendRawResponse(tpcb, responseStream.str());
 }
 
-err_t HTTPServer::sendRawResponse(tcp_pcb *tpcb, const std::string &rawResponse) {
-  err_t err;
+err_t HTTPServer::sendRawResponse(tcp_pcb *tpcb, std::string const &rawResponse) {
   u16_t len = rawResponse.size();
-  logger << "Sending response: " << rawResponse.c_str() << std::endl;
+  logger << "Sending response, total len=" << rawResponse.size() << std::endl;
 
   // Ensure the response fits within the TCP buffer
   const char* response_data = rawResponse.c_str();
@@ -135,7 +133,8 @@ err_t HTTPServer::sendRawResponse(tcp_pcb *tpcb, const std::string &rawResponse)
       send_len = len;
     }
 
-    err = tcp_write(tpcb, response_data, send_len, TCP_WRITE_FLAG_COPY);
+    logger << "Sending " << send_len << " bytes..." << std::endl;
+    err_t err = tcp_write(tpcb, response_data, send_len, TCP_WRITE_FLAG_COPY);
     if (err != ERR_OK) {
       logger << "Error in tcp_write: " << err << std::endl;
       return err;
@@ -143,14 +142,17 @@ err_t HTTPServer::sendRawResponse(tcp_pcb *tpcb, const std::string &rawResponse)
 
     response_data += send_len;
     len -= send_len;
+
+    // Flush the buffer explicitly
+    err = tcp_output(tpcb);
+    if (err != ERR_OK) {
+      logger << "Error in tcp_output: " << err << std::endl;
+      return err;
+    }
   }
 
-  // Ensure data is sent
-  err = tcp_output(tpcb);
-  if (err != ERR_OK) {
-    logger << "Error in tcp_output: " << err << std::endl;
-  }
-  return err;
+  logger << "Send complete" << std::endl;
+  return ERR_OK;
 }
 
 void HTTPServer::closeConnection(tcp_pcb *tpcb) {

@@ -1,11 +1,12 @@
-#include "HTTP/HTTPServer.h"
-#include "Network.h"
+#pragma once
 
-//extern void handleRoot();
+#include "HTTP/HTTPServer.h"
+
+extern HTTPResponse handleRoot(HTTPRequest const &request);
 //extern void handleCSS();
 //extern void handleJS();
 
-extern HTTPResponse handleStatus(const HTTPRequest& request);
+extern HTTPResponse handleStatus(HTTPRequest const &request);
 
 //extern void handleGetBrightness();
 //extern void handleSetBrightness();

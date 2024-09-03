@@ -1,17 +1,16 @@
-#include <sstream>
-
 //#include <ArduinoJson.h>
 //#include <LittleFS.h>
 #include <ArduinoJson.h>
 //
 //#include "lumos-arduino/Colors.h"
-//#include "lumos-arduino/Logger.h"
+#include "lumos-arduino/Logger.h"
 
 //#include "Demos.h"
 #include "Handlers.h"
 //#include "HTTP/HTTPServer.h"
 #include "Network.h"
 #include "System.h"
+#include "web_files.h"
 
 //#include "Models/Crystal.h"
 //#include "Models/Flame.h"
@@ -72,19 +71,24 @@
 //  paramValue = strtol(paramStr.c_str(), nullptr, 16);
 //  return true; // No error
 //}
-//
-//void handleRoot() {
-//    auto startMS = millis();
-//    File file = LittleFS.open("/index.html", "r");
-//    auto openedMS = millis();
-//    size_t sent = Network::getServer().streamFile(file, "text/html");
-//    auto streamedMS = millis();
-//    file.close();
-//    auto closedMS = millis();
-//    Logger::logf("handleRoot sentBytes=%d open=%dms stream=%dms close=%dms total=%dms\n",
-//      sent, openedMS - startMS, streamedMS - openedMS, closedMS - streamedMS, closedMS - startMS);
-//}
-//
+
+HTTPResponse handleRoot(const HTTPRequest& request) {
+    // Start timing
+    auto startTime = get_absolute_time();
+
+    // File file = LittleFS.open("/index.html", "r");
+    // size_t sent = Network::getServer().streamFile(file, "text/html");
+    std::string output = INDEX_HTML;
+
+    // Calculate the duration
+    auto endTime = get_absolute_time();    // Get the end time
+    uint64_t durationMS = absolute_time_diff_us(startTime, endTime) / 1000;
+
+    Logger::logf("handleRoot bytes=%d duration=%dms\n", output.size(), durationMS);
+
+    return {200, "text/html", output};
+}
+
 //void handleCSS() {
 //    auto startMS = millis();
 //    File file = LittleFS.open("/crystal.css", "r");
@@ -114,14 +118,13 @@ HTTPResponse handleStatus(const HTTPRequest& request) {
 
     System::getStatus(doc["system"].to<JsonObject>());
 //    Network::getRenderer()->getStatus(doc["renderer"].to<JsonObject>());
-//    Filesystem::getStatus(doc["filesystem"].to<JsonObject>());
     Network::getStatus(doc["network"].to<JsonObject>());
 
     std::string output;
     serializeJsonPretty(doc, output);
     output += "\n";
 
-    return {200, output};
+    return {200, "application/json", output};
 }
 
 //void handleGetBrightness() {
@@ -270,7 +273,7 @@ HTTPResponse handleSolid(HTTPRequest const &request) {
 //  Network::getRenderer()->setModel(model);
 //
 //  Network::getServer().send(200, "text/plain");
-return {200, "Did it"};
+return {200, "text/plain", "Got handleSolid, NYI"};
 }
 
 //void handleDemo1() {
