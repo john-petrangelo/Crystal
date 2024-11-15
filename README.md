@@ -34,6 +34,10 @@ You will need to set the following environment variables before calling cmake:
 - PICO_BOARD=pico_w
 - PICO_SDK_PATH=/Users/john/Documents/Programming/rpi_pico/pico-sdk
 
+Unused so far...
+- PICO_EXTRAS_PATH=/Users/john/Documents/Programming/rpi_pico/pico-extras
+- PICO_EXAMPLES_PATH=/Users/john/Documents/Programming/rpi_pico/pico-examples
+
 TODO Write up cmake instructions
 
 # License

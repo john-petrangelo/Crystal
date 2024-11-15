@@ -2,21 +2,23 @@
 
 #include <memory>
 #include <ArduinoJson.h>
-#include <NeoPixelBusLg.h>
+#include <lumos-arduino/Colors.h>
 
 #include "Models/Model.h"
 
 class Renderer {
 private:
-    unsigned long _startTime_ms = millis();
+    uint64_t _startTime_ms = to_ms_since_boot(get_absolute_time());
     std::shared_ptr<Model> _model;
     float updateDuration = 0.0;
     float renderDuration = 0.0;
     float showDuration = 0.0;
 
 public:
+    virtual ~Renderer() = default;
+
     void render();
-    void reset() { _startTime_ms = millis(); };
+    void reset() { _startTime_ms = to_ms_since_boot(get_absolute_time()); };
 
     std::shared_ptr<Model> & getModel() { return _model; }
     std::shared_ptr<Model> const & getModel() const { return _model; }
@@ -32,13 +34,12 @@ public:
     virtual void getStatus(JsonObject obj) const;
 };
 
-class Esp8266_NeoPixelBus_Renderer : public Renderer {
+class RaspberryPiPico_Renderer : public Renderer {
 private:
-    // The NeoPixelBusLg class with the UART1 method always uses Pin2.
-    NeoPixelBusLg<NeoGrbFeature, NeoEsp8266Uart1Ws2812xMethod, NeoGammaTableMethod> _strip;
+    int _strip;
 
 public:
-    explicit Esp8266_NeoPixelBus_Renderer(int pixelsCount);
+    explicit RaspberryPiPico_Renderer(int pixelsCount);
 
     void setPixel(int i, Color c) override;
     void show() override { _strip.Show(); }

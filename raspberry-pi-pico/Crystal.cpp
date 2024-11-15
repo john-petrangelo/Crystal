@@ -5,11 +5,15 @@
 
 #include "Logging/ConsoleLogger.h"
 #include "Network.h"
+#include "Renderer.h"
 #include "Utils.h"
 
 int main() {
   stdio_init_all();
   Logger::set(new ConsoleLogger());
+
+  // Initialize the renderer
+  Renderer const *renderer = new RaspberryPiPico_Renderer(8);
 
   if (cyw43_arch_init()) {
     logger << "Wi-Fi init failed" << std::endl;
@@ -21,7 +25,7 @@ int main() {
 
   while (true) {
     absolute_time_t start_time = get_absolute_time();
-    uint32_t msSinceBoot = to_ms_since_boot(start_time);
+    uint32_t const msSinceBoot = to_ms_since_boot(start_time);
     logger << msToString(msSinceBoot) << " Blonk" << std::endl;
 
     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);

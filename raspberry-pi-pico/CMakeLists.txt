@@ -17,13 +17,22 @@ add_executable(crystal-pi-pico
         Handlers.cpp
         Network.h
         Network.cpp
+        Renderer.h
+        Renderer.cpp
         System.h
         System.cpp
         Utils.h
         Utils.cpp
+        ws2812.pio
+
+#        src/lib/lumos-arduino/Colors.cpp
+#        src/lib/lumos-arduino/Patterns.cpp
 )
 
-# Add Logging classes to the target
+# Generate header file from PIO source
+pico_generate_pio_header(crystal-pi-pico ${CMAKE_CURRENT_LIST_DIR}/ws2812.pio)
+
+# Add network and console logging classes to the target
 target_sources(crystal-pi-pico PRIVATE
         Logging/ConsoleLogger.h
         Logging/LogServer.h
@@ -40,7 +49,7 @@ target_sources(crystal-pi-pico PRIVATE
         HTTP/HTTPServer.cpp
 )
 
-# Add arduino-json sources to the target
+# Add logging sources to the target
 target_sources(crystal-pi-pico PRIVATE
         ${CMAKE_SOURCE_DIR}/lib/lumos-arduino/Logger.cpp
 )

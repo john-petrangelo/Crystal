@@ -1,6 +1,9 @@
 #include "Network.h"
 #include "Renderer.h"
 
+#include <hardware/pio.h>
+#include "ws2812.pio.h"
+
 // TODO Doc
 void Renderer::render() {
     // If there is no model, we're done.
@@ -42,19 +45,26 @@ void Renderer::getStatus(JsonObject obj) const {
 }
 
 // TODO Doc
-Esp8266_NeoPixelBus_Renderer::Esp8266_NeoPixelBus_Renderer(int pixelsCount) :
+RaspberryPiPico_Renderer::RaspberryPiPico_Renderer(int pixelsCount) :
         Renderer(),
         _strip(pixelsCount) {
+    PIO pio = pio0;
+    uint sm = 0;
+    uint offset = pio_add_program(pio, &ws2812_program);
+    int PICO_DEFAULT_WS2812_PIN = 22;
+    ws2812_program_init(pio, sm, offset, PICO_DEFAULT_WS2812_PIN, 80000, false);
+
+
     _strip.Begin();
     _strip.Show();  // Initialize all pixels to 'off'
 }
 
-void Esp8266_NeoPixelBus_Renderer::setPixel(int i, Color c) {
+void RaspberryPiPico_Renderer::setPixel(int i, Color c) {
     RgbColor rgbColor(Colors::getRed(c), Colors::getGreen(c), Colors::getBlue(c));
     _strip.SetPixelColor(i, rgbColor);
 }
 
-void Esp8266_NeoPixelBus_Renderer::getStatus(JsonObject obj) const {
+void RaspberryPiPico_Renderer::getStatus(JsonObject obj) const {
   obj["type"] = "Esp8266_NeoPixelBus_Renderer";
   obj["pixelsCount"] = pixelsCount();
   obj["brightness"] = getBrightness();

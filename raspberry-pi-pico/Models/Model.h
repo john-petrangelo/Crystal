@@ -3,7 +3,7 @@
 #include <ArduinoJson.h>
 #include <memory>
 
-#include "../lumos-arduino/Colors.h"
+#include "lumos-arduino/Colors.h"
 
 class Model {
   public:
@@ -23,7 +23,9 @@ class Model {
 
     // Adds a description of the model to a JSON object, default behavior just adds the name
     virtual void asJson(JsonObject obj) const {
-      obj["name"] = String(getName());
+      if (!obj["name"].set(getName())) {
+        obj["name"] = "<noname>";
+      }
     }
 
 protected:
