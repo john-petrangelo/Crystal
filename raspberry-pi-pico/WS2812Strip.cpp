@@ -32,40 +32,14 @@ WS2812Strip::~WS2812Strip() {
     pio_sm_clear_fifos(_pio, _sm);
 }
 
-#define R_SHIFT 16
-#define G_SHIFT  8
-#define B_SHIFT  0
-
-#define R_MASK 0x00FF0000
-#define G_MASK 0x0000FF00
-#define B_MASK 0x000000FF
-
-uint8_t getRed(Color color) {
-    return (color & R_MASK) >> R_SHIFT;
-}
-
-uint8_t getGreen(Color color) {
-    return (color & G_MASK) >> G_SHIFT;
-}
-
-uint8_t getBlue(Color color) {
-    return (color & B_MASK) >> B_SHIFT;
-}
-
 void WS2812Strip::show() const {
     for (Color const& pixel : _pixels) {
         // Pixels must be written in GRB order
         uint32_t grbPixel =
-            getGreen(pixel) << 16 |
-            getRed(pixel) << 8 |
-            getBlue(pixel);
+            Colors::getGreen(pixel) << 16 |
+            Colors::getRed(pixel) << 8 |
+            Colors::getBlue(pixel);
 
         pio_sm_put_blocking(_pio, _sm, grbPixel << 8u);
     }
 }
-
-
-// class Colors
-// static uint8_t getRed(Color color);
-// static uint8_t getGreen(Color color);
-// static uint8_t getBlue(Color color);

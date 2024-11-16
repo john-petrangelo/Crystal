@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include "Rotate.h"
 
 void Rotate::update(float timeStamp) {
@@ -24,7 +26,7 @@ Color Rotate::render(float pos) {
   }
 
   // Add the offset to the position, then correct for wrap-around
-  float rotatedPos = fmod(pos + rotationOffset, 1.0f);
+  float rotatedPos = std::fmod(pos + rotationOffset, 1.0f);
   if (rotatedPos < 0.0) {
     rotatedPos += 1.0;
   }

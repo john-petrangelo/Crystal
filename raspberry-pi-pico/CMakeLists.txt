@@ -13,12 +13,16 @@ set(CMAKE_CXX_STANDARD 17)
 # Define the executable target
 add_executable(crystal-pi-pico
         Crystal.cpp
+        Demos.h
+        Demos.cpp
         Handlers.h
         Handlers.cpp
         Network.h
         Network.cpp
         Renderer.h
         Renderer.cpp
+        Status.h
+        Status.cpp
         System.h
         System.cpp
         Utils.h
@@ -27,7 +31,7 @@ add_executable(crystal-pi-pico
         WS2812Strip.cpp
         ws2812.pio
 
-#        ${CMAKE_SOURCE_DIR}/lib/lumos-arduino/Colors.cpp
+        ${CMAKE_SOURCE_DIR}/lib/lumos-arduino/Colors.cpp
 #        ${CMAKE_SOURCE_DIR}/lib/lumos-arduino/Patterns.cpp
 )
 
@@ -49,6 +53,28 @@ target_sources(crystal-pi-pico PRIVATE
         HTTP/HTTPRequestParser.h
         HTTP/HTTPServer.h
         HTTP/HTTPServer.cpp
+)
+
+# Add model classes to the target
+target_sources(crystal-pi-pico PRIVATE
+        Models/Model.h
+        Models/Model.cpp
+        Models/Crystal.h
+        Models/Crystal.cpp
+        Models/Gradient.h
+        Models/Gradient.cpp
+        Models/Map.h
+        Models/Map.cpp
+        Models/Pulsate.h
+        Models/Pulsate.cpp
+        Models/Rotate.h
+        Models/Rotate.cpp
+        Models/Sum.h
+        Models/Sum.cpp
+        Models/Triangle.h
+        Models/Triangle.cpp
+        Models/Window.h
+        Models/Window.cpp
 )
 
 # Add logging sources to the target

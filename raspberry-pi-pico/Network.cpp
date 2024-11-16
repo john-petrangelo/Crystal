@@ -25,6 +25,7 @@ std::string Network::hostname = "pico";
 std::string Network::ipAddress = "undefined";
 std::string Network::macAddress = "undefined";
 std::string Network::wifiMode = "undefined";
+Renderer* Network::networkRenderer;
 
 // Server used for HTTP requests
 HTTPServer Network::httpServer;

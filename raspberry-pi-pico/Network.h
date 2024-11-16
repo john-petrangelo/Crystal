@@ -7,7 +7,7 @@
 #include "Logging/LogServer.h"
 #include "HTTP/HTTPServer.h"
 
-//#include "Renderer.h"
+#include "Renderer.h"
 
 class Network {
 private:
@@ -19,7 +19,7 @@ private:
     static HTTPServer httpServer;
     static LogServer logServer;
 
-//    static Renderer *networkRenderer;
+    static Renderer *networkRenderer;
 
     static bool setupWiFiStation();
     static void setupWiFiSoftAP(); // Not implemented yet
@@ -34,11 +34,11 @@ private:
     static std::string macAddrToString(const uint8_t *mac);
 
 public:
-//    static void setup(Renderer *renderer);
     static void setup();
     static void loop();
     static void getStatus(JsonObject obj);
-//
-//    static Renderer* getRenderer() { return networkRenderer; }
+
+    static Renderer* getRenderer() { return networkRenderer; }
+    static void setRenderer(Renderer* renderer) { networkRenderer = renderer; }
 //    static String &getHostname() { return hostname; }
 };

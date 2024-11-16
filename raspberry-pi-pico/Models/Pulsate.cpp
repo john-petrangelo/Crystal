@@ -1,8 +1,10 @@
+#include <cmath>
+
 #include "Pulsate.h"
 #include "../Utils.h"
 
 void Pulsate::update(float timeStamp) {
-  timeStamp = fmod(timeStamp, periodSecs);
+  timeStamp = std::fmod(timeStamp, periodSecs);
   if (timeStamp < brightenSecs) {
     // We're getting brighter
     dimness = fmap(timeStamp, 0.0, brightenSecs, brightest, dimmest);

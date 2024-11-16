@@ -5,15 +5,9 @@
 #include <lumos-arduino/Colors.h>
 
 #include "Models/Model.h"
+#include "WS2812Strip.h"
 
 class Renderer {
-private:
-    uint64_t _startTime_ms = to_ms_since_boot(get_absolute_time());
-    std::shared_ptr<Model> _model;
-    float updateDuration = 0.0;
-    float renderDuration = 0.0;
-    float showDuration = 0.0;
-
 public:
     virtual ~Renderer() = default;
 
@@ -32,21 +26,28 @@ public:
     virtual void setBrightness(uint8_t brightness) = 0;
 
     virtual void getStatus(JsonObject obj) const;
+
+private:
+    uint64_t _startTime_ms = to_ms_since_boot(get_absolute_time());
+    std::shared_ptr<Model> _model;
+    float updateDuration = 0.0;
+    float renderDuration = 0.0;
+    float showDuration = 0.0;
 };
 
 class RaspberryPiPico_Renderer : public Renderer {
-private:
-    int _strip;
-
 public:
     explicit RaspberryPiPico_Renderer(int pixelsCount);
 
     void setPixel(int i, Color c) override;
-    // void show() override { _strip.Show(); }
-    // int pixelsCount() const override { return _strip.PixelCount(); }
+    void show() override { _strip.show(); }
+    int pixelsCount() const override { return _strip.numPixels(); }
 
-    // uint8_t getBrightness() const override { return _strip.GetLuminance(); }
-    // void setBrightness(uint8_t brightness) override { _strip.SetLuminance(brightness); }
+    uint8_t getBrightness() const override { /* TODO return _strip.GetLuminance(); */ return 255; }
+    void setBrightness(uint8_t brightness) override { /* TODO _strip.SetLuminance(brightness);*/ }
 
     void getStatus(JsonObject obj) const override;
+
+private:
+    WS2812Strip _strip;
 };
