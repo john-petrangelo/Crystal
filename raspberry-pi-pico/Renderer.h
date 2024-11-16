@@ -42,10 +42,11 @@ public:
     explicit RaspberryPiPico_Renderer(int pixelsCount);
 
     void setPixel(int i, Color c) override;
-    void show() override { _strip.Show(); }
-    int pixelsCount() const override { return _strip.PixelCount(); }
+    // void show() override { _strip.Show(); }
+    // int pixelsCount() const override { return _strip.PixelCount(); }
 
-    uint8_t getBrightness() const override { return _strip.GetLuminance(); }
-    void setBrightness(uint8_t brightness) override { _strip.SetLuminance(brightness); }
+    // uint8_t getBrightness() const override { return _strip.GetLuminance(); }
+    // void setBrightness(uint8_t brightness) override { _strip.SetLuminance(brightness); }
+
     void getStatus(JsonObject obj) const override;
 };

@@ -23,10 +23,12 @@ add_executable(crystal-pi-pico
         System.cpp
         Utils.h
         Utils.cpp
+        WS2812Strip.h
+        WS2812Strip.cpp
         ws2812.pio
 
-#        src/lib/lumos-arduino/Colors.cpp
-#        src/lib/lumos-arduino/Patterns.cpp
+#        ${CMAKE_SOURCE_DIR}/lib/lumos-arduino/Colors.cpp
+#        ${CMAKE_SOURCE_DIR}/lib/lumos-arduino/Patterns.cpp
 )
 
 # Generate header file from PIO source

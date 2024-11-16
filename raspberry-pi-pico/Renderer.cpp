@@ -11,29 +11,30 @@ void Renderer::render() {
         return;
     }
 
-    // Get the current time in milliseconds, then convert to decimal seconds
-    auto absoluteNow_ms = millis();
-    auto relativeNow_ms = absoluteNow_ms - _startTime_ms;
-    auto now_sec = float(relativeNow_ms) / 1000.0f;
-
-    // Update the current state of the model to match the current time
-    auto before_update_ms = millis();
-    _model->update(now_sec);
-    updateDuration = float((millis()) - before_update_ms) / 1000.0f;
-
-    // Set the color of each pixel
-    auto before_render_ms = millis();
-    for (auto i = 0; i < pixelsCount(); ++i) {
-        float pos = (float)i / float(pixelsCount() - 1);
-        auto color = _model->render(pos);
-        setPixel(i, color);
-    }
-  renderDuration = float((millis()) - before_render_ms) / 1000.0f;
-
-    // Write the colors to the LED strip
-    auto before_show_ms = millis();
-    show();
-  showDuration = float((millis()) - before_show_ms) / 1000.0f;
+  // JHP
+  //   // Get the current time in milliseconds, then convert to decimal seconds
+  //   auto absoluteNow_ms = millis();
+  //   auto relativeNow_ms = absoluteNow_ms - _startTime_ms;
+  //   auto now_sec = float(relativeNow_ms) / 1000.0f;
+  //
+  //   // Update the current state of the model to match the current time
+  //   auto before_update_ms = millis();
+  //   _model->update(now_sec);
+  //   updateDuration = float((millis()) - before_update_ms) / 1000.0f;
+  //
+  //   // Set the color of each pixel
+  //   auto before_render_ms = millis();
+  //   for (auto i = 0; i < pixelsCount(); ++i) {
+  //       float pos = (float)i / float(pixelsCount() - 1);
+  //       auto color = _model->render(pos);
+  //       setPixel(i, color);
+  //   }
+  // renderDuration = float((millis()) - before_render_ms) / 1000.0f;
+  //
+  //   // Write the colors to the LED strip
+  //   auto before_show_ms = millis();
+  //   show();
+  // showDuration = float((millis()) - before_show_ms) / 1000.0f;
 }
 
 void Renderer::getStatus(JsonObject obj) const {
@@ -55,13 +56,15 @@ RaspberryPiPico_Renderer::RaspberryPiPico_Renderer(int pixelsCount) :
     ws2812_program_init(pio, sm, offset, PICO_DEFAULT_WS2812_PIN, 80000, false);
 
 
-    _strip.Begin();
-    _strip.Show();  // Initialize all pixels to 'off'
+    // JHP
+    // _strip.Begin();
+    // _strip.Show();  // Initialize all pixels to 'off'
 }
 
 void RaspberryPiPico_Renderer::setPixel(int i, Color c) {
-    RgbColor rgbColor(Colors::getRed(c), Colors::getGreen(c), Colors::getBlue(c));
-    _strip.SetPixelColor(i, rgbColor);
+    // JHP
+    // RgbColor rgbColor(Colors::getRed(c), Colors::getGreen(c), Colors::getBlue(c));
+    // _strip.SetPixelColor(i, rgbColor);
 }
 
 void RaspberryPiPico_Renderer::getStatus(JsonObject obj) const {
