@@ -22,10 +22,10 @@ void Renderer::render() {
   updateDuration = static_cast<float>((to_ms_since_boot(get_absolute_time())) - before_update_ms) / 1000.0f;
 
   // Set the color of each pixel
-  auto before_render_ms = to_ms_since_boot(get_absolute_time());
+  auto const before_render_ms = to_ms_since_boot(get_absolute_time());
   for (auto i = 0; i < pixelsCount(); ++i) {
       float const pos = static_cast<float>(i) / static_cast<float>(pixelsCount() - 1);
-      auto color = _model->render(pos);
+      auto const color = _model->render(pos);
       setPixel(i, color);
   }
   renderDuration = static_cast<float>((to_ms_since_boot(get_absolute_time())) - before_render_ms) / 1000.0f;
@@ -48,10 +48,10 @@ void Renderer::getStatus(JsonObject obj) const {
 RaspberryPiPico_Renderer::RaspberryPiPico_Renderer(int pixelsCount) :
         Renderer(), _strip(22, pixelsCount)
 {
-    PIO pio = pio0;
-    uint sm = 0;
-    uint offset = pio_add_program(pio, &ws2812_program);
-    int PICO_DEFAULT_WS2812_PIN = 22;
+    PIO const pio = pio0;
+    constexpr uint sm = 0;
+    uint const offset = pio_add_program(pio, &ws2812_program);
+    int constexpr PICO_DEFAULT_WS2812_PIN = 22;
     ws2812_program_init(pio, sm, offset, PICO_DEFAULT_WS2812_PIN, 80000, false);
 
     _strip.show();  // Initialize all pixels to 'off'

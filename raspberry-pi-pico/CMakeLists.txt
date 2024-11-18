@@ -69,6 +69,7 @@ target_sources(crystal-pi-pico PRIVATE
         Models/Pulsate.cpp
         Models/Rotate.h
         Models/Rotate.cpp
+        Models/Solid.h
         Models/Sum.h
         Models/Sum.cpp
         Models/Triangle.h

@@ -11,7 +11,10 @@
 
 #include "Models/Crystal.h"
 #include "Models/Gradient.h"
+#include "Models/Map.h"
 #include "Models/Rotate.h"
+#include "Models/Solid.h"
+#include "Models/Sum.h"
 
 constexpr long logDurationIntervalMS = 10000;
 
@@ -21,8 +24,10 @@ int main() {
 
   // Initialize the renderer
   Renderer *renderer = new RaspberryPiPico_Renderer(64);
-  ModelPtr gm = Gradient::make(RED, VIOLET, INDIGO, BLUE, GREEN, YELLOW, ORANGE, RED);
-  ModelPtr model = std::make_shared<Rotate>("RotatingRainbow", 0.3, gm);
+  renderer->render();
+
+  ModelPtr m1 = Gradient::make(RED, ORANGE, YELLOW, GREEN, BLUE, INDIGO, VIOLET, RED);
+  ModelPtr model = std::make_shared<Rotate>("RotatingRainbow", 0.3, m1);
 
   renderer->setModel(model);
 
@@ -39,9 +44,8 @@ int main() {
 
   auto lastUpdateMS = to_ms_since_boot(get_absolute_time());
 
-
   while (true) {
-    auto now_ms = to_ms_since_boot(get_absolute_time());
+    auto const now_ms = to_ms_since_boot(get_absolute_time());
     renderer->render();
     Network::loop();
 

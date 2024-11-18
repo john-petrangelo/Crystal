@@ -7,7 +7,7 @@ void Sum::update(float timeStamp) {
 }
 
 Color Sum::render(float pos) {
-  Color sum;
+  Color sum = BLACK;
   for (const ModelPtr& model : models) {
     sum = Colors::add(sum, model->render(pos));
   }

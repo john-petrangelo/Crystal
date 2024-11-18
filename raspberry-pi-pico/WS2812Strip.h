@@ -25,6 +25,8 @@ public:
     // uint8_t brightness() const;
     // void setBrightness(uint8_t brightness);
 
+  static uint32_t toGRB(Color const &pixel);
+
 private:
     uint const _pin;
     PIO const _pio;
