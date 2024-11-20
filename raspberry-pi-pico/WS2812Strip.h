@@ -22,16 +22,24 @@ public:
     // Write the buffered pixels to the physical light strip
     void show() const;
 
-    // uint8_t brightness() const;
-    // void setBrightness(uint8_t brightness);
+    float gamma() const { return _gammaValue; }
+    void setGamma(float const newGammaValue);
 
-  static uint32_t toGRB(Color const &pixel);
+    // uint8_t brightness() const { return brightness; }
+    // void setBrightness(uint8_t newBrightness);
 
 private:
+    Color gammaCorrect(Color const &pixel) const;
+    static Color toGRB(Color const &pixel);
+
     uint const _pin;
-    PIO const _pio;
-    uint const _sm; // state machine
+    PIO const _pio = pio0;
+    uint const _sm = 0; // state machine
     uint _offset;
+
+    float const DEFAULT_GAMMA_VALUE = 2.8;
+    float _gammaValue = -1.0;
+    uint8_t _gamma_table[256] = {};
 
     std::vector<Color> _pixels;
 };
