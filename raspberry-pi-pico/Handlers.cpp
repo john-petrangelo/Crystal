@@ -59,7 +59,21 @@
 //  Logger::logf("getArgAsLong str=%s value=%ld\n", paramStr.c_str(), paramValue);
 //  return true; // No error
 //}
-//
+
+static bool getArgAsFloat(HTTPRequest const &request, const char* paramName, float& paramValue) {
+    if (request.queryParams.find(paramName) == request.queryParams.end()) {
+        logger << "Missing '" << paramName << "' parameter in request" << std::endl;
+        return false;
+    }
+
+    auto const paramStr = request.queryParams.at("value");
+
+    paramValue = strtof(static_cast<std::string>(paramStr).c_str(), nullptr);
+    logger << "getArgAsLong str=" << paramStr << " value=" << paramValue << std::endl;
+
+    return true; // No error
+}
+
 //static bool getArgAsColor(const char* paramName, Color& paramValue) {
 //  if (!Network::getServer().hasArg(paramName)) {
 //    Network::getServer().send(400, "text/plain", String(paramName) + " parameter missing\n");
@@ -120,6 +134,26 @@ HTTPResponse handleStatus(HTTPRequest const &request) {
 //  Network::getRenderer()->setBrightness(value);
 //  Network::getServer().send(200, "text/plain");
 //}
+
+HTTPResponse handleSetGamma(HTTPRequest const &request) {
+    logger << "handleSetGamma" << std::endl;
+
+    float gamma;
+    if (!getArgAsFloat(request, "value", gamma)) {
+        return {400, "text/plain", "Invalid 'value' parameter"};
+    }
+
+    if (gamma <= 0.0f || gamma > 10.0f) {
+        logger << "Invalid gamma value" << std::endl;
+        return {400, "text/plain", "Invalid gamma value. Must be > 0.0 and <= 10.0"};
+    }
+
+    logger << "handleSetGamma value=" << gamma << std::endl;
+
+    // Success
+    Network::getRenderer()->setGamma(gamma);
+    return {200, "text/plain", ""};
+}
 
 //void handleCrystal() {
 //  JsonDocument doc = parseJsonBody("handleCrystal");

@@ -25,6 +25,9 @@ public:
     virtual uint8_t getBrightness() const = 0;
     virtual void setBrightness(uint8_t brightness) = 0;
 
+    virtual float gamma() const = 0;
+    virtual void setGamma(float gamma) = 0;
+
     virtual void getStatus(JsonObject obj) const;
 
 private:
@@ -45,6 +48,9 @@ public:
 
     uint8_t getBrightness() const override { /* TODO return _strip.GetLuminance(); */ return 255; }
     void setBrightness(uint8_t brightness) override { /* TODO _strip.SetLuminance(brightness);*/ }
+
+    float gamma() const override { return _strip.gamma(); }
+    void setGamma(float gamma) override { _strip.setGamma(gamma); }
 
     void getStatus(JsonObject obj) const override;
 
