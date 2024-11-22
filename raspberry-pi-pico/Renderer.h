@@ -22,7 +22,7 @@ public:
     virtual void show() = 0;
     virtual int pixelsCount() const = 0;
 
-    virtual uint8_t getBrightness() const = 0;
+    virtual uint8_t brightness() const = 0;
     virtual void setBrightness(uint8_t brightness) = 0;
 
     virtual float gamma() const = 0;
@@ -46,8 +46,8 @@ public:
     void show() override { _strip.show(); }
     int pixelsCount() const override { return _strip.numPixels(); }
 
-    uint8_t getBrightness() const override { /* TODO return _strip.GetLuminance(); */ return 255; }
-    void setBrightness(uint8_t brightness) override { /* TODO _strip.SetLuminance(brightness);*/ }
+    uint8_t brightness() const override { return _strip.brightness(); }
+    void setBrightness(uint8_t brightness) override { _strip.setBrightness(brightness); }
 
     float gamma() const override { return _strip.gamma(); }
     void setGamma(float gamma) override { _strip.setGamma(gamma); }

@@ -64,7 +64,7 @@ void RaspberryPiPico_Renderer::setPixel(int i, Color c) {
 void RaspberryPiPico_Renderer::getStatus(JsonObject obj) const {
     obj["type"] = "RaspberryPiPico_Renderer";
     obj["pixelsCount"] = pixelsCount();
-    obj["brightness"] = getBrightness();
+    obj["brightness"] = brightness();
     obj["gamma"] = gamma();
     Renderer::getStatus(obj);
 }
