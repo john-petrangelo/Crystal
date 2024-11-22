@@ -42,8 +42,12 @@ err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t err) {
     if (p != nullptr) {
       // Parse the raw request payload
       std::string_view data(static_cast<char*>(p->payload));
-      auto request = HTTPRequestParser::parse(data);
-      logHTTPRequest(request);
+      auto const request = HTTPRequestParser::parse(data);
+      if (HTTP_DEBUG) {
+        logHTTPRequest(request);
+      } else {
+        logger << "Request received " << request.method << " " << request.path << std::endl;
+      }
 
       // Match the method and path to a handler, otherwise return a not found error
       std::string handlersKey = makeHandlersKey(request.method, request.path);
@@ -56,7 +60,9 @@ err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t err) {
       }
 
       pbuf_free(p); // Free the pbuf after processing
-      logger << "Request processed" << std::endl;
+      if (HTTP_DEBUG) {
+        logger << "Request processed " << request.method << " " << request.path << std::endl;
+      }
       return ERR_OK; // Return ERR_OK to continue receiving
     } else {
       logger << "Connection closed by client" << std::endl;
@@ -123,7 +129,9 @@ err_t HTTPServer::sendResponse(tcp_pcb *tpcb, HTTPResponse const &response) {
 
 err_t HTTPServer::sendRawResponse(tcp_pcb *tpcb, std::string const &rawResponse) {
   u16_t len = rawResponse.size();
-  logger << "Sending response, total len=" << rawResponse.size() << std::endl;
+  if (HTTP_DEBUG) {
+    logger << "Sending response, total len=" << rawResponse.size() << std::endl;
+  }
 
   // Ensure the response fits within the TCP buffer
   const char* response_data = rawResponse.c_str();
@@ -133,7 +141,9 @@ err_t HTTPServer::sendRawResponse(tcp_pcb *tpcb, std::string const &rawResponse)
       send_len = len;
     }
 
-    logger << "Sending " << send_len << " bytes..." << std::endl;
+    if (HTTP_DEBUG) {
+      logger << "Sending " << send_len << " bytes..." << std::endl;
+    }
     err_t err = tcp_write(tpcb, response_data, send_len, TCP_WRITE_FLAG_COPY);
     if (err != ERR_OK) {
       logger << "Error in tcp_write: " << err << std::endl;
@@ -151,7 +161,9 @@ err_t HTTPServer::sendRawResponse(tcp_pcb *tpcb, std::string const &rawResponse)
     }
   }
 
-  logger << "Send complete" << std::endl;
+  if (HTTP_DEBUG) {
+    logger << "Send complete" << std::endl;
+  }
   return ERR_OK;
 }
 

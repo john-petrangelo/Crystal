@@ -10,6 +10,8 @@
 
 #include "HTTPRequest.h"
 
+inline auto constexpr HTTP_DEBUG = false;
+
 struct HTTPResponse {
     int status_code;
     std::string contentType;
