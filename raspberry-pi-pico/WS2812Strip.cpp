@@ -53,6 +53,29 @@ Color WS2812Strip::gammaCorrect(Color const &pixel) const {
         _gamma_table[Colors::getBlue(pixel)]);
 }
 
+/**
+ * Adjusts the brightness of a single pixel by scaling its red, green, and blue components.
+ *
+ * The brightness adjustment is performed by multiplying each color channel by the
+ * brightness scale factor (`_brightness + 1`) and then shifting the result by 8 bits
+ * (equivalent to dividing by 256). This ensures the adjusted brightness is proportionally
+ * applied to each channel while keeping the output within the 8-bit color range.
+ *
+ * @param pixel The original color of the pixel to be adjusted.
+ * @return A new Color object with brightness-adjusted red, green, and blue components.
+ *
+ * Note: `_brightness` is assumed to be an 8-bit value (0–255), where 0 represents no scaling
+ * and 255 represents full brightness scaling.
+ */
+Color WS2812Strip::adjustBrightness(Color const &pixel) const {
+    auto const scale = _brightness + 1;
+
+    return Colors::makeColor(
+        Colors::getRed(pixel) * scale >> 8,
+        Colors::getGreen(pixel) * scale >> 8,
+        Colors::getBlue(pixel) * scale >> 8);
+}
+
 Color WS2812Strip::toGRB(Color const &pixel) {
     return Colors::getGreen(pixel) << 16 |
            Colors::getRed(pixel) << 8 |
@@ -60,13 +83,16 @@ Color WS2812Strip::toGRB(Color const &pixel) {
 }
 
 void WS2812Strip::show() const {
-    for (Color const& pixel : _pixels) {
-        // Gamma corrects the color
-        auto const gamma_pixel = gammaCorrect(pixel);
+    for (Color pixel : _pixels) {
+        // Gamma-correct the color
+        pixel = gammaCorrect(pixel);
+
+        // Adjust brightness
+        pixel = adjustBrightness(pixel);
 
         // Re-arrange to GRB order
-        auto const grbPixel = toGRB(gamma_pixel);
+        pixel = toGRB(pixel);
 
-        pio_sm_put_blocking(_pio, _sm, grbPixel << 8u);
+        pio_sm_put_blocking(_pio, _sm, pixel << 8u);
     }
 }

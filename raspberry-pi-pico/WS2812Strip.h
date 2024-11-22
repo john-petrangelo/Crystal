@@ -25,11 +25,12 @@ public:
     float gamma() const { return _gammaValue; }
     void setGamma(float const newGammaValue);
 
-    // uint8_t brightness() const { return brightness; }
-    // void setBrightness(uint8_t newBrightness);
+    uint8_t brightness() const { return _brightness; }
+    void setBrightness(uint8_t newBrightness) { _brightness = newBrightness; }
 
 private:
     Color gammaCorrect(Color const &pixel) const;
+    Color adjustBrightness(Color const &pixel) const;
     static Color toGRB(Color const &pixel);
 
     uint const _pin;
@@ -40,6 +41,8 @@ private:
     float const DEFAULT_GAMMA_VALUE = 2.8;
     float _gammaValue = -1.0;
     uint8_t _gamma_table[256] = {};
+
+    uint8_t _brightness = 255;
 
     std::vector<Color> _pixels;
 };
