@@ -48,12 +48,6 @@ void Renderer::getStatus(JsonObject obj) const {
 RaspberryPiPico_Renderer::RaspberryPiPico_Renderer(int pixelsCount) :
         Renderer(), _strip(22, pixelsCount)
 {
-    PIO const pio = pio0;
-    constexpr uint sm = 0;
-    uint const offset = pio_add_program(pio, &ws2812_program);
-    int constexpr PICO_DEFAULT_WS2812_PIN = 22;
-    ws2812_program_init(pio, sm, offset, PICO_DEFAULT_WS2812_PIN, 80000, false);
-
     _strip.show();  // Initialize all pixels to 'off'
 }
 
