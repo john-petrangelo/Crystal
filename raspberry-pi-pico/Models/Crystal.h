@@ -2,6 +2,9 @@
 
 #include "Model.h"
 
+class Crystal;
+typedef std::shared_ptr<Crystal> CrystalPtr;
+
 class Crystal : public Model {
 public:
     Crystal(Color upperColor, float upperPeriodSec,
@@ -14,6 +17,8 @@ public:
     void update(float timeStamp) override { model->update(timeStamp); }
     Color render(float pos) override { return model->render(pos); };
     void asJson(JsonObject obj) const override;
+
+  static CrystalPtr make() { return std::make_shared<Crystal>(); }
 
 private:
     ModelPtr model;
