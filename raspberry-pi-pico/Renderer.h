@@ -18,8 +18,6 @@ public:
     std::shared_ptr<Model> const & getModel() const { return _model; }
     void setModel(std::shared_ptr<Model> & model) { _model = model; reset(); }
 
-    virtual void setPixel(int i, Color c) = 0;
-    virtual void show() = 0;
     virtual int pixelsCount() const = 0;
 
     virtual uint8_t brightness() const = 0;
@@ -30,6 +28,10 @@ public:
 
     virtual void getStatus(JsonObject obj) const;
 
+protected:
+    virtual void setPixel(int i, Color c) = 0;
+    virtual void show() = 0;
+
 private:
     uint64_t _startTime_ms = to_ms_since_boot(get_absolute_time());
     std::shared_ptr<Model> _model;
@@ -38,7 +40,7 @@ private:
     float showDuration = 0.0;
 };
 
-class RaspberryPiPico_Renderer : public Renderer {
+class RaspberryPiPico_Renderer final : public Renderer {
 public:
     explicit RaspberryPiPico_Renderer(int pixelsCount);
 
