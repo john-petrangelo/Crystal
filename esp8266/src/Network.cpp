@@ -102,13 +102,13 @@ void Network::setupHTTP() {
 
   server.on("/crystal", HTTP_PUT, handleCrystal);
   server.on("/rainbow", HTTP_PUT, handleRainbow);
-  server.on("/flame", HTTP_GET, handleFlame);
-  server.on("/solid", HTTP_GET, handleSolid);
+  server.on("/flame", HTTP_PUT, handleFlame);
+  server.on("/solid", HTTP_PUT, handleSolid);
   server.on("/warpcore", HTTP_PUT, handleWarpCore);
   server.on("/jacobsladder", HTTP_PUT, handleJacobsLadder);
-  server.on("/demo1", HTTP_GET, handleDemo1);
-  server.on("/demo2", HTTP_GET, handleDemo2);
-  server.on("/demo3", HTTP_GET, handleDemo3);
+  server.on("/demo1", HTTP_PUT, handleDemo1);
+  server.on("/demo2", HTTP_PUT, handleDemo2);
+  server.on("/demo3", HTTP_PUT, handleDemo3);
 
   server.begin();
   Serial.println("HTTP server started");

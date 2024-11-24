@@ -142,23 +142,21 @@ void Network::setupHTTP() {
 
   httpServer.onGet("/status", handleStatus);
 
-//  server.onGet("/solid", handleSolid);
-
   httpServer.onGet("/brightness", handleGetBrightness);
   httpServer.onPut("/brightness", handleSetBrightness);
 
-// server.on("/gamma", handleGetGamma);
+  httpServer.onGet("/gamma", handleGetGamma);
   httpServer.onPut("/gamma", handleSetGamma);
-//
+
 //  server.on("/crystal", HTTP_PUT, handleCrystal);
 //  server.on("/rainbow", HTTP_PUT, handleRainbow);
-//  server.on("/flame", HTTP_GET, handleFlame);
-  httpServer.onGet("/solid", handleSolid);
+//  server.on("/flame", HTTP_PUT, handleFlame);
+  httpServer.onPut("/solid", handleSolid);
 //  server.on("/warpcore", HTTP_PUT, handleWarpCore);
 //  server.on("/jacobsladder", HTTP_PUT, handleJacobsLadder);
-//  server.on("/demo1", HTTP_GET, handleDemo1);
-//  server.on("/demo2", HTTP_GET, handleDemo2);
-//  server.on("/demo3", HTTP_GET, handleDemo3);
+//  server.on("/demo1", HTTP_PUT, handleDemo1);
+//  server.on("/demo2", HTTP_PUT, handleDemo2);
+//  server.on("/demo3", HTTP_PUT, handleDemo3);
 //
 }
 
