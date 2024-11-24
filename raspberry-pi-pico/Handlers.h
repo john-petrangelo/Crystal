@@ -10,6 +10,7 @@ extern HTTPResponse handleStatus(HTTPRequest const &request);
 
 extern HTTPResponse handleGetBrightness(HTTPRequest const &reqeust);
 extern HTTPResponse handleSetBrightness(HTTPRequest const &request);
+extern HTTPResponse handleGetGamma(HTTPRequest const &reqeust);
 extern HTTPResponse handleSetGamma(HTTPRequest const &request);
 
 //extern void handleCrystal();

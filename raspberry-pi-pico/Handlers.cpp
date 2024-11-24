@@ -135,6 +135,16 @@ HTTPResponse handleSetBrightness(HTTPRequest const &request) {
     return {200, "text/plain", ""};
 }
 
+HTTPResponse handleGetGamma(HTTPRequest const &request) {
+    JsonDocument doc;
+    doc["value"] = Network::getRenderer()->gamma();
+
+    std::string output;
+    serializeJsonPretty(doc, output);
+
+    return {200, "application/json", output};
+}
+
 HTTPResponse handleSetGamma(HTTPRequest const &request) {
     float gamma;
     if (!getArgAsFloat(request, "value", gamma)) {
