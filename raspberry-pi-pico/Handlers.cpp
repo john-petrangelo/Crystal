@@ -109,15 +109,15 @@ HTTPResponse handleStatus(HTTPRequest const &request) {
     return {200, "application/json", output};
 }
 
-//void handleGetBrightness() {
-//  // Create the response.
-//  JsonDocument doc;
-//  doc["value"] = Network::getRenderer()->getBrightness();
-//  String output;
-//  serializeJsonPretty(doc, output);
-//
-//  Network::getServer().send(200, "application/json", output);
-//}
+HTTPResponse handleGetBrightness(HTTPRequest const &request) {
+    JsonDocument doc;
+    doc["value"] = Network::getRenderer()->brightness();
+
+    std::string output;
+    serializeJsonPretty(doc, output);
+
+    return {200, "application/json", output};
+}
 
 HTTPResponse handleSetBrightness(HTTPRequest const &request) {
     long brightness;

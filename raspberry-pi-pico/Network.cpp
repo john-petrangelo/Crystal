@@ -144,7 +144,7 @@ void Network::setupHTTP() {
 
 //  server.onGet("/solid", handleSolid);
 
-//  server.on("/brightness", HTTP_GET, handleGetBrightness);
+  httpServer.onGet("/brightness", handleGetBrightness);
   httpServer.onPut("/brightness", handleSetBrightness);
 
 // server.on("/gamma", handleGetGamma);
