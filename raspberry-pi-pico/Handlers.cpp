@@ -120,8 +120,6 @@ HTTPResponse handleStatus(HTTPRequest const &request) {
 //}
 
 HTTPResponse handleSetBrightness(HTTPRequest const &request) {
-    // logger << "handleSetBrightness" << std::endl;
-
     long brightness;
     if (!getArgAsLong(request, "value", brightness)) {
         return {400, "text/plain", "Invalid 'value' parameter"};
@@ -132,16 +130,12 @@ HTTPResponse handleSetBrightness(HTTPRequest const &request) {
         return {400, "text/plain", "Invalid brightness value. Must be >= 0 and <= 255"};
     }
 
-    // logger << "handleSetBrightness value=" << brightness << std::endl;
-
     // Success
     Network::getRenderer()->setBrightness(brightness);
     return {200, "text/plain", ""};
 }
 
 HTTPResponse handleSetGamma(HTTPRequest const &request) {
-    logger << "handleSetGamma" << std::endl;
-
     float gamma;
     if (!getArgAsFloat(request, "value", gamma)) {
         return {400, "text/plain", "Invalid 'value' parameter"};
@@ -151,8 +145,6 @@ HTTPResponse handleSetGamma(HTTPRequest const &request) {
         logger << "Invalid gamma value" << std::endl;
         return {400, "text/plain", "Invalid gamma value. Must be > 0.0 and <= 10.0"};
     }
-
-    logger << "handleSetGamma value=" << gamma << std::endl;
 
     // Success
     Network::getRenderer()->setGamma(gamma);
