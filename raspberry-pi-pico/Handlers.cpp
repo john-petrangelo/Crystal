@@ -11,7 +11,7 @@
 #include "web_files.h"
 
 //#include "Models/Crystal.h"
-//#include "Models/Flame.h"
+#include "Models/Flame.h"
 #include "Models/Gradient.h"
 //#include "Models/JacobsLadder.h"
 #include "Models/Rotate.h"
@@ -183,12 +183,12 @@ HTTPResponse handleSetGamma(HTTPRequest const &request) {
 //
 //  Network::getServer().send(200, "text/plain");
 //}
-//
-//void handleFlame() {
-//  ModelPtr model = std::make_shared<Flame>();
-//  Network::getRenderer()->setModel(model);
-//  Network::getServer().send(200, "text/plain");
-//}
+
+HTTPResponse handleFlame(HTTPRequest const &request) {
+    ModelPtr model = std::make_shared<Flame>();
+    Network::getRenderer()->setModel(model);
+    return {200, "text/plain"};
+}
 
 // void handleRainbow() {
 //   JsonDocument doc = parseJsonBody("handleRainbow");

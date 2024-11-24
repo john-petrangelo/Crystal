@@ -14,7 +14,7 @@ extern HTTPResponse handleGetGamma(HTTPRequest const &reqeust);
 extern HTTPResponse handleSetGamma(HTTPRequest const &request);
 
 //extern void handleCrystal();
-//extern void handleFlame();
+extern HTTPResponse handleFlame(HTTPRequest const &request);
 //extern void handleJacobsLadder();
 //extern void handleRainbow();
 extern HTTPResponse handleSolid(HTTPRequest const &request);

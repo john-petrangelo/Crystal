@@ -150,7 +150,7 @@ void Network::setupHTTP() {
 
 //  server.on("/crystal", HTTP_PUT, handleCrystal);
 //  server.on("/rainbow", HTTP_PUT, handleRainbow);
-//  server.on("/flame", HTTP_PUT, handleFlame);
+  httpServer.onPut("/flame", handleFlame);
   httpServer.onPut("/solid", handleSolid);
 //  server.on("/warpcore", HTTP_PUT, handleWarpCore);
 //  server.on("/jacobsladder", HTTP_PUT, handleJacobsLadder);

@@ -61,6 +61,8 @@ target_sources(crystal-pi-pico PRIVATE
         Models/Model.cpp
         Models/Crystal.h
         Models/Crystal.cpp
+        Models/Flame.h
+        Models/Flame.cpp
         Models/Gradient.h
         Models/Gradient.cpp
         Models/Map.h

@@ -19,7 +19,7 @@ inline float fmap(float x, float in_min, float in_max, float out_min, float out_
 /**
  * Return a random float between fmin and fmax.
  */
-inline float frand(float fmin, float fmax);
+float frand(float fmin, float fmax);
 
 /**
  * Returns an interpolation between two inputs (v0, v1) for a parameter (t)

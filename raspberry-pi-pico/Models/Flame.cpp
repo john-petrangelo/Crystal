@@ -1,6 +1,6 @@
 #include "Flame.h"
 #include "Gradient.h"
-#include "../Utils.h"
+#include "Utils.h"
 
 Flame::Flame() : Model("Flame") {
   auto mgm = Gradient::make(BLACK, C1, C2, C3, C2, C1, BLACK);
