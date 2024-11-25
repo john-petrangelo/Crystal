@@ -15,7 +15,7 @@
 #include "Models/Gradient.h"
 //#include "Models/JacobsLadder.h"
 #include "Models/Rotate.h"
-//#include "Models/Solid.h"
+#include "Models/Solid.h"
 //#include "Models/WarpCore.h"
 //
 //static JsonDocument parseJsonBody(char const *handlerName) {
@@ -49,39 +49,35 @@
 //  return strtol(colorStr, nullptr, 16);
 //}
 
-static bool getArgAsLong(HTTPRequest const &request, const char* paramName, long& paramValue) {
-    if (request.queryParams.find(paramName) == request.queryParams.end()) {
-        logger << "Missing '" << paramName << "' parameter in request" << std::endl;
-        return false;
+static bool getArgAsLong(std::unordered_map<std::string_view, std::string_view> const &queryParams, char const* paramName, long& paramValue) {
+    if (auto const param = queryParams.find(paramName); param != queryParams.end()) {
+        paramValue = strtol(static_cast<std::string>(param->second).c_str(), nullptr, 10);
+        return true;
     }
 
-    auto const paramStr = request.queryParams.at(paramName);
-    paramValue = strtol(static_cast<std::string>(paramStr).c_str(), nullptr, 10);
-
-    return true; // No error
+    logger << "Missing '" << paramName << "' parameter in request" << std::endl;
+    return false;
 }
 
-static bool getArgAsFloat(HTTPRequest const &request, const char* paramName, float& paramValue) {
-    if (request.queryParams.find(paramName) == request.queryParams.end()) {
-        logger << "Missing '" << paramName << "' parameter in request" << std::endl;
-        return false;
+static bool getArgAsFloat(std::unordered_map<std::string_view, std::string_view> const &queryParams, char const* paramName, float& paramValue) {
+    if (auto const param = queryParams.find(paramName); param != queryParams.end()) {
+        paramValue = strtof(static_cast<std::string>(param->second).c_str(), nullptr);
+        return true;
     }
 
-    auto const paramStr = request.queryParams.at(paramName);
-    paramValue = strtof(static_cast<std::string>(paramStr).c_str(), nullptr);
-
-    return true; // No error
+    logger << "Missing '" << paramName << "' parameter in request" << std::endl;
+    return false;
 }
 
-//static bool getArgAsColor(const char* paramName, Color& paramValue) {
-//  if (!Network::getServer().hasArg(paramName)) {
-//    Network::getServer().send(400, "text/plain", String(paramName) + " parameter missing\n");
-//    return false; // Error occurred
-//  }
-//  String paramStr = Network::getServer().arg(paramName);
-//  paramValue = strtol(paramStr.c_str(), nullptr, 16);
-//  return true; // No error
-//}
+static bool getArgAsColor(std::unordered_map<std::string_view, std::string_view> const &queryParams, char const* paramName, Color& paramValue) {
+    if (auto const param = queryParams.find(paramName); param != queryParams.end()) {
+        paramValue = strtol(static_cast<std::string>(param->second).c_str(), nullptr, 16);
+        return true;
+    }
+
+    logger << "Missing '" << paramName << "' parameter in request" << std::endl;
+    return false;
+}
 
 HTTPResponse handleRoot(HTTPRequest const &request) {
     return {200, "text/html", INDEX_HTML};
@@ -121,7 +117,7 @@ HTTPResponse handleGetBrightness(HTTPRequest const &request) {
 
 HTTPResponse handleSetBrightness(HTTPRequest const &request) {
     long brightness;
-    if (!getArgAsLong(request, "value", brightness)) {
+    if (!getArgAsLong(request.queryParams, "value", brightness)) {
         return {400, "text/plain", "Invalid 'value' parameter"};
     }
 
@@ -147,7 +143,7 @@ HTTPResponse handleGetGamma(HTTPRequest const &request) {
 
 HTTPResponse handleSetGamma(HTTPRequest const &request) {
     float gamma;
-    if (!getArgAsFloat(request, "value", gamma)) {
+    if (!getArgAsFloat(request.queryParams, "value", gamma)) {
         return {400, "text/plain", "Invalid 'value' parameter"};
     }
 
@@ -275,14 +271,15 @@ HTTPResponse handleFlame(HTTPRequest const &request) {
 //}
 
 HTTPResponse handleSolid(HTTPRequest const &request) {
-//  Color color;
-//  if (!getArgAsColor("color", color)) return;
-//
-//  ModelPtr model = std::make_shared<Solid>(color);
-//  Network::getRenderer()->setModel(model);
-//
-//  Network::getServer().send(200, "text/plain");
-return {200, "text/plain", "Got handleSolid, NYI"};
+    Color color;
+    if (!getArgAsColor(request.queryParams, "color", color)) {
+        return { 400, "text/plain", "Invalid color"};
+    }
+
+    ModelPtr const model = std::make_shared<Solid>(color);
+    Network::getRenderer()->setModel(model);
+
+    return {200, "text/plain"};
 }
 
 HTTPResponse handleDemo1(HTTPRequest const &request) {
