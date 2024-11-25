@@ -154,9 +154,9 @@ void Network::setupHTTP() {
   httpServer.onPut("/solid", handleSolid);
 //  server.on("/warpcore", HTTP_PUT, handleWarpCore);
 //  server.on("/jacobsladder", HTTP_PUT, handleJacobsLadder);
-//  server.on("/demo1", HTTP_PUT, handleDemo1);
-//  server.on("/demo2", HTTP_PUT, handleDemo2);
-//  server.on("/demo3", HTTP_PUT, handleDemo3);
+  httpServer.onPut("/demo1", handleDemo1);
+  httpServer.onPut("/demo2", handleDemo2);
+  httpServer.onPut("/demo3", handleDemo3);
 //
 }
 

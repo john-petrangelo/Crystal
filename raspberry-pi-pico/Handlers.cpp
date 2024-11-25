@@ -3,9 +3,9 @@
 //#include "lumos-arduino/Colors.h"
 #include "lumos-arduino/Logger.h"
 
-//#include "Demos.h"
+#include "Demos.h"
 #include "Handlers.h"
-//#include "HTTP/HTTPServer.h"
+#include "HTTP/HTTPServer.h"
 #include "Network.h"
 #include "System.h"
 #include "web_files.h"
@@ -132,7 +132,7 @@ HTTPResponse handleSetBrightness(HTTPRequest const &request) {
 
     // Success
     Network::getRenderer()->setBrightness(brightness);
-    return {200, "text/plain", ""};
+    return {200, "text/plain"};
 }
 
 HTTPResponse handleGetGamma(HTTPRequest const &request) {
@@ -158,7 +158,7 @@ HTTPResponse handleSetGamma(HTTPRequest const &request) {
 
     // Success
     Network::getRenderer()->setGamma(gamma);
-    return {200, "text/plain", ""};
+    return {200, "text/plain"};
 }
 
 //void handleCrystal() {
@@ -285,20 +285,20 @@ HTTPResponse handleSolid(HTTPRequest const &request) {
 return {200, "text/plain", "Got handleSolid, NYI"};
 }
 
-//void handleDemo1() {
-//  auto model = makeDemo1();
-//  Network::getRenderer()->setModel(model);
-//  Network::getServer().send(200, "text/plain");
-//}
-//
-//void handleDemo2() {
-//  auto model = makeDemo2();
-//  Network::getRenderer()->setModel(model);
-//  Network::getServer().send(200, "text/plain");
-//}
-//
-//void handleDemo3() {
-//  auto model = makeDemo3();
-//  Network::getRenderer()->setModel(model);
-//  Network::getServer().send(200, "text/plain");
-//}
+HTTPResponse handleDemo1(HTTPRequest const &request) {
+  auto model = makeDemo1();
+  Network::getRenderer()->setModel(model);
+  return {200, "text/plain"};
+}
+
+HTTPResponse handleDemo2(HTTPRequest const &request) {
+  auto model = makeDemo2();
+  Network::getRenderer()->setModel(model);
+  return {200, "text/plain"};
+}
+
+HTTPResponse handleDemo3(HTTPRequest const &request) {
+  auto model = makeDemo3();
+  Network::getRenderer()->setModel(model);
+  return {200, "text/plain"};
+}
