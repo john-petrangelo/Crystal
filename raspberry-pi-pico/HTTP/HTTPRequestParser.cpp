@@ -74,6 +74,7 @@ void HTTPRequestParser::parseHeaders(std::string &data) {
     if (headerEnd == headerStart) {
       // An "empty" header means we're done with the headers
       _state = RequestState::RECEIVING_BODY;
+      headerStart += 2;
       break;
     }
 
