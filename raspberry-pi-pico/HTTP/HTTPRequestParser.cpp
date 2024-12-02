@@ -97,7 +97,7 @@ void HTTPRequestParser::parseHeaders(std::string &data) {
   }
 
   // Remove the headers that we found and processed from data
-//  data.erase(0, headerStart);
+  data.erase(0, headerStart);
 }
 
 void HTTPRequestParser::parse(std::string& data) {
