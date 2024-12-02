@@ -3,14 +3,14 @@
 #include <functional>
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 #include <lwip/tcp.h>
 #include <pico/cyw43_arch.h>
 
 #include "HTTPRequest.h"
+#include "HTTPRequestParser.h"
 
-inline auto constexpr HTTP_DEBUG = false;
+auto constexpr HTTP_DEBUG = true;
 
 struct HTTPResponse {
     int status_code;
@@ -33,23 +33,25 @@ public:
     void onPut(const std::string &path, HTTPHandler func);
 
 private:
-    static err_t onAccept(void *arg, tcp_pcb *newpcb, [[maybe_unused]] err_t err);
-    static err_t onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t err);
-    static err_t onSent(void *arg, tcp_pcb *tpcb, u16_t len);
-    static void onError(void *arg, err_t err);
-
     err_t sendResponse(tcp_pcb *tpcb, const HTTPResponse &response);
     err_t sendRawResponse(tcp_pcb *tpcb, const std::string &rawResponse);
 
     void closeConnection(tcp_pcb *tpcb);
 
+    static err_t onAccept(void *arg, tcp_pcb *newpcb, [[maybe_unused]] err_t err);
+    static err_t onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t err);
+    static err_t onSent(void *arg, tcp_pcb *tpcb, u16_t len);
+    static void onError(void *arg, err_t err);
+
     static const std::string httpResponseGet;
     static const std::string httpResponsePut;
 
+    static std::string makeHandlersKey(std::string_view const &method, std::string_view const &path);
+
+    static void logHTTPRequest(HTTPRequest const &);
+    [[maybe_unused]] void logHandlers() const;
+
+    std::string data;
+    HTTPRequestParser parser;
     std::unordered_map<std::string, HTTPHandler> handlers;
-
-    static std::string makeHandlersKey(std::string_view method, std::string_view path);
-
-      static void logHTTPRequest(const HTTPRequest &request);
-    [[maybe_unused]] static void logHandlers(const std::unordered_map<std::string, HTTPHandler>& handlers);
 };

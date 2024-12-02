@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../lumos-arduino/Colors.h"
+#include "lumos-arduino/Colors.h"
+
 #include "Shift.h"
 
 class JacobsLadder;

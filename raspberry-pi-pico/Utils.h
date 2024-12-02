@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 /**
  * Re-maps a number from one range to another. That is, a value of fromLow would get mapped to toLow,
@@ -47,3 +48,5 @@ inline T sign(T val) {
 }
 
 std::string msToString(uint32_t timeMS);
+std::string_view trim(std::string_view const& str);
+std::vector<std::string> split(std::string_view str, char delimiter);

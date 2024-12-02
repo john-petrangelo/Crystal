@@ -25,3 +25,24 @@ std::string msToString(uint32_t timeMS) {
 
   return oss.str();
 }
+
+std::string_view trim(const std::string_view &str) {
+  size_t const start = str.find_first_not_of(" \t\r\n");
+  size_t const end = str.find_last_not_of(" \t\r\n");
+  return (start == std::string::npos) ? "" : str.substr(start, end - start + 1);
+}
+
+std::vector<std::string> split(std::string_view str, char delimiter) {
+  std::vector<std::string> result;
+  size_t start = 0;
+  size_t end;
+
+  while ((end = str.find(delimiter, start)) != std::string_view::npos) {
+    result.emplace_back(str.substr(start, end - start));
+    start = end + 1; // Move past the delimiter
+  }
+
+  // Add the last token
+  result.emplace_back(str.substr(start));
+  return result;
+}

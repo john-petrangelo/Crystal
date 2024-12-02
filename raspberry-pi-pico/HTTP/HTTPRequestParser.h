@@ -2,12 +2,25 @@
 
 class HTTPRequestParser {
 public:
-    static HTTPRequest parse(const std::string_view& requestStr);
+    enum class RequestState {
+        IDLE,
+        RECEIVING_HEADERS,
+        RECEIVING_BODY,
+        COMPLETE,
+        FAILED,
+    };
+
+    void parseFirstLine(std::string &data);
+
+    void parseHeaders(std::string &data);
+
+    void parse(std::string& data);
+    void reset();
+
+    HTTPRequest request() const { return _request; }
+    RequestState state() const { return _state; }
 
 private:
-    static inline std::string_view trim(const std::string_view &str) {
-      size_t const start = str.find_first_not_of(" \t\r\n");
-      size_t const end = str.find_last_not_of(" \t\r\n");
-      return (start == std::string_view::npos) ? "" : str.substr(start, end - start + 1);
-    }
+    HTTPRequest _request;
+    RequestState _state = RequestState::IDLE;
 };

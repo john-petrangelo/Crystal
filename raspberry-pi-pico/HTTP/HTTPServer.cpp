@@ -28,7 +28,7 @@ void HTTPServer::init() {
 }
 
 err_t HTTPServer::onAccept(void *arg, tcp_pcb *newpcb, [[maybe_unused]] err_t err) {
-  auto server = static_cast<HTTPServer*>(arg);
+  auto const server = static_cast<HTTPServer*>(arg);
   tcp_arg(newpcb, server);
   tcp_recv(newpcb, onReceive);
   tcp_sent(newpcb, onSent);
@@ -36,44 +36,71 @@ err_t HTTPServer::onAccept(void *arg, tcp_pcb *newpcb, [[maybe_unused]] err_t er
   return ERR_OK;
 }
 
-err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t err) {
-  auto server = static_cast<HTTPServer*>(arg);
-  if (err == ERR_OK) {
-    if (p != nullptr) {
-      // Parse the raw request payload
-      std::string_view data(static_cast<char*>(p->payload));
-      auto const request = HTTPRequestParser::parse(data);
-      if (HTTP_DEBUG) {
-        logHTTPRequest(request);
-      } else {
-        logger << "Request received " << request.method << " " << request.path << std::endl;
-      }
-
-      // Match the method and path to a handler, otherwise return a not found error
-      std::string handlersKey = makeHandlersKey(request.method, request.path);
-      auto it = server->handlers.find(handlersKey);
-      if (it != server->handlers.end()) {
-        auto response = it->second(request);  // Call the handler
-        server->sendResponse(tpcb, response);
-      } else {
-        server->sendResponse(tpcb, {404, ""});
-      }
-
-      pbuf_free(p); // Free the pbuf after processing
-      if (HTTP_DEBUG) {
-        logger << "Request processed " << request.method << " " << request.path << std::endl;
-      }
-      return ERR_OK; // Return ERR_OK to continue receiving
-    } else {
-      logger << "Connection closed by client" << std::endl;
-      server->closeConnection(tpcb); // Close connection if pbuf is NULL
-      return ERR_OK;
-    }
-  } else {
+err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t const err) {
+  auto const server = static_cast<HTTPServer*>(arg);
+  if (err != ERR_OK) {
     logger <<"Error in onReceive: " <<  err << std::endl;
     server->closeConnection(tpcb); // Close on error
     return err;
   }
+
+  if (p == nullptr) {
+    logger << "Connection closed by client" << std::endl;
+    server->closeConnection(tpcb); // Close connection if pbuf is NULL
+    return ERR_OK;
+  }
+
+  // Get the data payload from the supplied buffer
+  server->data.append(static_cast<char*>(p->payload), p->len);
+  pbuf_free(p);
+
+  logger << "onReceive len=" << server->data.length() << std::endl;
+  logger << "=== START OF DATA ===" << std::endl;
+  logger << server->data << std::endl;
+  logger << "=== END OF DATA ===" << std::endl;
+
+  // Parse the raw request payload
+  server->parser.parse(server->data);
+
+  if (HTTP_DEBUG) {
+    logger << "=== HTTP Request Start ===" << std::endl;
+    server->logHTTPRequest(server->parser.request());
+    logger << "=== HTTP Request End ===" << std::endl;
+  // } else {
+  //   logger << "Request received " << server->request->method << " " << server->request->path << std::endl;
+  }
+
+  if (server->parser.state() == HTTPRequestParser::RequestState::FAILED) {
+    // TODO Close the connection and reset the parser
+    server->sendResponse(tpcb, {400, "Invalid request"});
+    return ERR_OK;
+  }
+
+  if (server->parser.state() == HTTPRequestParser::RequestState::COMPLETE) {
+    logger << "Skipping finding and invoking handler..." << std::endl;
+    server->sendResponse(tpcb, {200, "Fake success"});
+    server->parser = HTTPRequestParser();
+
+    // Match the method and path to a handler, otherwise return a not found error
+    // std::string const handlersKey = makeHandlersKey(server->request->method, server->request->path);
+    // auto it = server->handlers.find(handlersKey);
+    // if (it != server->handlers.end()) {
+    //   // TODO Handlers expect reference, not pointer...
+    //   // TODO Should we make a local reference called "reqeust", e.g. HTTPRequest &request = server->request ??
+    //   auto const response = it->second(*server->request);  // Call the handler
+    //   server->sendResponse(tpcb, response);
+    // } else {
+    //   server->sendResponse(tpcb, {404, ""});
+    // }
+  }
+
+
+  if (HTTP_DEBUG) {
+    logger << "Request processed " << server->parser.request().method << " " << server->parser.request().path << std::endl;
+  }
+
+  server->sendResponse(tpcb, {200, "Fake success"});
+  return ERR_OK; // Return ERR_OK to continue receiving
 }
 
 err_t HTTPServer::onSent(void *arg, tcp_pcb *tpcb, u16_t len) {
@@ -174,7 +201,7 @@ void HTTPServer::closeConnection(tcp_pcb *tpcb) {
   }
 }
 
-std::string HTTPServer::makeHandlersKey(std::string_view method, std::string_view path) {
+std::string HTTPServer::makeHandlersKey(std::string_view const &method, std::string_view const &path) {
   std::string handlersKey;
   handlersKey.reserve(method.size() + 1 + path.size()); // Preallocate memory
   handlersKey.append(method);
@@ -205,7 +232,7 @@ void HTTPServer::logHTTPRequest(HTTPRequest const &request) {
   }
 }
 
-[[maybe_unused]] void HTTPServer::logHandlers(const std::unordered_map<std::string, HTTPHandler>& handlers) {
+[[maybe_unused]] void HTTPServer::logHandlers() const {
   if (handlers.empty()) {
     logger << "No query parameters" << std::endl;
   } else {

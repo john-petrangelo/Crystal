@@ -1,6 +1,6 @@
 #include <ArduinoJson.h>
 
-//#include "lumos-arduino/Colors.h"
+#include "lumos-arduino/Colors.h"
 #include "lumos-arduino/Logger.h"
 
 #include "Demos.h"
@@ -8,27 +8,28 @@
 #include "HTTP/HTTPServer.h"
 #include "Network.h"
 #include "System.h"
+#include "Utils.h"
 #include "web_files.h"
 
-//#include "Models/Crystal.h"
+#include "Models/Crystal.h"
 #include "Models/Flame.h"
 #include "Models/Gradient.h"
-//#include "Models/JacobsLadder.h"
+#include "Models/JacobsLadder.h"
 #include "Models/Rotate.h"
 #include "Models/Solid.h"
-//#include "Models/WarpCore.h"
+#include "Models/WarpCore.h"
+
+// static JsonDocument parseJsonBody(char const *handlerName) {
+//   JsonDocument doc;
+//   DeserializationError error = deserializeJson(doc, Network::getServer().arg("plain"));
+//   if (error) {
+//     logger << handlerName << " failed to parse JSON: " << error.c_str() << std::endl;
+//     Network::getServer().send(400, "text/plain", error.c_str());
+//   }
 //
-//static JsonDocument parseJsonBody(char const *handlerName) {
-//  JsonDocument doc;
-//  DeserializationError error = deserializeJson(doc, Network::getServer().arg("plain"));
-//  if (error) {
-//    logger << handlerName << " failed to parse JSON: " << error.c_str() << std::endl;
-//    Network::getServer().send(400, "text/plain", error.c_str());
-//  }
-//
-//  return doc;
-//}
-//
+//   return doc;
+// }
+
 //template<typename T>
 //static T getJsonValue(JsonVariant obj, const char* paramName, T defaultValue) {
 //  auto value = obj[paramName];
@@ -49,7 +50,7 @@
 //  return strtol(colorStr, nullptr, 16);
 //}
 
-static bool getArgAsLong(std::unordered_map<std::string_view, std::string_view> const &queryParams, char const* paramName, long& paramValue) {
+static bool getArgAsLong(std::unordered_map<std::string, std::string> const &queryParams, char const* paramName, long& paramValue) {
     if (auto const param = queryParams.find(paramName); param != queryParams.end()) {
         paramValue = strtol(static_cast<std::string>(param->second).c_str(), nullptr, 10);
         return true;
@@ -59,7 +60,7 @@ static bool getArgAsLong(std::unordered_map<std::string_view, std::string_view> 
     return false;
 }
 
-static bool getArgAsFloat(std::unordered_map<std::string_view, std::string_view> const &queryParams, char const* paramName, float& paramValue) {
+static bool getArgAsFloat(std::unordered_map<std::string, std::string> const &queryParams, char const* paramName, float& paramValue) {
     if (auto const param = queryParams.find(paramName); param != queryParams.end()) {
         paramValue = strtof(static_cast<std::string>(param->second).c_str(), nullptr);
         return true;
@@ -69,7 +70,7 @@ static bool getArgAsFloat(std::unordered_map<std::string_view, std::string_view>
     return false;
 }
 
-static bool getArgAsColor(std::unordered_map<std::string_view, std::string_view> const &queryParams, char const* paramName, Color& paramValue) {
+static bool getArgAsColor(std::unordered_map<std::string, std::string> const &queryParams, char const* paramName, Color& paramValue) {
     if (auto const param = queryParams.find(paramName); param != queryParams.end()) {
         paramValue = strtol(static_cast<std::string>(param->second).c_str(), nullptr, 16);
         return true;
@@ -157,28 +158,28 @@ HTTPResponse handleSetGamma(HTTPRequest const &request) {
     return {200, "text/plain"};
 }
 
-//void handleCrystal() {
-//  JsonDocument doc = parseJsonBody("handleCrystal");
+// HTTPResponse handleCrystal(HTTPRequest const &request) {
+//   JsonDocument doc = parseJsonBody(request.body, "handleCrystal");
 //
-//  Color upperColor = getJsonColor(doc, "upper_color", 0xff00d0);
-//  Color middleColor = getJsonColor(doc, "middle_color", 0xff00d0);
-//  Color lowerColor = getJsonColor(doc, "lower_color", 0xff00d0);
-//  float upperSpeed = getJsonValue(doc, "upper_speed", 0.5f);
-//  float middleSpeed = getJsonValue(doc, "middle_speed", 0.2f);
-//  float lowerSpeed = getJsonValue(doc, "lower_speed", 0.3f);
+//   Color upperColor = getJsonColor(doc, "upper_color", 0xff00d0);
+//   Color middleColor = getJsonColor(doc, "middle_color", 0xff00d0);
+//   Color lowerColor = getJsonColor(doc, "lower_color", 0xff00d0);
+//   float upperSpeed = getJsonValue(doc, "upper_speed", 0.5f);
+//   float middleSpeed = getJsonValue(doc, "middle_speed", 0.2f);
+//   float lowerSpeed = getJsonValue(doc, "lower_speed", 0.3f);
 //
-//  float upperPeriodSec = fmap(upperSpeed, 0.0, 1.0, 11.0, 1.0);
-//  float middlePeriodSec = fmap(middleSpeed, 0.0, 1.0, 11.0, 1.0);
-//  float lowerPeriodSec = fmap(lowerSpeed, 0.0, 1.0, 11.0, 1.0);
+//   float upperPeriodSec = fmap(upperSpeed, 0.0, 1.0, 11.0, 1.0);
+//   float middlePeriodSec = fmap(middleSpeed, 0.0, 1.0, 11.0, 1.0);
+//   float lowerPeriodSec = fmap(lowerSpeed, 0.0, 1.0, 11.0, 1.0);
 //
-//  ModelPtr model = std::make_shared<Crystal>(
-//    upperColor, upperPeriodSec,
-//    middleColor, middlePeriodSec,
-//    lowerColor, lowerPeriodSec);
-//  Network::getRenderer()->setModel(model);
+//   ModelPtr model = std::make_shared<Crystal>(
+//     upperColor, upperPeriodSec,
+//     middleColor, middlePeriodSec,
+//     lowerColor, lowerPeriodSec);
+//   Network::getRenderer()->setModel(model);
 //
-//  Network::getServer().send(200, "text/plain");
-//}
+//   Network::getServer().send(200, "text/plain");
+// }
 
 HTTPResponse handleFlame(HTTPRequest const &request) {
     ModelPtr model = std::make_shared<Flame>();

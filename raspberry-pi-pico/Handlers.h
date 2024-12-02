@@ -13,12 +13,12 @@ extern HTTPResponse handleSetBrightness(HTTPRequest const &request);
 extern HTTPResponse handleGetGamma(HTTPRequest const &reqeust);
 extern HTTPResponse handleSetGamma(HTTPRequest const &request);
 
-//extern void handleCrystal();
+extern HTTPResponse handleCrystal(HTTPRequest const &request);
 extern HTTPResponse handleFlame(HTTPRequest const &request);
-//extern void handleJacobsLadder();
-//extern void handleRainbow();
+//extern HTTPResponse handleJacobsLadder(HTTPRequest const &request);
+//extern HTTPResponse handleRainbow(HTTPRequest const &request);
 extern HTTPResponse handleSolid(HTTPRequest const &request);
-//extern void handleWarpCore();
+//extern HTTPResponse handleWarpCore(HTTPRequest const &request);
 extern HTTPResponse handleDemo1(HTTPRequest const &request);
 extern HTTPResponse handleDemo2(HTTPRequest const &request);
 extern HTTPResponse handleDemo3(HTTPRequest const &request);
