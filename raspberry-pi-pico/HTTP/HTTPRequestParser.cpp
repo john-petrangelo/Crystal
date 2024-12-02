@@ -115,8 +115,3 @@ void HTTPRequestParser::parse(std::string& data) {
     data.erase();
   }
 }
-
-void HTTPRequestParser::reset() {
-  _request = HTTPRequest();
-  _state = RequestState::IDLE;
-}

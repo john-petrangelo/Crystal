@@ -15,7 +15,6 @@ public:
     void parseHeaders(std::string &data);
 
     void parse(std::string& data);
-    void reset();
 
     HTTPRequest request() const { return _request; }
     RequestState state() const { return _state; }
