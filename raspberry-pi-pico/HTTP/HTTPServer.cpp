@@ -56,11 +56,12 @@ err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t const err) 
 
   // Parse the raw request payload
   server->parser.parse(server->data);
+  HTTPRequest const &request = server->parser.request();
 
   if (HTTP_DEBUG) {
-    logger << server->parser.request();
+    logger << request;
   } else {
-    logger << "Request received " << server->parser.request().method << " " << server->parser.request().path << std::endl;
+    logger << "Request received " << request.method << " " << request.path << std::endl;
   }
 
   if (server->parser.state() == HTTPRequestParser::RequestState::FAILED) {
@@ -70,29 +71,21 @@ err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t const err) 
   }
 
   if (server->parser.state() == HTTPRequestParser::RequestState::COMPLETE) {
-    logger << "Skipping finding and invoking handler..." << std::endl;
-    server->sendResponse(tpcb, {200, "Fake success"});
-    server->parser = HTTPRequestParser();
 
     // Match the method and path to a handler, otherwise return a not found error
-    // std::string const handlersKey = makeHandlersKey(server->request->method, server->request->path);
-    // auto it = server->handlers.find(handlersKey);
-    // if (it != server->handlers.end()) {
-    //   // TODO Handlers expect reference, not pointer...
-    //   // TODO Should we make a local reference called "reqeust", e.g. HTTPRequest &request = server->request ??
-    //   auto const response = it->second(*server->request);  // Call the handler
-    //   server->sendResponse(tpcb, response);
-    // } else {
-    //   server->sendResponse(tpcb, {404, ""});
-    // }
+    std::string const handlersKey = makeHandlersKey(request.method, request.path);
+    auto it = server->handlers.find(handlersKey);
+    if (it != server->handlers.end()) {
+      auto const response = it->second(request);  // Call the handler
+      server->sendResponse(tpcb, response);
+    } else {
+      server->sendResponse(tpcb, {404, ""});
+    }
+
+    // Reset the parser
+    server->parser = HTTPRequestParser();
   }
 
-
-  if (HTTP_DEBUG) {
-    logger << "Request processed " << server->parser.request().method << " " << server->parser.request().path << std::endl;
-  }
-
-  server->sendResponse(tpcb, {200, "Fake success"});
   return ERR_OK; // Return ERR_OK to continue receiving
 }
 
