@@ -49,8 +49,9 @@ target_sources(crystal-pi-pico PRIVATE
 # Add HTTPServer classes to the target
 target_sources(crystal-pi-pico PRIVATE
         HTTP/HTTPRequest.h
-        HTTP/HTTPRequestParser.cpp
+        HTTP/HTTPRequest.cpp
         HTTP/HTTPRequestParser.h
+        HTTP/HTTPRequestParser.cpp
         HTTP/HTTPServer.h
         HTTP/HTTPServer.cpp
 )

@@ -48,7 +48,6 @@ private:
 
     static std::string makeHandlersKey(std::string_view const &method, std::string_view const &path);
 
-    static void logHTTPRequest(HTTPRequest const &);
     [[maybe_unused]] void logHandlers() const;
 
     std::string data;

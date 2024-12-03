@@ -54,20 +54,13 @@ err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t const err) 
   server->data.append(static_cast<char*>(p->payload), p->len);
   pbuf_free(p);
 
-  logger << "onReceive len=" << server->data.length() << std::endl;
-  logger << "=== START OF DATA ===" << std::endl;
-  logger << server->data << std::endl;
-  logger << "=== END OF DATA ===" << std::endl;
-
   // Parse the raw request payload
   server->parser.parse(server->data);
 
   if (HTTP_DEBUG) {
-    logger << "=== HTTP Request Start ===" << std::endl;
-    server->logHTTPRequest(server->parser.request());
-    logger << "=== HTTP Request End ===" << std::endl;
-  // } else {
-  //   logger << "Request received " << server->request->method << " " << server->request->path << std::endl;
+    logger << server->parser.request();
+  } else {
+    logger << "Request received " << server->parser.request().method << " " << server->parser.request().path << std::endl;
   }
 
   if (server->parser.state() == HTTPRequestParser::RequestState::FAILED) {
@@ -198,6 +191,8 @@ void HTTPServer::closeConnection(tcp_pcb *tpcb) {
   err_t err = tcp_close(tpcb);
   if (err != ERR_OK) {
     logger << "Error in tcp_close: " << err << std::endl;
+  } else {
+    logger << "Connection closed" << std::endl;
   }
 }
 
@@ -209,35 +204,6 @@ std::string HTTPServer::makeHandlersKey(std::string_view const &method, std::str
   handlersKey.append(path);
 
   return handlersKey;
-}
-
-void HTTPServer::logHTTPRequest(HTTPRequest const &request) {
-  logger << "Method: " << request.method << std::endl;
-  logger << "Path: " << request.path << std::endl;
-  if (request.queryParams.empty()) {
-    logger << "No query parameters" << std::endl;
-  } else {
-    logger << "Query params:" << std::endl;
-    for (const auto& param : request.queryParams) {
-      logger << "  " << param.first << ": " << param.second << std::endl;
-    }
-  }
-  if (request.headers.empty()) {
-    logger << "No headers" << std::endl;
-  } else {
-    logger << "Headers:" << std::endl;
-    for (const auto& header : request.headers) {
-      logger << "  " << header.first << ": " << header.second << std::endl;
-    }
-  }
-
-  if (request.body.empty()) {
-    logger << "No body" << std::endl;
-  } else {
-    logger << "Body:" << std::endl;
-    logger << request.body << std::endl;
-    logger << "=== END OF BODY ===" << std::endl;
-  }
 }
 
 [[maybe_unused]] void HTTPServer::logHandlers() const {
