@@ -74,6 +74,14 @@ void HTTPRequestParser::parseHeaders(std::string &data) {
     if (headerEnd == headerStart) {
       // An "empty" header means we're done with the headers
       _state = RequestState::RECEIVING_BODY;
+
+      // Before we go, let's see if we got a content-length header
+      auto it = _request.headers.find("content-length");
+      if (it != _request.headers.end()) {
+        _request.contentLength = std::strtol(it->second.c_str(), nullptr, 10);;
+      }
+
+      // Skip the separator line between the headers and body
       headerStart += 2;
       break;
     }
@@ -90,7 +98,6 @@ void HTTPRequestParser::parseHeaders(std::string &data) {
     auto const key = header.substr(0, colonPos);
     auto const value = header.substr(colonPos + 1);
     _request.headers.emplace(trim(key), trim(value));
-    logger << "Added header -- " << key << ": " << value << " " << std::endl;
 
     // Continue on to the next line
     headerStart = headerEnd + 2;
@@ -99,6 +106,18 @@ void HTTPRequestParser::parseHeaders(std::string &data) {
   // Remove the headers that we found and processed from data
   data.erase(0, headerStart);
 }
+
+void HTTPRequestParser::parseBody(std::string &data) {
+  if (data.length() < _request.contentLength) {
+    // We haven't received all the body yet
+    return;
+  }
+
+  // We've received the whole body, collect it and mark the request complete
+  _request.body = std::move(data);
+  _state = RequestState::COMPLETE;
+}
+
 
 void HTTPRequestParser::parse(std::string& data) {
   // If we haven't started a request yet, then first extract the method, path, and HTTP version from the first line.
@@ -111,8 +130,6 @@ void HTTPRequestParser::parse(std::string& data) {
   }
 
   if (_state == RequestState::RECEIVING_BODY) {
-    // TODO To be implemented, for now just ignore the body for now and assume complete
-    _state = RequestState::COMPLETE;
-    data.erase();
+    parseBody(data);
   }
 }

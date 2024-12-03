@@ -4,13 +4,19 @@
 #include <string>
 #include <unordered_map>
 
+#include "Utils.h"
+
 class HTTPRequest {
 public:
+    using QueryMap = std::unordered_map<std::string, std::string>;
+    using HeaderMap = std::unordered_map<std::string, std::string, CaseInsensitiveHash, CaseInsensitiveEqual>;
+
     std::string method;
     std::string path;
-    std::unordered_map<std::string, std::string> queryParams;
-    std::unordered_map<std::string, std::string> headers;
+    QueryMap queryParams;
+    HeaderMap headers;
     uint32_t contentLength = 0;
+    std::string body;
 };
 
 // #include <iostream>

@@ -11,8 +11,8 @@ public:
     };
 
     void parseFirstLine(std::string &data);
-
     void parseHeaders(std::string &data);
+    void parseBody(std::string & data);
 
     void parse(std::string& data);
 

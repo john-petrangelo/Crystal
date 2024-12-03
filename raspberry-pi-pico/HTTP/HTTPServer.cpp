@@ -230,6 +230,14 @@ void HTTPServer::logHTTPRequest(HTTPRequest const &request) {
       logger << "  " << header.first << ": " << header.second << std::endl;
     }
   }
+
+  if (request.body.empty()) {
+    logger << "No body" << std::endl;
+  } else {
+    logger << "Body:" << std::endl;
+    logger << request.body << std::endl;
+    logger << "=== END OF BODY ===" << std::endl;
+  }
 }
 
 [[maybe_unused]] void HTTPServer::logHandlers() const {
