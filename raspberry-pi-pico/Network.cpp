@@ -148,12 +148,12 @@ void Network::setupHTTP() {
   httpServer.onGet("/gamma", handleGetGamma);
   httpServer.onPut("/gamma", handleSetGamma);
 
-//  server.on("/crystal", HTTP_PUT, handleCrystal);
-//  server.on("/rainbow", HTTP_PUT, handleRainbow);
+  httpServer.onPut("/crystal", handleCrystal);
+  httpServer.onPut("/rainbow", handleRainbow);
   httpServer.onPut("/flame", handleFlame);
   httpServer.onPut("/solid", handleSolid);
-//  server.on("/warpcore", HTTP_PUT, handleWarpCore);
-//  server.on("/jacobsladder", HTTP_PUT, handleJacobsLadder);
+  httpServer.onPut("/warpcore", handleWarpCore);
+  httpServer.onPut("/jacobsladder", handleJacobsLadder);
   httpServer.onPut("/demo1", handleDemo1);
   httpServer.onPut("/demo2", handleDemo2);
   httpServer.onPut("/demo3", handleDemo3);

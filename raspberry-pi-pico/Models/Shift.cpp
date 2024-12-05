@@ -7,7 +7,7 @@ void Shift::update(float timeStamp) {
   if (startTime == 0.0) {
     startTime = timeStamp;
 
-    endTime = startTime + fabs(shiftDuration);
+    endTime = startTime + std::abs(shiftDuration);
   }
 
   updateTime = timeStamp;
@@ -47,7 +47,7 @@ Color Shift::render(float pos) {
     return BLACK;
   }
 
-  float shiftedPos = pos - shiftOffset;
+  float const shiftedPos = pos - shiftOffset;
 
   // If the shifted position is out of range, then just return BLACK.
   if (shiftedPos > 1.0 || shiftedPos < 0.0) {

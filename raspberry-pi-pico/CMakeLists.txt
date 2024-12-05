@@ -66,17 +66,23 @@ target_sources(crystal-pi-pico PRIVATE
         Models/Flame.cpp
         Models/Gradient.h
         Models/Gradient.cpp
+        Models/JacobsLadder.h
+        Models/JacobsLadder.cpp
         Models/Map.h
         Models/Map.cpp
         Models/Pulsate.h
         Models/Pulsate.cpp
         Models/Rotate.h
         Models/Rotate.cpp
+        Models/Shift.h
+        Models/Shift.cpp
         Models/Solid.h
         Models/Sum.h
         Models/Sum.cpp
         Models/Triangle.h
         Models/Triangle.cpp
+        Models/WarpCore.h
+        Models/WarpCore.cpp
         Models/Window.h
         Models/Window.cpp
 )

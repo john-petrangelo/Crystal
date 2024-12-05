@@ -1,7 +1,6 @@
-#include "../lumos-arduino/Logger.h"
-#include "../Utils.h"
+#include "lumos-arduino/Logger.h"
+#include "Utils.h"
 
-#include "Gradient.h"
 #include "Map.h"
 #include "Shift.h"
 #include "Solid.h"
@@ -21,7 +20,7 @@ WarpCore::WarpCore(float size, float frequency, float dutyCycle, Color color, bo
 }
 
 void WarpCore::init() {
-  ModelPtr glow = Triangle::make(0.0, 1.0, color);
+  ModelPtr const glow = Triangle::make(0.0, 1.0, color);
 
   // If the size is too big or too small, then we have a warp core breach, light the whole length
   if (size < 0.0 || size >= 1.0) {
@@ -52,7 +51,7 @@ void WarpCore::init() {
   // Calculate how long to display and shift the lights as well as how long to stay dark between cycles
   float const durationTotal = 1 / frequency;
   float const durationLit = durationTotal * dutyCycle;
-  durationDark = fabs(durationTotal - durationLit);
+  durationDark = std::abs(durationTotal - durationLit);
   durationIn = durationLit / (1.0f + size);
   durationOut = durationLit - durationIn;
 
@@ -85,7 +84,7 @@ void WarpCore::set(float newFrequency, float newSize, float newDutyCycle, Color 
 void WarpCore::update(float timeStamp) {
   switch (mode) {
     case MODE_IN:
-      if (timeStamp - lastModeChangeTime >= fabs(durationIn)) {
+      if (timeStamp - lastModeChangeTime >= std::abs(durationIn)) {
         mode = MODE_OUT;
         model = Shift::Out::make(-durationIn, mapModel);
         handleDual();
@@ -93,14 +92,14 @@ void WarpCore::update(float timeStamp) {
       }
       break;
     case MODE_OUT:
-      if (timeStamp - lastModeChangeTime >= fabs(durationOut)) {
+      if (timeStamp - lastModeChangeTime >= std::abs(durationOut)) {
         mode = MODE_DARK;
         model = Solid::make(BLACK);
         lastModeChangeTime = timeStamp;
       }
       break;
     case MODE_DARK:
-      if (timeStamp - lastModeChangeTime >= fabs(durationDark)) {
+      if (timeStamp - lastModeChangeTime >= std::abs(durationDark)) {
         mode = MODE_IN;
         model = Shift::In::make(-durationIn, mapModel);;
         handleDual();
