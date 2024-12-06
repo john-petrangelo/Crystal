@@ -8,9 +8,10 @@
 #include <pico/cyw43_arch.h>
 
 #include "HTTPRequest.h"
-#include "HTTPRequestParser.h"
 
-auto constexpr HTTP_DEBUG = true;
+auto constexpr HTTP_DEBUG = false;
+
+struct ConnectionContext;
 
 struct HTTPResponse {
     int status_code;
@@ -20,7 +21,6 @@ struct HTTPResponse {
 
 class HTTPServer;
 using HTTPHandler = std::function<HTTPResponse(const HTTPRequest&)>;
-
 
 class HTTPServer {
 public:
@@ -33,10 +33,10 @@ public:
     void onPut(const std::string &path, HTTPHandler func);
 
 private:
-    err_t sendResponse(tcp_pcb *tpcb, const HTTPResponse &response);
-    err_t sendRawResponse(tcp_pcb *tpcb, const std::string &rawResponse);
+    err_t sendResponse(ConnectionContext *context, const HTTPResponse &response);
+    err_t sendRawResponse(ConnectionContext *context, const std::string &rawResponse);
 
-    void closeConnection(tcp_pcb *tpcb);
+    void closeConnection(ConnectionContext *context);
 
     static err_t onAccept(void *arg, tcp_pcb *newpcb, [[maybe_unused]] err_t err);
     static err_t onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t err);
@@ -50,7 +50,5 @@ private:
 
     [[maybe_unused]] void logHandlers() const;
 
-    std::string data;
-    HTTPRequestParser parser;
     std::unordered_map<std::string, HTTPHandler> handlers;
 };

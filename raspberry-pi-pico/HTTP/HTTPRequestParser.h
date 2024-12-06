@@ -1,5 +1,9 @@
 #pragma once
 
+#include <string>
+
+#include "HTTPRequest.h"
+
 class HTTPRequestParser {
 public:
     enum class RequestState {

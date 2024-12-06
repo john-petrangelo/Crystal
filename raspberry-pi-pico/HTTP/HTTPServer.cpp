@@ -6,30 +6,37 @@
 
 #include <lumos-arduino/Logger.h>
 
+#include "ConnectionContext.h"
 #include "HTTPRequest.h"
 #include "HTTPRequestParser.h"
 #include "HTTPServer.h"
 
 void HTTPServer::init() {
   auto pcb = tcp_new();
-  if (pcb != nullptr) {
-    err_t err = tcp_bind(pcb, IP_ADDR_ANY, 80);
-    if (err == ERR_OK) {
-      pcb = tcp_listen(pcb);
-      tcp_arg(pcb, this);
-      tcp_accept(pcb, onAccept);
-      logger << "HTTP server listening on port 80" << std::endl;
-    } else {
-      logger << "Error in tcp_bind: " << err << std::endl;
-    }
-  } else {
-    logger << "Error in tcp_new" << std::endl;
+  if (pcb == nullptr) {
+    logger << "Error calling tcp_new" << std::endl;
   }
+
+  if (err_t const err = tcp_bind(pcb, IP_ADDR_ANY, 80); err != ERR_OK) {
+    logger << "Error calling tcp_bind: " << err << std::endl;
+  }
+
+  pcb = tcp_listen(pcb);
+  tcp_arg(pcb, this);
+  tcp_accept(pcb, onAccept);
+  logger << "HTTP server listening on port 80" << std::endl;
 }
 
 err_t HTTPServer::onAccept(void *arg, tcp_pcb *newpcb, [[maybe_unused]] err_t err) {
-  auto const server = static_cast<HTTPServer*>(arg);
-  tcp_arg(newpcb, server);
+  auto *server = static_cast<HTTPServer*>(arg);
+  auto *context = new ConnectionContext{server, newpcb};
+
+  if (HTTP_DEBUG) {
+    std::string const remoteIpStr = ipaddr_ntoa(&newpcb->remote_ip);
+    logger << *context << "Accepted new connection from " << remoteIpStr << ":" << newpcb->remote_port << std::endl;
+  }
+
+  tcp_arg(newpcb, context);
   tcp_recv(newpcb, onReceive);
   tcp_sent(newpcb, onSent);
   tcp_err(newpcb, onError);
@@ -37,85 +44,87 @@ err_t HTTPServer::onAccept(void *arg, tcp_pcb *newpcb, [[maybe_unused]] err_t er
 }
 
 err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t const err) {
-  auto const server = static_cast<HTTPServer*>(arg);
+  auto const context = static_cast<ConnectionContext*>(arg);
   if (err != ERR_OK) {
-    logger <<"Error in onReceive: " <<  err << std::endl;
-    server->closeConnection(tpcb); // Close on error
+    logger << *context << "Error in onReceive: " <<  err << std::endl;
+    context->server->closeConnection(context); // Close on error
     return err;
   }
 
   if (p == nullptr) {
-    logger << "Connection closed by client" << std::endl;
-    server->closeConnection(tpcb); // Close connection if pbuf is NULL
+    logger << *context << "Connection closed by client" << std::endl;
+    context->server->closeConnection(context); // Close connection if pbuf is NULL
     return ERR_OK;
   }
 
   // Get the data payload from the supplied buffer
-  server->data.append(static_cast<char*>(p->payload), p->len);
+  context->data.append(static_cast<char*>(p->payload), p->len);
   pbuf_free(p);
 
   // Parse the raw request payload
-  server->parser.parse(server->data);
-  HTTPRequest const &request = server->parser.request();
+  context->parser.parse(context->data);
+  HTTPRequest const &request = context->parser.request();
 
   if (HTTP_DEBUG) {
-    logger << request;
+    logger << *context << request << std::endl;
   } else {
-    logger << "Request received " << request.method << " " << request.path << std::endl;
+    logger << *context << "Request received " << request.method << " " << request.path << std::endl;
   }
 
-  if (server->parser.state() == HTTPRequestParser::RequestState::FAILED) {
+  if (context->parser.state() == HTTPRequestParser::RequestState::FAILED) {
     // TODO Close the connection and reset the parser
-    server->sendResponse(tpcb, {400, "Invalid request"});
+    context->server->sendResponse(context, {400, "Invalid request"});
     return ERR_OK;
   }
 
-  if (server->parser.state() == HTTPRequestParser::RequestState::COMPLETE) {
+  if (context->parser.state() == HTTPRequestParser::RequestState::COMPLETE) {
 
     // Match the method and path to a handler, otherwise return a not found error
     std::string const handlersKey = makeHandlersKey(request.method, request.path);
-    auto it = server->handlers.find(handlersKey);
-    if (it != server->handlers.end()) {
+    auto it = context->server->handlers.find(handlersKey);
+    if (it != context->server->handlers.end()) {
       auto const response = it->second(request);  // Call the handler
-      server->sendResponse(tpcb, response);
+      context->server->sendResponse(context, response);
     } else {
-      server->sendResponse(tpcb, {404, ""});
+      context->server->sendResponse(context, {404, ""});
     }
 
     // Reset the parser
-    server->parser = HTTPRequestParser();
+    context->parser = HTTPRequestParser();
   }
 
   return ERR_OK; // Return ERR_OK to continue receiving
 }
 
-err_t HTTPServer::onSent(void *arg, tcp_pcb *tpcb, u16_t len) {
-  auto server = static_cast<HTTPServer*>(arg);
-  logger << "Response sent (" << len << "bytes)" << std::endl;
+err_t HTTPServer::onSent(void *arg, tcp_pcb *tpcb, u16_t const len) {
+  auto const context = static_cast<ConnectionContext*>(arg);
+  if (HTTP_DEBUG) {
+    logger << *context << "Response sent (" << len << " bytes)" << std::endl;
+  }
   return ERR_OK;
 }
 
 void HTTPServer::onError(void *arg, err_t err) {
-  auto server = static_cast<HTTPServer*>(arg);
-  logger << "Connection error: " << err << std::endl;
-  server->closeConnection(static_cast<struct tcp_pcb*>(arg)); // Handle error
+  auto context = static_cast<ConnectionContext*>(arg);
+  logger << *context << "Connection error: " << err << std::endl;
+  context->server->closeConnection(context); // Handle error
 }
 
 void HTTPServer::onGet(const std::string& path, HTTPHandler func) {
-  std::string handlersKey = makeHandlersKey("GET", path);
+  std::string const handlersKey = makeHandlersKey("GET", path);
 
   // Store only the last handler for the specified method and path
   handlers[handlersKey] = {std::move(func)};
 }
 
 void HTTPServer::onPut(const std::string &path, HTTPHandler func) {
-  std::string handlersKey = makeHandlersKey("PUT", path);
+  std::string const handlersKey = makeHandlersKey("PUT", path);
 
   // Store only the last handler for the specified method and path
   handlers[handlersKey] = {std::move(func)};
 }
 
-err_t HTTPServer::sendResponse(tcp_pcb *tpcb, HTTPResponse const &response) {
+err_t HTTPServer::sendResponse(ConnectionContext *context, HTTPResponse const &response) {
   std::ostringstream responseStream;
 
   // Status line
@@ -137,29 +146,23 @@ err_t HTTPServer::sendResponse(tcp_pcb *tpcb, HTTPResponse const &response) {
   // Add the response body
   responseStream << response.body;
 
-  return sendRawResponse(tpcb, responseStream.str());
+  return sendRawResponse(context, responseStream.str());
 }
 
-err_t HTTPServer::sendRawResponse(tcp_pcb *tpcb, std::string const &rawResponse) {
+err_t HTTPServer::sendRawResponse(ConnectionContext *context, std::string const &rawResponse) {
   u16_t len = rawResponse.size();
-  if (HTTP_DEBUG) {
-    logger << "Sending response, total len=" << rawResponse.size() << std::endl;
-  }
 
   // Ensure the response fits within the TCP buffer
   const char* response_data = rawResponse.c_str();
   while (len > 0) {
-    u16_t send_len = tcp_sndbuf(tpcb);
+    u16_t send_len = tcp_sndbuf(context->pcb);
     if (send_len > len) {
       send_len = len;
     }
 
-    if (HTTP_DEBUG) {
-      logger << "Sending " << send_len << " bytes..." << std::endl;
-    }
-    err_t err = tcp_write(tpcb, response_data, send_len, TCP_WRITE_FLAG_COPY);
+    err_t err = tcp_write(context->pcb, response_data, send_len, TCP_WRITE_FLAG_COPY);
     if (err != ERR_OK) {
-      logger << "Error in tcp_write: " << err << std::endl;
+      logger << *context << "Error in tcp_write: " << err << std::endl;
       return err;
     }
 
@@ -167,25 +170,21 @@ err_t HTTPServer::sendRawResponse(tcp_pcb *tpcb, std::string const &rawResponse)
     len -= send_len;
 
     // Flush the buffer explicitly
-    err = tcp_output(tpcb);
+    err = tcp_output(context->pcb);
     if (err != ERR_OK) {
-      logger << "Error in tcp_output: " << err << std::endl;
+      logger << *context << "Error in tcp_output: " << err << std::endl;
       return err;
     }
   }
 
-  if (HTTP_DEBUG) {
-    logger << "Send complete" << std::endl;
-  }
   return ERR_OK;
 }
 
-void HTTPServer::closeConnection(tcp_pcb *tpcb) {
-  err_t err = tcp_close(tpcb);
-  if (err != ERR_OK) {
-    logger << "Error in tcp_close: " << err << std::endl;
+void HTTPServer::closeConnection(ConnectionContext *context) {
+  if (err_t err = tcp_close(context->pcb); err != ERR_OK) {
+    logger << *context << "Error in tcp_close: " << err << std::endl;
   } else {
-    logger << "Connection closed" << std::endl;
+    logger << *context << "Connection closed" << std::endl;
   }
 }
 
