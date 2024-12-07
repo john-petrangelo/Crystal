@@ -16,7 +16,6 @@ JacobsLadder::JacobsLadder(float const size, float const frequency, Color const 
 }
 
 void JacobsLadder::init() {
-  Logger::logf("JL:init color=0x%06X\n", color);
   ModelPtr const glow = Triangle::make(0.0, 1.0, color);
 
   // If the size is too big or too small, then we have a warp core breach, light the whole length
@@ -42,7 +41,6 @@ void JacobsLadder::init() {
 
 void JacobsLadder::set(float const newFrequency, float const newSize, Color const newColor, float const newJitterSize,
                        float const newJitterPeriod) {
-  Logger::logf("JL:init color=0x%06X newColor=0x%06X\n", color, newColor);
   frequency = newFrequency;
   size = newSize;
   color = newColor;
