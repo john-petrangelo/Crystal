@@ -134,7 +134,10 @@ void Network::setupWiFiSoftAP() {
 
 // Set up the web server and handlers
 void Network::setupHTTP() {
-  httpServer.init();
+  if (!httpServer.init()) {
+    // HTTP server failed to initialize. Abort.
+    return;
+  }
 
   httpServer.onGet("/", handleRoot);
   httpServer.onGet("/crystal.css", handleCSS);

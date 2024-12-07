@@ -27,28 +27,32 @@ public:
     HTTPServer() = default;
     ~HTTPServer() = default;
 
-    void init();
+    bool init(uint16_t port = 80);
 
-    void onGet(const std::string &path, HTTPHandler func);
-    void onPut(const std::string &path, HTTPHandler func);
+    // Add handlers to handler list
+    void onGet(std::string path, HTTPHandler func);
+    void onPut(std::string path, HTTPHandler func);
 
 private:
-    err_t sendResponse(ConnectionContext *context, const HTTPResponse &response);
-    err_t sendRawResponse(ConnectionContext *context, const std::string &rawResponse);
+    static err_t sendResponse(ConnectionContext *context, const HTTPResponse &response);
+    static err_t sendRawResponse(ConnectionContext const *context, const std::string &rawResponse);
 
-    void closeConnection(ConnectionContext *context);
+    static void closeConnection(ConnectionContext const *context);
+    static void abortConnection(ConnectionContext const *context);
 
-    static err_t onAccept(void *arg, tcp_pcb *newpcb, [[maybe_unused]] err_t err);
+    // Callback functions for LWP
+    static err_t onAccept(void *arg, tcp_pcb *newpcb, err_t err);
     static err_t onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t err);
     static err_t onSent(void *arg, tcp_pcb *tpcb, u16_t len);
     static void onError(void *arg, err_t err);
 
-    static const std::string httpResponseGet;
-    static const std::string httpResponsePut;
+    // Generic add handlers to handler list
+    void onMethod(std::string method, std::string path, HTTPHandler func);
 
     static std::string makeHandlersKey(std::string_view const &method, std::string_view const &path);
-
     [[maybe_unused]] void logHandlers() const;
+
+    static std::string errToString(err_t const err);
 
     std::unordered_map<std::string, HTTPHandler> handlers;
 };
