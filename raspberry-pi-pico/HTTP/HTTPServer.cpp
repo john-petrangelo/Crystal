@@ -124,7 +124,7 @@ err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t const err) 
 err_t HTTPServer::onSent(void *arg, tcp_pcb *tpcb, u16_t const len) noexcept {
   auto const context = static_cast<ConnectionContext*>(arg);
   if (HTTP_DEBUG) {
-    logger << *context << "Response sent (" << len << " bytes)" << std::endl;
+    logger << *context << "onSent " << len << " bytes" << std::endl;
   }
   return ERR_OK;
 }
@@ -184,6 +184,10 @@ err_t HTTPServer::sendResponse(ConnectionContext *context, HTTPResponse const &r
 
 err_t HTTPServer::sendRawResponse(ConnectionContext const *context, std::string const &rawResponse) {
   u16_t len = rawResponse.size();
+
+  if (HTTP_DEBUG) {
+    logger << *context << "sendRawResponse len=" << len << std::endl;
+  }
 
   // Ensure the response fits within the TCP buffer
   const char* response_data = rawResponse.c_str();
