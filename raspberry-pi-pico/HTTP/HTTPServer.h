@@ -29,13 +29,13 @@ public:
 
     bool init(uint16_t port = 80);
 
-    // Add handlers to handler list
-    void onGet(std::string path, HTTPHandler func);
-    void onPut(std::string path, HTTPHandler func);
+    // Add handlers to the handler list
+    void onGet(std::string path, HTTPHandler func) { onMethod("GET", std::move(path), std::move(func)); }
+    void onPut(std::string path, HTTPHandler func) { onMethod("PUT", std::move(path), std::move(func)); }
 
 private:
     static err_t sendResponse(ConnectionContext *context, const HTTPResponse &response);
-    static err_t sendRawResponse(ConnectionContext const *context, const std::string &rawResponse);
+    static err_t sendResponseBytes(ConnectionContext *context);
 
     static void closeConnection(ConnectionContext const *context);
     static void abortConnection(ConnectionContext const *context);
@@ -46,7 +46,7 @@ private:
     static err_t onSent(void *arg, tcp_pcb *tpcb, u16_t len);
     static void onError(void *arg, err_t err);
 
-    // Generic add handlers to handler list
+    // Add handlers to the handler list
     void onMethod(std::string method, std::string path, HTTPHandler func);
 
     static std::string makeHandlersKey(std::string_view const &method, std::string_view const &path);

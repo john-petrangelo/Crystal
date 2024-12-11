@@ -8,6 +8,13 @@ ConnectionContext::ConnectionContext(HTTPServer *server, tcp_pcb *pcb) : server(
   id = nextID++;
 }
 
+void ConnectionContext::reset() {
+  inData.clear();
+  outData.clear();
+  remainingOutData = std::string_view();
+  parser = HTTPRequestParser();
+}
+
 std::ostream& operator<<(std::ostream& os, ConnectionContext const &context) {
   os << "[" << context.id << "] ";
 

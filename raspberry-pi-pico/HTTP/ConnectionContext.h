@@ -6,11 +6,18 @@
 struct ConnectionContext {
   ConnectionContext(HTTPServer *server, tcp_pcb *pcb);
 
+  // Reset the context for the same connection, making it ready for the next request
+  void reset();
+
+  uint32_t id;
   HTTPServer *server; // Pointer to the server instance
   tcp_pcb *pcb; // Pointer to the connection's PCB
-  std::string data;
+
+  std::string inData;
+  std::string outData;
+  std::string_view remainingOutData;
+
   HTTPRequestParser parser;
-  uint32_t id;
 
   friend std::ostream& operator<<(std::ostream& os, const ConnectionContext& context);
 

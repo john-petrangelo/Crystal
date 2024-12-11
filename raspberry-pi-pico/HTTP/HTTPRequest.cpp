@@ -3,8 +3,7 @@
 #include "HTTPRequest.h"
 
 std::ostream& operator<<(std::ostream& os, const HTTPRequest& request) {
-    os << "HTTP Request" << std::endl;
-    os << "Method: " << request.method << " Path: " << request.path << std::endl;
+    os << "HTTP Request - " << request.method << " " << request.path << std::endl;
 
     if (request.queryParams.empty()) {
         os << "No query parameters" << std::endl;
@@ -18,10 +17,12 @@ std::ostream& operator<<(std::ostream& os, const HTTPRequest& request) {
     if (request.headers.empty()) {
         os << "No headers" << std::endl;
     } else {
-        os << "Headers:" << std::endl;
-        for (const auto& header : request.headers) {
-            os << "  " << header.first << ": " << header.second << std::endl;
-        }
+        os << request.headers.size() << " headers" << std::endl;
+
+        // os << "Headers:" << std::endl;
+        // for (const auto& header : request.headers) {
+        //     os << "  " << header.first << ": " << header.second << std::endl;
+        // }
     }
 
     if (request.body.empty()) {
