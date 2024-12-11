@@ -12,6 +12,7 @@ void ConnectionContext::reset() {
   inData.clear();
   outData.clear();
   remainingOutData = std::string_view();
+  bytesSent = 0;
   parser = HTTPRequestParser();
 }
 

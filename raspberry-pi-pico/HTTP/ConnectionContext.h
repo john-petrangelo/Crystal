@@ -16,6 +16,7 @@ struct ConnectionContext {
   std::string inData;
   std::string outData;
   std::string_view remainingOutData;
+  size_t bytesSent;
 
   HTTPRequestParser parser;
 

@@ -120,21 +120,31 @@ err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t const err) 
 
 err_t HTTPServer::onSent(void *arg, tcp_pcb *tpcb, u16_t const len) noexcept {
   auto const context = static_cast<ConnectionContext*>(arg);
-  if (HTTP_DEBUG) {
-    logger << *context << "onSent " << len << " bytes" << std::endl;
-  }
+  context->bytesSent += len;
 
-  if (!context->remainingOutData.empty()) {
-    // Not done, more data to send
-    logger << *context << "onSent sending remaining " << context->remainingOutData.length() << " bytes" << std::endl;
-    sendResponseBytes(context);
-  } else {
-    // The entire response has been sent, reset the context
+  if (context->bytesSent >= context->outData.length()) {
+    // The entire response has been written, nothing else to send
     context->reset();
 
     if (HTTP_DEBUG) {
-      logger << *context << "HTTP Response complete" << std::endl;
+      logger << *context << "HTTP Response complete, final " <<  len << " bytes were sent"<< std::endl;
     }
+    return ERR_OK;
+  }
+
+  // Try to send the remaining bytes
+  if (!context->remainingOutData.empty()) {
+    if (HTTP_DEBUG) {
+      auto const remainingBytes = context->remainingOutData.length();
+      logger << *context << "Sent " << len << " bytes, " << "writing the remaining " << remainingBytes << " bytes" << std::endl;
+    }
+    writeResponseBytes(context);
+    return ERR_OK;
+  }
+
+  // Nothing more to send, just acknowledge the bytes that were sent
+  if (HTTP_DEBUG) {
+    logger << *context << "Sent " << len << " bytes" << std::endl;
   }
 
   return ERR_OK;
@@ -179,42 +189,36 @@ err_t HTTPServer::sendResponse(ConnectionContext *context, HTTPResponse const &r
   // Make the remaining data a string view that we can keep shortening with little overhead
   context->remainingOutData = context->outData;
 
-  return sendResponseBytes(context);
+  return writeResponseBytes(context);
 }
 
-err_t HTTPServer::sendResponseBytes(ConnectionContext *context) {
-  if (context->remainingOutData.length() == 0) {
-    logger << *context << "sendResponseBytes No data remaining to send" << std::endl;
+err_t HTTPServer::writeResponseBytes(ConnectionContext *context) {
+  auto const remainingBytes = context->remainingOutData.length();
+
+  if (remainingBytes == 0) {
+    logger << *context << "No data remaining to write" << std::endl;
     return ERR_ARG;
   }
 
-  if (HTTP_DEBUG) {
-    logger << *context << "sendResponseBytes " << context->remainingOutData.length() << " bytes" << std::endl;
-  }
-
   // Ensure the response fits within the TCP buffer
-  u16_t const numBytesSent = std::min(context->remainingOutData.length(), static_cast<size_t>(tcp_sndbuf(context->pcb)));
-  if (numBytesSent == 0) {
-    // Buffer is full; return ERR_MEM to signal a temporary issue
-    logger << *context << "Send buffer full, unable to send data" << std::endl;
+  u16_t const bytesToWrite = std::min(remainingBytes, static_cast<size_t>(tcp_sndbuf(context->pcb)));
+  if (bytesToWrite == 0) {
+    logger << *context << "Write buffer full, unable to write any of the remaining " << remainingBytes << " bytes" << std::endl;
     return ERR_MEM;
   }
 
   if (HTTP_DEBUG) {
-    logger << *context << "sendResponseBytes sending " << numBytesSent << " bytes to tcp_write" << std::endl;
+    logger << *context << "Writing " << bytesToWrite << " of " << remainingBytes << " bytes" << std::endl;
   }
 
-  err_t err = tcp_write(context->pcb, context->remainingOutData.data(), numBytesSent, TCP_WRITE_FLAG_COPY);
+  err_t err = tcp_write(context->pcb, context->remainingOutData.data(), bytesToWrite, TCP_WRITE_FLAG_COPY);
   if (err != ERR_OK) {
     logger << *context << "Error in tcp_write: " << errToString(err) << std::endl;
     abortConnection(context);
     return err;
   }
 
-  context->remainingOutData = context->remainingOutData.substr(numBytesSent);
-  if (HTTP_DEBUG) {
-    logger << *context << "sendResponseBytes " << context->remainingOutData.length() << " bytes remaining to send" << std::endl;
-  }
+  context->remainingOutData = context->remainingOutData.substr(bytesToWrite);
 
   // Flush the buffer explicitly
   err = tcp_output(context->pcb);

@@ -35,7 +35,7 @@ public:
 
 private:
     static err_t sendResponse(ConnectionContext *context, const HTTPResponse &response);
-    static err_t sendResponseBytes(ConnectionContext *context);
+    static err_t writeResponseBytes(ConnectionContext *context);
 
     static void closeConnection(ConnectionContext const *context);
     static void abortConnection(ConnectionContext const *context);
