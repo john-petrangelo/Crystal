@@ -4,7 +4,8 @@
 #include "HTTPServer.h"
 
 struct ConnectionContext {
-  ConnectionContext(HTTPServer *server, tcp_pcb *pcb);
+  ConnectionContext(HTTPServer *server, tcp_pcb *pcb) : id(nextID++), server(server), pcb(pcb), bytesSent(0) {}
+
 
   // Reset the context for the same connection, making it ready for the next request
   void reset();

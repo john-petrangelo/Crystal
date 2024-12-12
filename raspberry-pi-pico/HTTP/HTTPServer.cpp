@@ -66,7 +66,7 @@ err_t HTTPServer::onAccept(void *arg, tcp_pcb *newpcb, [[maybe_unused]] err_t er
 err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t const err) {
   auto const context = static_cast<ConnectionContext*>(arg);
 
-  // If there was an error then abort the connection
+  // If there was an error, then abort the connection
   if (err != ERR_OK) {
     logger << *context << "Error in onReceive: " <<  errToString(err) << std::endl;
     abortConnection(context);
@@ -91,7 +91,7 @@ err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t const err) 
   HTTPRequest const &request = context->parser.request();
 
   if (HTTP_DEBUG) {
-    logger << *context << request << std::endl;
+    logger << *context << request;
   }
 
   // Was the request invalid?
@@ -139,6 +139,7 @@ err_t HTTPServer::onSent(void *arg, tcp_pcb *tpcb, u16_t const len) noexcept {
       logger << *context << "Sent " << len << " bytes, " << "writing the remaining " << remainingBytes << " bytes" << std::endl;
     }
     writeResponseBytes(context);
+
     return ERR_OK;
   }
 
@@ -218,8 +219,6 @@ err_t HTTPServer::writeResponseBytes(ConnectionContext *context) {
     return err;
   }
 
-  context->remainingOutData = context->remainingOutData.substr(bytesToWrite);
-
   // Flush the buffer explicitly
   err = tcp_output(context->pcb);
   if (err != ERR_OK) {
@@ -227,6 +226,9 @@ err_t HTTPServer::writeResponseBytes(ConnectionContext *context) {
     abortConnection(context);
     return err;
   }
+
+  // The next chunk of the remaining bytes were written
+  context->remainingOutData = context->remainingOutData.substr(bytesToWrite);
 
   return ERR_OK;
 }

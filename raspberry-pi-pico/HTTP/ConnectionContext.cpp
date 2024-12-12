@@ -4,10 +4,6 @@
 
 uint32_t ConnectionContext::nextID = 0;
 
-ConnectionContext::ConnectionContext(HTTPServer *server, tcp_pcb *pcb) : server(server), pcb(pcb) {
-  id = nextID++;
-}
-
 void ConnectionContext::reset() {
   inData.clear();
   outData.clear();
