@@ -312,3 +312,18 @@ HTTPResponse handleDemo3(HTTPRequest const &request) {
   Network::getRenderer()->setModel(model);
   return {200, "text/plain"};
 }
+
+HTTPResponse handleGetData(HTTPRequest const &request) {
+    long length;
+    if (!getArgAsLong(request.queryParams, "length", length)) {
+        return {400, "text/plain", "Invalid 'value' parameter"};
+    }
+
+    if (length < 0 || length > 100000) {
+        logger << "Invalid length: " << length << std::endl;
+        return {400, "text/plain", "Invalid data length. Must be >= 0 and <= 100,000"};
+    }
+
+    // Success
+    return {200, "text/plain", std::string(length, 'D')};
+}

@@ -160,7 +160,7 @@ void Network::setupHTTP() {
   httpServer.onPut("/demo1", handleDemo1);
   httpServer.onPut("/demo2", handleDemo2);
   httpServer.onPut("/demo3", handleDemo3);
-//
+  httpServer.onGet("/data", handleGetData);
 }
 
 // Set up an MDNS responder, so we can be found by <host>.local instead of IP address

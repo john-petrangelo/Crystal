@@ -22,3 +22,4 @@ extern HTTPResponse handleWarpCore(HTTPRequest const &request);
 extern HTTPResponse handleDemo1(HTTPRequest const &request);
 extern HTTPResponse handleDemo2(HTTPRequest const &request);
 extern HTTPResponse handleDemo3(HTTPRequest const &request);
+extern HTTPResponse handleGetData(HTTPRequest const &request);
