@@ -18,7 +18,7 @@ function startup() {
           brightness.value = 255;
           brightnessBox.style.visibility = "visible";
       });
-    brightness.addEventListener("input", brightnessDidChange);
+    brightness.addEventListener("input", throttle(brightnessDidChange, 100 /*ms*/));
 
     const home = document.getElementById("home");
     const subpages = document.getElementsByClassName("subpage");
@@ -165,10 +165,56 @@ function mapValue(value, fromLow, fromHigh, toLow, toHigh) {
     return (value - fromLow) * (toHigh - toLow) / (fromHigh - fromLow) + toLow;
 }
 
+function logWithTimestamp(...args) {
+    const timestamp = new Date().toISOString(); // ISO 8601 format timestamp
+    console.log(`[${timestamp}]`, ...args);
+}
+
+function throttle(func, delay) {
+    let lastCall = 0;
+    let timeout = null;
+
+    return (...args) => {
+        const now = Date.now();
+
+        const remainingTime = delay - (now - lastCall);
+        const execFunc = () => {
+            lastCall = Date.now();
+            timeout = null;
+            func(...args);
+        };
+
+        if (remainingTime <= 0) {
+            clearTimeout(timeout);
+            execFunc();
+        } else if (!timeout) {
+            timeout = setTimeout(execFunc, remainingTime);
+        }
+    };
+}
+
+let lastValue = null;
+
 async function brightnessDidChange(event) {
-    event.target.value = snapMin(event.target.value, 40);
+    const newValue = snapMin(event.target.value, 40);
+    event.target.value = newValue;
+
+    if (newValue === lastValue) {
+        return;
+    }
+
+    lastValue = newValue;
+
     const url = `/brightness?value=${event.target.value}`;
-    await fetch(url, {method:'PUT'});
+    try {
+        await fetch(url, { method: "PUT" });
+    } catch (error) {
+        if (error.name === "AbortError") {
+            console.log("Request aborted");
+        } else {
+            console.error("Fetch error: ", error);
+        }
+    }
 }
 
 const crystalData = {
