@@ -30,7 +30,6 @@ private:
 
     static void checkLogger();
 
-    static std::string ipAddrToString(u32_t ipAddr);
     static std::string macAddrToString(const uint8_t *mac);
 
 public:
@@ -41,4 +40,6 @@ public:
     static Renderer* getRenderer() { return networkRenderer; }
     static void setRenderer(Renderer* renderer) { networkRenderer = renderer; }
 //    static String &getHostname() { return hostname; }
+
+    static std::string ipAddrToString(u32_t ipAddr);
 };
