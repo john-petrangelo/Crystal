@@ -60,6 +60,7 @@ void Network::getStatus(JsonObject obj) {
   obj["ipAddress"] = ipAddress;
   obj["macAddress"] = macAddress;
   obj["wifiMode"] = wifiMode;
+  httpServer.getStatus(obj["httpServer"].to<JsonObject>());
 }
 
 // Connect to an existing access point. Returns true on success, false if did not connect.
