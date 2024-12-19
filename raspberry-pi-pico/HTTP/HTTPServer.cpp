@@ -21,7 +21,7 @@ auto constexpr DEBUG_BODY = 1<<4;
 auto constexpr DEBUG_RESPONSE = 1<<5;
 auto constexpr DEBUG_ALL = DEBUG_CONNECTION | DEBUG_REQUEST | DEBUG_REQUEST_DETAILS | DEBUG_HEADERS | DEBUG_BODY | DEBUG_RESPONSE;
 
-auto constexpr HTTP_DEBUG = DEBUG_CONNECTION | DEBUG_REQUEST;
+auto constexpr HTTP_DEBUG = 0;
 
 bool HTTPServer::init(uint16_t const port) {
   if (port == 0 || port > 0xFFFF) {
