@@ -1,15 +1,15 @@
 #pragma once
 
 #include <functional>
+#include <map>
 #include <string>
-#include <unordered_map>
 
 #include <lwip/tcp.h>
 #include <pico/cyw43_arch.h>
 
-#include "HTTPRequest.h"
+#include <ArduinoJson.h>
 
-auto constexpr HTTP_DEBUG = false;
+#include "HTTPRequest.h"
 
 struct ConnectionContext;
 
@@ -33,12 +33,17 @@ public:
     void onGet(std::string path, HTTPHandler func) { onMethod("GET", std::move(path), std::move(func)); }
     void onPut(std::string path, HTTPHandler func) { onMethod("PUT", std::move(path), std::move(func)); }
 
-private:
-    static err_t sendResponse(ConnectionContext *context, const HTTPResponse &response);
-    static err_t writeResponseBytes(ConnectionContext *context);
+    void addActiveConnection(ConnectionContext const *context);
+    void removeActiveConnection(ConnectionContext const *context);
 
-    static void closeConnection(ConnectionContext const *context);
-    static void abortConnection(ConnectionContext const *context);
+    void getStatus(ArduinoJson::JsonObject obj) const;
+
+private:
+    err_t sendResponse(ConnectionContext *context, const HTTPResponse &response);
+    err_t writeResponseBytes(ConnectionContext *context);
+
+    void closeConnection(ConnectionContext const *context);
+    void abortConnection(ConnectionContext const *context);
 
     // Callback functions for LWP
     static err_t onAccept(void *arg, tcp_pcb *newpcb, err_t err);
@@ -54,5 +59,33 @@ private:
 
     static std::string errToString(err_t const err);
 
+    std::map<uint32_t, ConnectionContext const *> activeConnections;
     std::unordered_map<std::string, HTTPHandler> handlers;
+
+    /**
+     * Maximum number of active connections allowed by the HTTP server.
+     *
+     * To increase the number of connections, you must adjust related settings in `lwipopts.h`:
+     *
+     * - `MEMP_NUM_TCP_PCB`: This controls the total number of active TCP Protocol Control Blocks (PCBs)
+     *   that LWIP can allocate. Ensure it is greater than or equal to `MAX_CONNECTIONS` to avoid connection refusals.
+     *
+     * - `MEMP_NUM_TCP_SEG`: This determines the number of TCP segments that can be queued.
+     *   Increasing `MAX_CONNECTIONS` may require a proportional increase in this value.
+     *
+     * - `TCP_SND_BUF`: This specifies the total amount of send buffer memory for all connections.
+     *   Ensure it is sufficient for the increased number of connections.
+     *
+     * - `TCP_WND`: This defines the receive window size for each connection. Larger numbers of connections
+     *   may require adjustments to balance memory usage and performance.
+     *
+     * Example changes in `lwipopts.h` for increasing `MAX_CONNECTIONS` to 8:
+     * ```c
+     * #define MEMP_NUM_TCP_PCB 8
+     * #define MEMP_NUM_TCP_SEG 64
+     * #define TCP_SND_BUF      (16 * TCP_MSS)
+     * #define TCP_WND          (8 * TCP_MSS)
+     * ```
+     */
+    static constexpr int MAX_CONNECTIONS = 4;
 };

@@ -4,12 +4,26 @@
 
 uint32_t ConnectionContext::nextID = 0;
 
+ConnectionContext::ConnectionContext(HTTPServer *server, tcp_pcb *pcb) : id(nextID++), server(server), pcb(pcb), bytesSent(0) {
+  server->addActiveConnection(this);
+}
+
+ConnectionContext::~ConnectionContext() {
+  server->removeActiveConnection(this);
+}
+
 void ConnectionContext::reset() {
   inData.clear();
   outData.clear();
   remainingOutData = std::string_view();
   bytesSent = 0;
   parser = HTTPRequestParser();
+}
+
+void ConnectionContext::asJson(JsonObject const obj) const {
+  obj["id"] = id;
+  obj["remoteIP"] = ipaddr_ntoa(&pcb->remote_ip);
+  obj["remotePort"] = pcb->remote_port;
 }
 
 std::ostream& operator<<(std::ostream& os, ConnectionContext const &context) {

@@ -4,6 +4,8 @@
 #include <string>
 #include <utility>
 
+#include <ArduinoJson.h>
+
 #include <lumos-arduino/Logger.h>
 
 #include "ConnectionContext.h"
@@ -11,27 +13,38 @@
 #include "HTTPRequestParser.h"
 #include "HTTPServer.h"
 
+auto constexpr DEBUG_CONNECTION = 1<<0;
+auto constexpr DEBUG_REQUEST = 1<<1;
+auto constexpr DEBUG_REQUEST_DETAILS = 1<<2;
+auto constexpr DEBUG_HEADERS = 1<<3;
+auto constexpr DEBUG_BODY = 1<<4;
+auto constexpr DEBUG_RESPONSE = 1<<5;
+auto constexpr DEBUG_ALL = DEBUG_CONNECTION | DEBUG_REQUEST | DEBUG_REQUEST_DETAILS | DEBUG_HEADERS | DEBUG_BODY | DEBUG_RESPONSE;
+
+auto constexpr HTTP_DEBUG = DEBUG_CONNECTION | DEBUG_REQUEST;
+
 bool HTTPServer::init(uint16_t const port) {
   if (port == 0 || port > 0xFFFF) {
-    logger << "Invalid port: " << port << std::endl;
+    logger << "Cannot start HTTP server, invalid port: " << port << std::endl;
     return false;
   }
 
-  auto pcb = tcp_new();
+  auto const pcb = tcp_new();
   if (pcb == nullptr) {
-    logger << "Error calling tcp_new" << std::endl;
+    logger << "Cannot start HTTP server, error calling tcp_new" << std::endl;
     return false;
   }
 
   if (err_t const err = tcp_bind(pcb, IP_ADDR_ANY, port); err != ERR_OK) {
-    logger << "Error calling tcp_bind (" << port << "): " << errToString(err) << std::endl;
+    logger << "Cannot start HTTP server, error calling tcp_bind (" << port << "): " << errToString(err) << std::endl;
     tcp_abort(pcb);
     return false;
   }
 
-  auto listenPcb = tcp_listen(pcb);
+  constexpr uint8_t backlog = 3;
+  auto const listenPcb = tcp_listen_with_backlog(pcb, backlog);
   if (listenPcb == nullptr) {
-    logger << "Error calling tcp_listen" << std::endl;
+    logger << "Cannot start HTTP server, error calling tcp_listen" << std::endl;
     tcp_abort(pcb);
     return false;
   }
@@ -43,22 +56,43 @@ bool HTTPServer::init(uint16_t const port) {
   return true;
 }
 
-err_t HTTPServer::onAccept(void *arg, tcp_pcb *newpcb, [[maybe_unused]] err_t err) {
+err_t HTTPServer::onAccept(void *arg, tcp_pcb *newpcb, err_t const err) {
+  if (err != ERR_OK) {
+    logger << "Error accepting: " << errToString(err) << std::endl;
+    return ERR_ABRT;
+  }
+
+  if (newpcb == nullptr) {
+    logger << "Error accepting new connection, pcb is null, aborting" << std::endl;
+    return ERR_ABRT;
+  }
+
   auto *server = static_cast<HTTPServer*>(arg);
+  std::string const remoteIpStr = ipaddr_ntoa(&newpcb->remote_ip);
+
+  auto const now_ms = to_ms_since_boot(get_absolute_time());
+  if (server->activeConnections.size() >= MAX_CONNECTIONS) {
+    logger << msToString(now_ms) << " Connection refused because max " << MAX_CONNECTIONS << " already reached" << std::endl;
+    if (auto err = tcp_close(newpcb); err != ERR_OK) {
+      logger << "Failed to close new connection, aborting instead, error: " << errToString(err) << std::endl;
+      tcp_abort(newpcb);
+      return ERR_ABRT;
+    }
+    return ERR_OK;
+  }
 
   // Associate a new context with the pcb
   auto *context = new ConnectionContext{server, newpcb};
   tcp_arg(newpcb, context);
 
-  if (HTTP_DEBUG) {
-    std::string const remoteIpStr = ipaddr_ntoa(&newpcb->remote_ip);
-    logger << *context << "Accepted new connection from " << remoteIpStr << ":" << newpcb->remote_port << std::endl;
-  }
-
   // Register callbacks
   tcp_recv(newpcb, onReceive);
   tcp_sent(newpcb, onSent);
   tcp_err(newpcb, onError);
+
+  if constexpr (HTTP_DEBUG & DEBUG_CONNECTION) {
+    logger << msToString(now_ms) << " " << *context << "Accepted new connection (total " << server->activeConnections.size() << ") from " << remoteIpStr << ":" << newpcb->remote_port << std::endl;
+  }
 
   return ERR_OK;
 }
@@ -69,17 +103,22 @@ err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t const err) 
   // If there was an error, then abort the connection
   if (err != ERR_OK) {
     logger << *context << "Error in onReceive: " <<  errToString(err) << std::endl;
-    abortConnection(context);
-    return ERR_ABRT;
+    context->server->abortConnection(context);
+    return ERR_OK;
   }
 
   // If pbuf is null then the client closed the connection. Close our end of this connection.
   if (p == nullptr) {
-    if (HTTP_DEBUG) {
+    if (HTTP_DEBUG & DEBUG_CONNECTION) {
       logger << *context << "Connection closed by client" << std::endl;
     }
-    closeConnection(context);
+    context->server->closeConnection(context);
     return ERR_OK;
+  }
+
+  auto const now_ms = to_ms_since_boot(get_absolute_time());
+  if (HTTP_DEBUG & DEBUG_REQUEST) {
+    logger << msToString(now_ms) << " " << *context << "Received " << p->len << " bytes" << std::endl;
   }
 
   // Get the data payload from the supplied buffer
@@ -90,7 +129,7 @@ err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t const err) 
   context->parser.parse(context->inData);
   HTTPRequest const &request = context->parser.request();
 
-  if (HTTP_DEBUG) {
+  if constexpr (HTTP_DEBUG & DEBUG_REQUEST_DETAILS) {
     logger << *context << request;
   }
 
@@ -98,12 +137,16 @@ err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t const err) 
   if (context->parser.state() == HTTPRequestParser::RequestState::FAILED) {
     logger << *context << "Invalid HTTP request" << std::endl;
     context->server->sendResponse(context, {400, "text/plain", "Invalid request"});
-    closeConnection(context);
+    context->server->closeConnection(context);
     return ERR_OK;
   }
 
   // Was the request complete?
   if (context->parser.state() == HTTPRequestParser::RequestState::COMPLETE) {
+    if constexpr(HTTP_DEBUG & DEBUG_REQUEST) {
+      logger << *context << "Received " << request.method << " " << request.path << " (" << request.contentLength << " bytes)" << std::endl;
+    }
+
     // Match the method and path to a handler, otherwise return a not found error
     std::string const handlersKey = makeHandlersKey(request.method, request.path);
     auto it = context->server->handlers.find(handlersKey);
@@ -115,7 +158,7 @@ err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t const err) 
     }
   }
 
-  return ERR_OK; // Return ERR_OK to continue receiving
+  return ERR_OK;
 }
 
 err_t HTTPServer::onSent(void *arg, tcp_pcb *tpcb, u16_t const len) noexcept {
@@ -126,7 +169,7 @@ err_t HTTPServer::onSent(void *arg, tcp_pcb *tpcb, u16_t const len) noexcept {
     // The entire response has been written, nothing else to send
     context->reset();
 
-    if (HTTP_DEBUG) {
+    if constexpr (HTTP_DEBUG & DEBUG_RESPONSE) {
       logger << *context << "HTTP Response complete, final " <<  len << " bytes were sent"<< std::endl;
     }
     return ERR_OK;
@@ -134,17 +177,17 @@ err_t HTTPServer::onSent(void *arg, tcp_pcb *tpcb, u16_t const len) noexcept {
 
   // Try to send the remaining bytes
   if (!context->remainingOutData.empty()) {
-    if (HTTP_DEBUG) {
+    if constexpr (HTTP_DEBUG & DEBUG_RESPONSE) {
       auto const remainingBytes = context->remainingOutData.length();
       logger << *context << "Sent " << len << " bytes, " << "writing the remaining " << remainingBytes << " bytes" << std::endl;
     }
-    writeResponseBytes(context);
+    context->server->writeResponseBytes(context);
 
     return ERR_OK;
   }
 
   // Nothing more to send, just acknowledge the bytes that were sent
-  if (HTTP_DEBUG) {
+  if constexpr (HTTP_DEBUG & DEBUG_RESPONSE) {
     logger << *context << "Sent " << len << " bytes" << std::endl;
   }
 
@@ -160,8 +203,7 @@ void HTTPServer::onError(void *arg, err_t const err) noexcept {
   }
 
   logger << *context << "Connection error: " << errToString(err) << std::endl;
-  tcp_abort(context->pcb);
-  delete context;
+  context->server->abortConnection(context);
 }
 
 err_t HTTPServer::sendResponse(ConnectionContext *context, HTTPResponse const &response) {
@@ -179,6 +221,7 @@ err_t HTTPServer::sendResponse(ConnectionContext *context, HTTPResponse const &r
   responseStream << "\r\n";
 
   // Add headers
+  // responseStream << "Connection: keep-alive\r\n";
   responseStream << "Content-Type: " << response.contentType << "\r\n";
   responseStream << "Content-Length: " << response.body.size() << "\r\n";
   responseStream << "\r\n";
@@ -204,11 +247,13 @@ err_t HTTPServer::writeResponseBytes(ConnectionContext *context) {
   // Ensure the response fits within the TCP buffer
   u16_t const bytesToWrite = std::min(remainingBytes, static_cast<size_t>(tcp_sndbuf(context->pcb)));
   if (bytesToWrite == 0) {
-    logger << *context << "Write buffer full, unable to write any of the remaining " << remainingBytes << " bytes" << std::endl;
+    if (HTTP_DEBUG & DEBUG_RESPONSE) {
+      logger << *context << "Write buffer full, unable to write any of the remaining " << remainingBytes << " bytes" << std::endl;
+    }
     return ERR_MEM;
   }
 
-  if (HTTP_DEBUG) {
+  if constexpr (HTTP_DEBUG & DEBUG_RESPONSE) {
     logger << *context << "Writing " << bytesToWrite << " of " << remainingBytes << " bytes" << std::endl;
   }
 
@@ -242,11 +287,13 @@ void HTTPServer::closeConnection(ConnectionContext const *context) noexcept {
   if (err_t const err = tcp_close(context->pcb); err != ERR_OK) {
     logger << *context << "Error in tcp_close: " << errToString(err) << std::endl;
     tcp_abort(context->pcb);
-  } else {
-    if (HTTP_DEBUG) {
-      logger << *context << "Connection closed" << std::endl;
-    }
+    return;
   }
+
+  if constexpr (HTTP_DEBUG & DEBUG_CONNECTION) {
+    logger << *context << "Connection closed" << std::endl;
+  }
+
   delete context;
 }
 
@@ -257,7 +304,10 @@ void HTTPServer::abortConnection(ConnectionContext const *context) noexcept {
   }
 
   tcp_abort(context->pcb);
-  logger << *context << "Connection aborted" << std::endl;
+  if (HTTP_DEBUG & DEBUG_CONNECTION) {
+    logger << *context << "Connection aborted" << std::endl;
+  }
+
   delete context;
 }
 
@@ -306,3 +356,25 @@ void HTTPServer::onMethod(std::string method, std::string path, HTTPHandler func
   handlers[handlersKey] = {std::move(func)};
 }
 
+void HTTPServer::addActiveConnection(ConnectionContext const *context) {
+  if (context == nullptr) {
+    return;
+  }
+  activeConnections[context->id] = context;
+}
+
+void HTTPServer::removeActiveConnection(ConnectionContext const *context) {
+  if (context == nullptr) {
+    return;
+  }
+  if (!activeConnections.erase(context->id)) {
+    logger << *context << "Cannot remove Connection ID " << context->id << ", not found" << std::endl;
+  }
+}
+
+void HTTPServer::getStatus(ArduinoJson::JsonObject const obj) const {
+  auto const activeConnectionsArray = obj["activeConnections"].to<JsonArray>();
+  for (const auto & [id, context] : activeConnections) {
+    context->asJson(activeConnectionsArray.add<JsonObject>());
+  }
+}
