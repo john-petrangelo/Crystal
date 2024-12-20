@@ -4,13 +4,15 @@
 
 uint32_t ConnectionContext::nextID = 0;
 
-ConnectionContext::ConnectionContext(HTTPServer *server, tcp_pcb *pcb) : id(nextID++), server(server), pcb(pcb), bytesSent(0) {
+ConnectionContext::ConnectionContext(HTTPServer * const server, tcp_pcb *pcb) : id(nextID++), server(server), pcb(pcb), bytesSent(0) {
   updateLastActive();
   server->addActiveConnection(this);
 }
 
 ConnectionContext::~ConnectionContext() {
-  server->removeActiveConnection(this);
+  if (server) {
+    server->removeActiveConnection(this);
+  }
 }
 
 void ConnectionContext::reset() {
@@ -19,12 +21,13 @@ void ConnectionContext::reset() {
   remainingOutData = std::string_view();
   bytesSent = 0;
   parser = HTTPRequestParser();
+  updateLastActive();
 }
 
 void ConnectionContext::asJson(JsonObject const obj) const {
   obj["id"] = id;
-  obj["remoteIP"] = ipaddr_ntoa(&pcb->remote_ip);
-  obj["remotePort"] = pcb->remote_port;
+  obj["remoteIP"] = pcb ? ipaddr_ntoa(&pcb->remote_ip) : "unknown";
+  obj["remotePort"] = pcb ? pcb->remote_port : 0;
   obj["lastActive"] = msToString(lastActive);
 }
 

@@ -384,7 +384,7 @@ std::optional<ConnectionContext const *> HTTPServer::getLRUConnection() const {
     activeConnections.begin(),
     activeConnections.end(),
     [](auto const &a, auto const &b) {
-      return a.second->isLessActiveThan(*b.second);
+      return a.second->isLessRecentlyActiveThan(*b.second);
     });
 
   return lruIter == activeConnections.end() ? nullptr : lruIter->second;
