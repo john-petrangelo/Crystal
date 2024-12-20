@@ -34,7 +34,7 @@ struct ConnectionContext {
    * Updates the last activity timestamp to the current time.
    * This is typically called whenever data is read from or written to the connection.
    */
-  void updateLastActive() { lastActive = to_ms_since_boot(get_absolute_time()); }
+  void updateLastActive() { _lastActive = to_ms_since_boot(get_absolute_time()); }
 
   /**
    * Compares the last active timestamps of two connections.
@@ -43,7 +43,7 @@ struct ConnectionContext {
    * @param other The other connection context to compare against.
    * @return `true` if this connection is less active than the other; otherwise, `false`.
    */
-  bool isLessRecentlyActiveThan(ConnectionContext const& other) const { return lastActive < other.lastActive; }
+  bool isLessRecentlyActiveThan(ConnectionContext const& other) const { return _lastActive < other._lastActive; }
 
   /**
    * Serializes the context into a JSON object.
@@ -52,23 +52,72 @@ struct ConnectionContext {
    */
   void asJson(JsonObject obj) const;
 
-  uint32_t id;
-  HTTPServer * const server; // Pointer to the server instance
-  tcp_pcb *pcb; // Pointer to the connection's PCB
+ /**
+  * Increment the number of bytes sent from the response data.
+  *
+  * @param len The number of bytes sent.
+  */
+ void didSendBytes(size_t len) { _bytesSent += len; }
 
-  std::string inData;
-  std::string outData;
-  std::string_view remainingOutData;
-  size_t bytesSent;
+ /// Get the unique identifier for this connection.
+  uint32_t id() const { return _id; }
 
-  HTTPRequestParser parser;
+  /// Get the pointer to the HTTP _server managing this connection.
+  HTTPServer *server() const { return _server; }
 
+  /// Get the pointer to the lwIP TCP PCB for this connection.
+  tcp_pcb *pcb() const { return _pcb; }
+
+  /// Get the buffer for incoming request data.
+  std::string &requestData() { return _requestData; }
+
+  /// Get the buffer for outgoing response data.
+  std::string &responseData() { return _responseData; }
+
+  /// Get the view of the remaining response data to be sent.
+  std::string_view remainingResponseData() const { return _remainingResponseData; }
+
+  /// Set the view of the remaining response data to be sent.
+  void setRemainingResponseData(std::string_view data) { _remainingResponseData = data; }
+
+  /// Get the number of bytes already sent from the response data.
+  size_t bytesSent() const { return _bytesSent; }
+
+  /// Get the HTTP request _parser for this connection.
+  HTTPRequestParser &parser() { return _parser; }
+
+  /// Overload for printing a connection context to an output stream.
   friend std::ostream& operator<<(std::ostream& os, const ConnectionContext& context);
 
 private:
-  // The nextID will be used and incremented every time we open a new connection
+  /// Static counter for generating unique IDs for connections.
+  /// Incremented every time a new ConnectionContext is created.
   static uint32_t nextID;
 
-  // Timestamp that will be updated every time we send or receive data with this connection
-  uint32_t lastActive = 0;
+  /// Unique identifier for this connection.
+  uint32_t _id;
+
+  /// Pointer to the HTTP _server managing this connection.
+  HTTPServer * const _server;
+
+  /// Pointer to the lwIP TCP PCB for this connection. Immutable after initialization.
+  tcp_pcb *_pcb; // Pointer to the connection's PCB
+
+  /// Buffer for incoming request data. Stores the raw data read from the connection.
+  std::string _requestData;
+
+  /// Buffer for outgoing response data. Contains the serialized HTTP response to be sent.
+  std::string _responseData;
+
+  /// View of the remaining response data to be sent. Efficiently tracks the remaining unsent portion of _responseData.
+  std::string_view _remainingResponseData;
+
+  /// Number of bytes already sent from `_responseData`.
+  size_t _bytesSent;
+
+  /// HTTP request _parser for this connection.
+  HTTPRequestParser _parser;
+
+  /// Timestamp of the last activity on this connection. Updated whenever data is sent or received.
+  uint32_t _lastActive = 0;
 };
