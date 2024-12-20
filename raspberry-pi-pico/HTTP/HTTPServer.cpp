@@ -80,8 +80,10 @@ err_t HTTPServer::onAccept(void *arg, tcp_pcb *newpcb, err_t const err) {
       return ERR_ABRT;
     }
 
-    logger << now << "Already have " << MAX_CONNECTIONS
-      << " active connections, closing least recently used connection " << *lruContext.value() << std::endl;
+    if constexpr (HTTP_DEBUG & DEBUG_CONNECTION) {
+      logger << now << "Too many active connections (" << server->activeConnections.size()
+        << "), closing least recently used connection " << *lruContext.value() << std::endl;
+    }
     server->closeConnection(lruContext.value());
   }
 
