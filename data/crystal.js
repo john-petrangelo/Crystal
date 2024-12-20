@@ -18,7 +18,7 @@ function startup() {
           brightness.value = 255;
           brightnessBox.style.visibility = "visible";
       });
-    brightness.addEventListener("input", throttle(brightnessDidChange, 100 /*ms*/));
+    brightness.addEventListener("input", throttle(brightnessDidChange, 10 /*ms*/));
 
     const home = document.getElementById("home");
     const subpages = document.getElementsByClassName("subpage");
