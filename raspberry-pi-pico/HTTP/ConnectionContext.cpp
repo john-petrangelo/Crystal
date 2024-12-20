@@ -25,10 +25,10 @@ void ConnectionContext::reset() {
 }
 
 void ConnectionContext::asJson(JsonObject const obj) const {
-  obj["_id"] = _id;
-  obj["remoteIP"] = _pcb ? ipaddr_ntoa(&_pcb->remote_ip) : "unknown";
+  obj["id"] = _id;
+  obj["remoteIP"] = _pcb ? ipaddr_ntoa(&_pcb->remote_ip) : "PCB not initialized";
   obj["remotePort"] = _pcb ? _pcb->remote_port : 0;
-  obj["_lastActive"] = msToString(_lastActive);
+  obj["lastActive"] = msToString(_lastActive);
 }
 
 std::ostream& operator<<(std::ostream& os, ConnectionContext const &context) {
