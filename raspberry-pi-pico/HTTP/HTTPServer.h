@@ -8,6 +8,7 @@
 #include <pico/cyw43_arch.h>
 
 #include <ArduinoJson.h>
+#include <optional>
 
 #include "HTTPRequest.h"
 
@@ -54,6 +55,7 @@ private:
     // Add handlers to the handler list
     void onMethod(std::string method, std::string path, HTTPHandler func);
 
+    std::optional<ConnectionContext const *> getLRUConnection() const;
     static std::string makeHandlersKey(std::string_view const &method, std::string_view const &path);
     [[maybe_unused]] void logHandlers() const;
 

@@ -21,6 +21,7 @@ auto constexpr DEBUG_BODY = 1<<4;
 auto constexpr DEBUG_RESPONSE = 1<<5;
 auto constexpr DEBUG_ALL = DEBUG_CONNECTION | DEBUG_REQUEST | DEBUG_REQUEST_DETAILS | DEBUG_HEADERS | DEBUG_BODY | DEBUG_RESPONSE;
 
+// auto constexpr HTTP_DEBUG = DEBUG_CONNECTION | DEBUG_REQUEST | DEBUG_RESPONSE;
 auto constexpr HTTP_DEBUG = 0;
 
 bool HTTPServer::init(uint16_t const port) {
@@ -70,15 +71,18 @@ err_t HTTPServer::onAccept(void *arg, tcp_pcb *newpcb, err_t const err) {
   auto *server = static_cast<HTTPServer*>(arg);
   std::string const remoteIpStr = ipaddr_ntoa(&newpcb->remote_ip);
 
-  auto const now_ms = to_ms_since_boot(get_absolute_time());
+  auto const now = msToString(to_ms_since_boot(get_absolute_time()));
   if (server->activeConnections.size() >= MAX_CONNECTIONS) {
-    logger << msToString(now_ms) << " Connection refused because max " << MAX_CONNECTIONS << " already reached" << std::endl;
-    if (auto err = tcp_close(newpcb); err != ERR_OK) {
-      logger << "Failed to close new connection, aborting instead, error: " << errToString(err) << std::endl;
+    auto const lruContext = server->getLRUConnection();
+    if (!lruContext.has_value()) {
+      logger << now << " Error finding least recently used connection" << std::endl;
       tcp_abort(newpcb);
       return ERR_ABRT;
     }
-    return ERR_OK;
+
+    logger << now << "Already have " << MAX_CONNECTIONS
+      << " active connections, closing least recently used connection " << *lruContext.value() << std::endl;
+    server->closeConnection(lruContext.value());
   }
 
   // Associate a new context with the pcb
@@ -91,7 +95,8 @@ err_t HTTPServer::onAccept(void *arg, tcp_pcb *newpcb, err_t const err) {
   tcp_err(newpcb, onError);
 
   if constexpr (HTTP_DEBUG & DEBUG_CONNECTION) {
-    logger << msToString(now_ms) << " " << *context << "Accepted new connection (total " << server->activeConnections.size() << ") from " << remoteIpStr << ":" << newpcb->remote_port << std::endl;
+    logger << now << " " << *context << "Accepted new connection (total " << server->activeConnections.size()
+      << ") from " << remoteIpStr << ":" << newpcb->remote_port << std::endl;
   }
 
   return ERR_OK;
@@ -116,14 +121,15 @@ err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t const err) 
     return ERR_OK;
   }
 
-  auto const now_ms = to_ms_since_boot(get_absolute_time());
+  auto const now = msToString(to_ms_since_boot(get_absolute_time()));
   if (HTTP_DEBUG & DEBUG_REQUEST) {
-    logger << msToString(now_ms) << " " << *context << "Received " << p->len << " bytes" << std::endl;
+    logger << now << " " << *context << "Received " << p->len << " bytes" << std::endl;
   }
 
   // Get the data payload from the supplied buffer
   context->inData.append(static_cast<char*>(p->payload), p->len);
   pbuf_free(p);
+  context->updateLastActive();
 
   // Parse the raw request payload
   context->parser.parse(context->inData);
@@ -163,6 +169,7 @@ err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t const err) 
 
 err_t HTTPServer::onSent(void *arg, tcp_pcb *tpcb, u16_t const len) noexcept {
   auto const context = static_cast<ConnectionContext*>(arg);
+  context->updateLastActive();
   context->bytesSent += len;
 
   if (context->bytesSent >= context->outData.length()) {
@@ -370,6 +377,17 @@ void HTTPServer::removeActiveConnection(ConnectionContext const *context) {
   if (!activeConnections.erase(context->id)) {
     logger << *context << "Cannot remove Connection ID " << context->id << ", not found" << std::endl;
   }
+}
+
+std::optional<ConnectionContext const *> HTTPServer::getLRUConnection() const {
+  auto const lruIter = std::min_element(
+    activeConnections.begin(),
+    activeConnections.end(),
+    [](auto const &a, auto const &b) {
+      return a.second->isLessActiveThan(*b.second);
+    });
+
+  return lruIter == activeConnections.end() ? nullptr : lruIter->second;
 }
 
 void HTTPServer::getStatus(ArduinoJson::JsonObject const obj) const {

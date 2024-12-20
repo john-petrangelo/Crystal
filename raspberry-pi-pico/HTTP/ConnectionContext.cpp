@@ -5,6 +5,7 @@
 uint32_t ConnectionContext::nextID = 0;
 
 ConnectionContext::ConnectionContext(HTTPServer *server, tcp_pcb *pcb) : id(nextID++), server(server), pcb(pcb), bytesSent(0) {
+  updateLastActive();
   server->addActiveConnection(this);
 }
 
@@ -24,6 +25,7 @@ void ConnectionContext::asJson(JsonObject const obj) const {
   obj["id"] = id;
   obj["remoteIP"] = ipaddr_ntoa(&pcb->remote_ip);
   obj["remotePort"] = pcb->remote_port;
+  obj["lastActive"] = msToString(lastActive);
 }
 
 std::ostream& operator<<(std::ostream& os, ConnectionContext const &context) {
