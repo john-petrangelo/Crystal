@@ -7,8 +7,7 @@ cmake_minimum_required(VERSION 3.27)
 pico_sdk_init()
 
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
-
+set(CMAKE_CXX_STANDARD 20)
 
 # Define the executable target
 add_executable(crystal-pi-pico
