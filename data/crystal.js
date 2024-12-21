@@ -52,7 +52,7 @@ function startup() {
     setupSliders();
 
     const crystalAdv = document.querySelector("#crystal-advanced");
-    crystalAdv.addEventListener("input", crystalDidChange);
+    crystalAdv.addEventListener("input", throttle(crystalDidChange, 10 /*ms*/));
     setupTickmarks(crystalAdv, [0, 0.1, 1]);
     document.querySelector("#crystal-upper-color-input").value = "#" + crystalData.upper_color;
     document.querySelector("#crystal-middle-color-input").value = "#" + crystalData.middle_color;
@@ -62,22 +62,22 @@ function startup() {
     document.querySelector("#crystal-lower-speed-input").value = crystalData.lower_speed;
 
     const rbMovement = document.querySelector("#rb-movement");
-    rbMovement.addEventListener("input", rainbowDidChange);
+    rbMovement.addEventListener("input", throttle(rainbowDidChange, 10 /*ms*/));
     setupTickmarks(rbMovement, [0, 0.45, 0.55, 1]);
     document.querySelector("#rb-movement-input").value = mapValue(rainbowData.speed, -1, 1, 0, 1);
 
     const wc = document.querySelector("#wc");
-    wc.addEventListener("input", warpCoreDidChange);
+    wc.addEventListener("input", throttle(warpCoreDidChange, 10 /*ms*/));
     setupTickmarks(wc, [0, 0.06, 1]);
     document.querySelector("#wc-speed-input").value =
         mapValue(warpCoreData.frequency, 0.3, 5.3, 0.0, 1.0);
     document.querySelector("#wc-color-input").value = "#" + warpCoreData.color;
 
     const wcDual = document.getElementById('wc-dual');
-    wcDual.addEventListener('change', warpCoreDidChange);
+    wcDual.addEventListener('change', throttle(warpCoreDidChange, 10 /*ms*/));
 
     const jlAdv = document.querySelector("#jacobs-ladder-advanced")
-    jlAdv.addEventListener("input", jacobsLadderDidChange);
+    jlAdv.addEventListener("input", throttle(jacobsLadderDidChange, 10 /*ms*/));
     document.querySelector("#jl-color-input").value = "#" + jacobsLadderData.color;
     document.querySelector("#jl-speed-input").value = mapValue(jacobsLadderData.frequency, 0.3, 2.3, 0.0, 1.0);
     document.querySelector("#jl-size").value = mapValue(jacobsLadderData.size, 0.0, 1.0, 0.0, 1.0);
