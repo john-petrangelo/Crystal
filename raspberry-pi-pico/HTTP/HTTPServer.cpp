@@ -1,4 +1,4 @@
-#include <cstdio>
+#include <format>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -128,6 +128,22 @@ err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t const err) 
     logger << now << " " << *context << "Received " << p->len << " bytes" << std::endl;
   }
 
+
+  // Check if the incoming request exceeds the maximum allowed size.
+  // If the combined size of the current request data and the new payload exceeds the limit,
+  // log the event, send a 400 Bad Request response with an explanatory message,
+  // and close the connection to prevent further data from being received.
+  auto const max = context->server()->MAX_REQUEST_LEN;
+  auto const actual = context->requestData().length() + p->len;
+  if (actual > max) {
+    std::string const message = std::format(
+        "Request too large (max {} bytes but request is at least {} bytes), closing connection", max, actual);
+
+    logger << *context << message << std::endl;
+    context->server()->sendResponseAndClose(context, {400, "text/plain", message});
+    return ERR_OK;
+  }
+
   // Get the data payload from the supplied buffer
   context->requestData().append(static_cast<char*>(p->payload), p->len);
   pbuf_free(p);
@@ -144,8 +160,7 @@ err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t const err) 
   // Was the request invalid?
   if (context->parser().state() == HTTPRequestParser::RequestState::FAILED) {
     logger << *context << "Invalid HTTP request" << std::endl;
-    context->server()->sendResponse(context, {400, "text/plain", "Invalid request"});
-    context->server()->closeConnection(context);
+    context->server()->sendResponseAndClose(context, {400, "text/plain", "Invalid request"});
     return ERR_OK;
   }
 
@@ -174,9 +189,15 @@ err_t HTTPServer::onSent(void *arg, tcp_pcb *tpcb, u16_t const len) noexcept {
   context->updateLastActive();
   context->didSendBytes(len);
 
+  // If the entire response has been written, then there is nothing else to send
   if (context->bytesSent() >= context->responseData().length()) {
-    // The entire response has been written, nothing else to send
-    context->reset();
+    if (context->shouldCloseAfterResponse()) {
+      // We were asked to close the connection after this response is complete
+      context->server()->closeConnection(context);
+    } else {
+      // Prepare the connection for the next request
+      context->reset();
+    }
 
     if constexpr (HTTP_DEBUG & DEBUG_RESPONSE) {
       logger << *context << "HTTP Response complete, final " <<  len << " bytes were sent"<< std::endl;
@@ -213,6 +234,13 @@ void HTTPServer::onError(void *arg, err_t const err) noexcept {
 
   logger << *context << "Connection error: " << errToString(err) << std::endl;
   context->server()->abortConnection(context);
+}
+
+err_t HTTPServer::sendResponseAndClose(ConnectionContext *context, HTTPResponse const &response) {
+  auto const err = sendResponse(context, response);
+  context->setShouldCloseAfterResponse();
+
+  return err;
 }
 
 err_t HTTPServer::sendResponse(ConnectionContext *context, HTTPResponse const &response) {
@@ -393,6 +421,9 @@ std::optional<ConnectionContext const *> HTTPServer::getLRUConnection() const {
 }
 
 void HTTPServer::getStatus(ArduinoJson::JsonObject const obj) const {
+  obj["maxConnections"] = MAX_CONNECTIONS;
+  obj["maxRequestLen"] = MAX_REQUEST_LEN;
+
   auto const activeConnectionsArray = obj["activeConnections"].to<JsonArray>();
   for (const auto & [id, context] : activeConnections) {
     context->asJson(activeConnectionsArray.add<JsonObject>());

@@ -20,6 +20,7 @@ void ConnectionContext::reset() {
   _responseData.clear();
   _remainingResponseData = std::string_view();
   _bytesSent = 0;
+  _shouldCloseAfterResponse = false;
   _parser = HTTPRequestParser();
   updateLastActive();
 }

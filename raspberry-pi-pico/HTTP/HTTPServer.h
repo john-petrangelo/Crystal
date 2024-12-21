@@ -40,6 +40,7 @@ public:
     void getStatus(ArduinoJson::JsonObject obj) const;
 
 private:
+    err_t sendResponseAndClose(ConnectionContext *context, const HTTPResponse &response);
     err_t sendResponse(ConnectionContext *context, const HTTPResponse &response);
     err_t writeResponseBytes(ConnectionContext *context);
 
@@ -90,4 +91,9 @@ private:
      * ```
      */
     static constexpr int MAX_CONNECTIONS = 4;
+
+    /**
+     * Maximum length of the entire request message. Requests longer than this will be rejected.
+     */
+    static constexpr int MAX_REQUEST_LEN = 1024;
 };

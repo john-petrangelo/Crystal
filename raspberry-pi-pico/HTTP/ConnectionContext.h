@@ -83,6 +83,12 @@ struct ConnectionContext {
   /// Get the number of bytes already sent from the response data.
   size_t bytesSent() const { return _bytesSent; }
 
+  /// Returns a boolean indicating whether the connection should be closed after the response is sent.
+  bool shouldCloseAfterResponse() const { return _shouldCloseAfterResponse; }
+
+  /// Set a flag indicating that the connection should be closed after the response is sent.
+  void setShouldCloseAfterResponse() { _shouldCloseAfterResponse = true; }
+
   /// Get the HTTP request _parser for this connection.
   HTTPRequestParser &parser() { return _parser; }
 
@@ -114,6 +120,9 @@ private:
 
   /// Number of bytes already sent from `_responseData`.
   size_t _bytesSent;
+
+  /// Flag indicating whether the connection should be closed after the response is sent.
+  bool _shouldCloseAfterResponse = false;
 
   /// HTTP request _parser for this connection.
   HTTPRequestParser _parser;
