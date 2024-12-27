@@ -9,7 +9,7 @@ VARIANT=generic
 FQBN="$PLATFORM:$BOARD:$VARIANT"
 
 # The IP address of the target to be updated
-IP_ADDR=192.168.4.169
+IP_ADDR=192.168.7.238
 
 # Upload the image using OTA
 arduino-cli upload --fqbn $FQBN --protocol=network --port "$IP_ADDR" esp8266.ino
