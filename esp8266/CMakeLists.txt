@@ -1,3 +1,6 @@
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+
 # Set home and library directories
 set(HOME $ENV{HOME})
 set(ARDUINO_LIB_DIR ${HOME}/Documents/Arduino/libraries)
@@ -65,4 +68,6 @@ target_include_directories(crystal-esp8266 PRIVATE
         ${ESP8266_LIB_DIR}/libraries/ESP8266WebServer/src
         ${ESP8266_LIB_DIR}/libraries/ESP8266Wifi/src
         ${ESP8266_LIB_DIR}/libraries/LittleFS/src
+
+        ${ESP8266_LIB_DIR}/tools/sdk/include
 )
