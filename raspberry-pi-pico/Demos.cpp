@@ -1,13 +1,13 @@
 #include <memory>
 
-#include "Models/Gradient.h"
-#include "Models/Map.h"
-#include "Models/Pulsate.h"
-#include "Models/Reverse.h"
-#include "Models/Rotate.h"
-#include "Models/Sum.h"
-#include "Models/Triangle.h"
-#include "Models/Window.h"
+#include "lumos-arduino/Models/Gradient.h"
+#include "lumos-arduino/Models/Map.h"
+#include "lumos-arduino/Models/Pulsate.h"
+#include "lumos-arduino/Models/Reverse.h"
+#include "lumos-arduino/Models/Rotate.h"
+#include "lumos-arduino/Models/Sum.h"
+#include "lumos-arduino/Models/Triangle.h"
+#include "lumos-arduino/Models/Window.h"
 
 std::shared_ptr<Model> makeDemo1() {
   auto grad_left = Gradient::make(RED, YELLOW);

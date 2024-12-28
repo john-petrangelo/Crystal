@@ -4,7 +4,7 @@
 #include <ArduinoJson.h>
 #include <NeoPixelBusLg.h>
 
-#include "Models/Model.h"
+#include "lumos-arduino/Models/Model.h"
 
 class Renderer {
 private:

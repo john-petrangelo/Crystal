@@ -1,13 +1,6 @@
 #include <iomanip>
-#include <sstream>
 
 #include "Utils.h"
-
-float frand(float const fmin, float const fmax) {
-  // Scale the result of rand() to the range [fmin, fmax]
-  float random = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-  return fmin + random * (fmax - fmin);
-}
 
 std::string msToString(uint32_t timeMS) {
   auto days = timeMS / (24 * 60 * 60 * 1000);

@@ -4,7 +4,7 @@
 #include <ArduinoJson.h>
 #include <lumos-arduino/Colors.h>
 
-#include "Models/Model.h"
+#include "lumos-arduino/Models/Model.h"
 #include "WS2812Strip.h"
 
 class Renderer {

@@ -10,13 +10,13 @@
 #include "Status.h"
 #include "utils.h"
 
-#include "Models/Crystal.h"
-#include "Models/Flame.h"
-#include "Models/Gradient.h"
-#include "Models/JacobsLadder.h"
-#include "Models/Rotate.h"
-#include "Models/Solid.h"
-#include "Models/WarpCore.h"
+#include "lumos-arduino/Models/Crystal.h"
+#include "lumos-arduino/Models/Flame.h"
+#include "lumos-arduino/Models/Gradient.h"
+#include "lumos-arduino/Models/JacobsLadder.h"
+#include "lumos-arduino/Models/Rotate.h"
+#include "lumos-arduino/Models/Solid.h"
+#include "lumos-arduino/Models/WarpCore.h"
 
 static JsonDocument parseJsonBody(char const *handlerName) {
   JsonDocument doc;

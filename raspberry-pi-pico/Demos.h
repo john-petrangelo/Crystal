@@ -1,7 +1,7 @@
 #ifndef __DEMOS__
 #define __DEMOS__
 
-#include "Models/Model.h"
+#include "lumos-arduino/Models/Model.h"
 
 /***** DEMOS *****/
 

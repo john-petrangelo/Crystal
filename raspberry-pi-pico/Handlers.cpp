@@ -8,16 +8,16 @@
 #include "HTTP/HTTPServer.h"
 #include "Network.h"
 #include "System.h"
-#include "Utils.h"
 #include "web_files.h"
 
-#include "Models/Crystal.h"
-#include "Models/Flame.h"
-#include "Models/Gradient.h"
-#include "Models/JacobsLadder.h"
-#include "Models/Rotate.h"
-#include "Models/Solid.h"
-#include "Models/WarpCore.h"
+#include "lumos-arduino/Models/ModelUtils.h"
+#include "lumos-arduino/Models/Crystal.h"
+#include "lumos-arduino/Models/Flame.h"
+#include "lumos-arduino/Models/Gradient.h"
+#include "lumos-arduino/Models/JacobsLadder.h"
+#include "lumos-arduino/Models/Rotate.h"
+#include "lumos-arduino/Models/Solid.h"
+#include "lumos-arduino/Models/WarpCore.h"
 
 static bool parseJsonBody(JsonDocument &doc, std::string const &body, char const *handlerName) {
   DeserializationError error = deserializeJson(doc, body);

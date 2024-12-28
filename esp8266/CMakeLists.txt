@@ -14,25 +14,37 @@ set(SRC_FILES
         src/Demos.cpp
         src/Filesystem.cpp
         src/Handlers.cpp
-        src/Models/Gauge.cpp
         src/Network.cpp
         src/Renderer.cpp
         src/Status.cpp
         src/System.cpp
 
-        src/Models/Crystal.cpp
-        src/Models/Flame.cpp
-        src/Models/Gradient.cpp
-        src/Models/JacobsLadder.cpp
-        src/Models/Map.cpp
-        src/Models/Model.cpp
-        src/Models/Pulsate.cpp
-        src/Models/Rotate.cpp
-        src/Models/Shift.cpp
-        src/Models/Sum.cpp
-        src/Models/Triangle.cpp
-        src/Models/WarpCore.cpp
-        src/Models/Window.cpp
+        src/lib/lumos-arduino/Models/Crystal.h
+        src/lib/lumos-arduino/Models/Crystal.cpp
+        src/lib/lumos-arduino/Models/Flame.h
+        src/lib/lumos-arduino/Models/Flame.cpp
+        src/lib/lumos-arduino/Models/Gradient.h
+        src/lib/lumos-arduino/Models/Gradient.cpp
+        src/lib/lumos-arduino/Models/JacobsLadder.h
+        src/lib/lumos-arduino/Models/JacobsLadder.cpp
+        src/lib/lumos-arduino/Models/Map.h
+        src/lib/lumos-arduino/Models/Map.cpp
+        src/lib/lumos-arduino/Models/Model.h
+        src/lib/lumos-arduino/Models/Model.cpp
+        src/lib/lumos-arduino/Models/Pulsate.h
+        src/lib/lumos-arduino/Models/Pulsate.cpp
+        src/lib/lumos-arduino/Models/Rotate.h
+        src/lib/lumos-arduino/Models/Rotate.cpp
+        src/lib/lumos-arduino/Models/Shift.h
+        src/lib/lumos-arduino/Models/Shift.cpp
+        src/lib/lumos-arduino/Models/Sum.h
+        src/lib/lumos-arduino/Models/Sum.cpp
+        src/lib/lumos-arduino/Models/Triangle.h
+        src/lib/lumos-arduino/Models/Triangle.cpp
+        src/lib/lumos-arduino/Models/WarpCore.h
+        src/lib/lumos-arduino/Models/WarpCore.cpp
+        src/lib/lumos-arduino/Models/Window.h
+        src/lib/lumos-arduino/Models/Window.cpp
 
         src/lib/lumos-arduino/Colors.cpp
         src/lib/lumos-arduino/Logger.cpp
@@ -54,6 +66,7 @@ target_compile_definitions(crystal-esp8266 PRIVATE
 # Project-specific include directories
 target_include_directories(crystal-esp8266 PRIVATE
         src
+        src/common
         src/lib
 )
  # External library include directories

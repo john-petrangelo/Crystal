@@ -10,10 +10,10 @@
 #include "Handlers.h"
 #include "Network.h"
 
-#include "Models/Gauge.h"
-#include "Models/Pulsate.h"
-#include "Models/Solid.h"
-#include "Models/Triangle.h"
+#include "lumos-arduino/Models/Gauge.h"
+#include "lumos-arduino/Models/Pulsate.h"
+#include "lumos-arduino/Models/Solid.h"
+#include "lumos-arduino/Models/Triangle.h"
 
 // Secrets are defined in another file called "secrets.h" to avoid committing secrets
 // into a public repo. You will need to change the secret values in secrets.h to

@@ -59,33 +59,35 @@ target_sources(crystal-pi-pico PRIVATE
 
 # Add model classes to the target
 target_sources(crystal-pi-pico PRIVATE
-        Models/Model.h
-        Models/Model.cpp
-        Models/Crystal.h
-        Models/Crystal.cpp
-        Models/Flame.h
-        Models/Flame.cpp
-        Models/Gradient.h
-        Models/Gradient.cpp
-        Models/JacobsLadder.h
-        Models/JacobsLadder.cpp
-        Models/Map.h
-        Models/Map.cpp
-        Models/Pulsate.h
-        Models/Pulsate.cpp
-        Models/Rotate.h
-        Models/Rotate.cpp
-        Models/Shift.h
-        Models/Shift.cpp
-        Models/Solid.h
-        Models/Sum.h
-        Models/Sum.cpp
-        Models/Triangle.h
-        Models/Triangle.cpp
-        Models/WarpCore.h
-        Models/WarpCore.cpp
-        Models/Window.h
-        Models/Window.cpp
+        ../lib/lumos-arduino/Models/Model.h
+        ../lib/lumos-arduino/Models/Model.cpp
+        ../lib/lumos-arduino/Models/ModelUtils.h
+        ../lib/lumos-arduino/Models/ModelUtils.cpp
+        ../lib/lumos-arduino/Models/Crystal.h
+        ../lib/lumos-arduino/Models/Crystal.cpp
+        ../lib/lumos-arduino/Models/Flame.h
+        ../lib/lumos-arduino/Models/Flame.cpp
+        ../lib/lumos-arduino/Models/Gradient.h
+        ../lib/lumos-arduino/Models/Gradient.cpp
+        ../lib/lumos-arduino/Models/JacobsLadder.h
+        ../lib/lumos-arduino/Models/JacobsLadder.cpp
+        ../lib/lumos-arduino/Models/Map.h
+        ../lib/lumos-arduino/Models/Map.cpp
+        ../lib/lumos-arduino/Models/Pulsate.h
+        ../lib/lumos-arduino/Models/Pulsate.cpp
+        ../lib/lumos-arduino/Models/Rotate.h
+        ../lib/lumos-arduino/Models/Rotate.cpp
+        ../lib/lumos-arduino/Models/Shift.h
+        ../lib/lumos-arduino/Models/Shift.cpp
+        ../lib/lumos-arduino/Models/Solid.h
+        ../lib/lumos-arduino/Models/Sum.h
+        ../lib/lumos-arduino/Models/Sum.cpp
+        ../lib/lumos-arduino/Models/Triangle.h
+        ../lib/lumos-arduino/Models/Triangle.cpp
+        ../lib/lumos-arduino/Models/WarpCore.h
+        ../lib/lumos-arduino/Models/WarpCore.cpp
+        ../lib/lumos-arduino/Models/Window.h
+        ../lib/lumos-arduino/Models/Window.cpp
 )
 
 # Add logging sources to the target

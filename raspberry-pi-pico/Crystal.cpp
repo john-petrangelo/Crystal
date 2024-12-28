@@ -8,8 +8,7 @@
 #include "Renderer.h"
 #include "Status.h"
 
-#include "Models/Crystal.h"
-#include "Models/Solid.h"
+#include <lumos-arduino/Models/Crystal.h>
 
 constexpr long logDurationIntervalMS = 60000;
 

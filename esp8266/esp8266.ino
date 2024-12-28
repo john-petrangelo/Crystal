@@ -2,10 +2,10 @@
 #include <NeoPixelBus.h>
 
 #include <lumos-arduino/Logger.h>
+#include <lumos-arduino/Models/Crystal.h>
 
 #include "src/ArduinoStreamLogger.h"
 #include "src/Filesystem.h"
-#include "src/Models/Crystal.h"
 #include "src/Network.h"
 #include "src/Renderer.h"
 #include "src/Status.h"
