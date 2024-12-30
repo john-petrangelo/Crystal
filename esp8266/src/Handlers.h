@@ -1,4 +1,4 @@
-#include "Network.h"
+#pragma once
 
 extern void handleRoot();
 extern void handleCSS();
