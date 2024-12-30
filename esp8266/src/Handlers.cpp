@@ -20,7 +20,7 @@
 
 static JsonDocument parseJsonBody(char const *handlerName) {
   JsonDocument doc;
-  DeserializationError error = deserializeJson(doc, Network::getServer().arg("plain"));
+  DeserializationError const error = deserializeJson(doc, Network::getServer().arg("plain"));
   if (error) {
     Logger::logf("%s failed to parse JSON: %s\n", handlerName, error.c_str());
     Network::getServer().send(400, "text/plain", error.c_str());
@@ -40,12 +40,12 @@ static T getJsonValue(JsonVariant obj, const char* paramName, T defaultValue) {
 }
 
 static Color getJsonColor(JsonVariant obj, const char* paramName, Color defaultValue = BLACK){
-  auto value = obj[paramName];
+  auto const value = obj[paramName];
   if (value.isNull() || !value.is<const char *>()) {
     return defaultValue;
   }
 
-  auto colorStr = value.as<char const *>();
+  auto const colorStr = value.as<char const *>();
   return strtol(colorStr, nullptr, 16);
 }
 
@@ -54,7 +54,7 @@ static bool getArgAsLong(const char* paramName, long& paramValue) {
     Network::getServer().send(400, "text/plain", String(paramName) + " parameter missing\n");
     return false; // Error occurred
   }
-  String paramStr = Network::getServer().arg(paramName);
+  String const paramStr = Network::getServer().arg(paramName);
   paramValue = strtol(paramStr.c_str(), nullptr, 10);
   Logger::logf("getArgAsLong str=%s value=%ld\n", paramStr.c_str(), paramValue);
   return true; // No error
@@ -65,43 +65,43 @@ static bool getArgAsColor(const char* paramName, Color& paramValue) {
     Network::getServer().send(400, "text/plain", String(paramName) + " parameter missing\n");
     return false; // Error occurred
   }
-  String paramStr = Network::getServer().arg(paramName);
+  String const paramStr = Network::getServer().arg(paramName);
   paramValue = strtol(paramStr.c_str(), nullptr, 16);
   return true; // No error
 }
 
 void handleRoot() {
-    auto startMS = millis();
+    auto const startMS = millis();
     File file = LittleFS.open("/index.html", "r");
-    auto openedMS = millis();
-    size_t sent = Network::getServer().streamFile(file, "text/html");
-    auto streamedMS = millis();
+    auto const openedMS = millis();
+    size_t const sent = Network::getServer().streamFile(file, "text/html");
+    auto const streamedMS = millis();
     file.close();
-    auto closedMS = millis();
+    auto const closedMS = millis();
     Logger::logf("handleRoot sentBytes=%d open=%dms stream=%dms close=%dms total=%dms\n",
       sent, openedMS - startMS, streamedMS - openedMS, closedMS - streamedMS, closedMS - startMS);
 }
 
 void handleCSS() {
-    auto startMS = millis();
+    auto const startMS = millis();
     File file = LittleFS.open("/crystal.css", "r");
-    auto openedMS = millis();
-    size_t sent = Network::getServer().streamFile(file, "text/css");
-    auto streamedMS = millis();
+    auto const openedMS = millis();
+    size_t const sent = Network::getServer().streamFile(file, "text/css");
+    auto const streamedMS = millis();
     file.close();
-    auto closedMS = millis();
+    auto const closedMS = millis();
     Logger::logf("handleCSS sentBytes=%d open=%dms stream=%dms close=%dms total=%dms\n",
       sent, openedMS - startMS, streamedMS - openedMS, closedMS - streamedMS, closedMS - startMS);
 }
 
 void handleJS() {
-    auto startMS = millis();
+    auto const startMS = millis();
     File file = LittleFS.open("/crystal.js", "r");
-    auto openedMS = millis();
-    size_t sent = Network::getServer().streamFile(file, "text/javascript");
-    auto streamedMS = millis();
+    auto const openedMS = millis();
+    size_t const sent = Network::getServer().streamFile(file, "text/javascript");
+    auto const streamedMS = millis();
     file.close();
-    auto closedMS = millis();
+    auto const closedMS = millis();
     Logger::logf("handleJS sentBytes=%d open=%dms stream=%dms close=%dms total=%dms\n",
       sent, openedMS - startMS, streamedMS - openedMS, closedMS - streamedMS, closedMS - startMS);
 }
@@ -154,16 +154,16 @@ void handleNotFound() {
 void handleCrystal() {
   JsonDocument doc = parseJsonBody("handleCrystal");
 
-  Color upperColor = getJsonColor(doc, "upper_color", 0xff00d0);
-  Color middleColor = getJsonColor(doc, "middle_color", 0xff00d0);
-  Color lowerColor = getJsonColor(doc, "lower_color", 0xff00d0);
-  float upperSpeed = getJsonValue(doc, "upper_speed", 0.5f);
-  float middleSpeed = getJsonValue(doc, "middle_speed", 0.2f);
-  float lowerSpeed = getJsonValue(doc, "lower_speed", 0.3f);
+  Color const upperColor = getJsonColor(doc, "upper_color", 0xff00d0);
+  Color const middleColor = getJsonColor(doc, "middle_color", 0xff00d0);
+  Color const lowerColor = getJsonColor(doc, "lower_color", 0xff00d0);
+  float const upperSpeed = getJsonValue(doc, "upper_speed", 0.5f);
+  float const middleSpeed = getJsonValue(doc, "middle_speed", 0.2f);
+  float const lowerSpeed = getJsonValue(doc, "lower_speed", 0.3f);
 
-  float upperPeriodSec = fmap(upperSpeed, 0.0, 1.0, 11.0, 1.0);
-  float middlePeriodSec = fmap(middleSpeed, 0.0, 1.0, 11.0, 1.0);
-  float lowerPeriodSec = fmap(lowerSpeed, 0.0, 1.0, 11.0, 1.0);
+  float const upperPeriodSec = fmap(upperSpeed, 0.0, 1.0, 11.0, 1.0);
+  float const middlePeriodSec = fmap(middleSpeed, 0.0, 1.0, 11.0, 1.0);
+  float const lowerPeriodSec = fmap(lowerSpeed, 0.0, 1.0, 11.0, 1.0);
 
   ModelPtr model = std::make_shared<Crystal>(
     upperColor, upperPeriodSec,
@@ -182,8 +182,8 @@ void handleFlame() {
 
 void handleRainbow() {
   JsonDocument doc = parseJsonBody("handleRainbow");
-  String mode = getJsonValue(doc, "mode", "classic");
-  float speed = getJsonValue(doc, "speed", 0.3f);
+  String const mode = getJsonValue(doc, "mode", "classic");
+  float const speed = getJsonValue(doc, "speed", 0.3f);
 
   ModelPtr gm = nullptr;
   if (mode == "tv") {
@@ -207,10 +207,10 @@ void handleRainbow() {
     gm = Gradient::make(RED, VIOLET, INDIGO, BLUE, GREEN, YELLOW, ORANGE, RED);
   }
 
-  auto model = Network::getRenderer()->getModel();
+  auto const model = Network::getRenderer()->getModel();
   if (strcmp(model->getName(), "RotatingRainbow") == 0) {
     // Update the current model
-    auto rainbowModel = static_cast<Rotate*>(model.get());
+    auto const rainbowModel = static_cast<Rotate*>(model.get());
     rainbowModel->setSpeed(speed);
     rainbowModel->setModel(gm);
   } else {
@@ -223,16 +223,16 @@ void handleRainbow() {
 
 void handleWarpCore() {
   JsonDocument doc = parseJsonBody("handleWarpCore");
-  float frequency = getJsonValue(doc, "frequency", 0.6f);
-  float size = getJsonValue(doc, "size", 0.6f);
-  float dutyCycle = getJsonValue(doc, "dutyCycle", 0.4f);
-  Color color = getJsonColor(doc, "color", WarpCore::defaultColor);
-  bool dual = getJsonValue(doc, "dual", false);
+  float const frequency = getJsonValue(doc, "frequency", 0.6f);
+  float const size = getJsonValue(doc, "size", 0.6f);
+  float const dutyCycle = getJsonValue(doc, "dutyCycle", 0.4f);
+  Color const color = getJsonColor(doc, "color", WarpCore::defaultColor);
+  bool const dual = getJsonValue(doc, "dual", false);
 
-  auto model = Network::getRenderer()->getModel();
+  auto const model = Network::getRenderer()->getModel();
   if (strcmp(model->getName(), "WarpCore") == 0) {
     // Update the current model
-    auto warpCore = static_cast<WarpCore*>(model.get());
+    auto const warpCore = static_cast<WarpCore*>(model.get());
     warpCore->set(frequency, size, dutyCycle, color, dual);
   } else {
     // Create a new model
@@ -250,10 +250,10 @@ void handleJacobsLadder() {
   float const jitterSize = getJsonValue(doc, "jitterSize", 0.15f);
   float const jitterPeriod = getJsonValue(doc, "jitterPeriod", 0.150f);
 
-  auto model = Network::getRenderer()->getModel();
+  auto const model = Network::getRenderer()->getModel();
   if (strcmp(model->getName(), "JacobsLadder") == 0) {
     // Update the current model
-    auto jacobsLadder = static_cast<JacobsLadder*>(model.get());
+    auto const jacobsLadder = static_cast<JacobsLadder*>(model.get());
     jacobsLadder->set(frequency, size, color, jitterSize, jitterPeriod);
   } else {
     // Create a new model
@@ -266,7 +266,9 @@ void handleJacobsLadder() {
 
 void handleSolid() {
   Color color;
-  if (!getArgAsColor("color", color)) return;
+  if (!getArgAsColor("color", color)) {
+    color = BLACK;
+  }
 
   ModelPtr model = std::make_shared<Solid>(color);
   Network::getRenderer()->setModel(model);

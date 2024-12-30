@@ -20,7 +20,7 @@
 #include "lumos-arduino/Models/WarpCore.h"
 
 static bool parseJsonBody(JsonDocument &doc, std::string const &body, char const *handlerName) {
-  DeserializationError error = deserializeJson(doc, body);
+  DeserializationError const error = deserializeJson(doc, body);
   if (error) {
       logger << handlerName << " failed to parse JSON: " << error.c_str() << std::endl;
       return false;
@@ -183,7 +183,7 @@ HTTPResponse handleCrystal(HTTPRequest const &request) {
 }
 
 HTTPResponse handleFlame(HTTPRequest const &request) {
-    ModelPtr model = std::make_shared<Flame>();
+    ModelPtr const model = std::make_shared<Flame>();
     Network::getRenderer()->setModel(model);
     return {200, "text/plain"};
 }
@@ -296,19 +296,19 @@ HTTPResponse handleSolid(HTTPRequest const &request) {
 }
 
 HTTPResponse handleDemo1(HTTPRequest const &request) {
-  auto model = makeDemo1();
+  auto const model = makeDemo1();
   Network::getRenderer()->setModel(model);
   return {200, "text/plain"};
 }
 
 HTTPResponse handleDemo2(HTTPRequest const &request) {
-  auto model = makeDemo2();
+  auto const model = makeDemo2();
   Network::getRenderer()->setModel(model);
   return {200, "text/plain"};
 }
 
 HTTPResponse handleDemo3(HTTPRequest const &request) {
-  auto model = makeDemo3();
+  auto const model = makeDemo3();
   Network::getRenderer()->setModel(model);
   return {200, "text/plain"};
 }
