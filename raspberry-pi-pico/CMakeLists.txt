@@ -53,6 +53,7 @@ target_sources(crystal-pi-pico PRIVATE
         HTTP/HTTPRequest.cpp
         HTTP/HTTPRequestParser.h
         HTTP/HTTPRequestParser.cpp
+        HTTP/HTTPResponse.h
         HTTP/HTTPServer.h
         HTTP/HTTPServer.cpp
 )

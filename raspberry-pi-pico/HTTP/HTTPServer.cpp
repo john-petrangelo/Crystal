@@ -9,7 +9,6 @@
 #include <lumos-arduino/Logger.h>
 
 #include "ConnectionContext.h"
-#include "HTTPRequest.h"
 #include "HTTPRequestParser.h"
 #include "HTTPServer.h"
 
@@ -127,7 +126,6 @@ err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t const err) 
   if (HTTP_DEBUG & DEBUG_REQUEST) {
     logger << now << " " << *context << "Received " << p->len << " bytes" << std::endl;
   }
-
 
   // Check if the incoming request exceeds the maximum allowed size.
   // If the combined size of the current request data and the new payload exceeds the limit,

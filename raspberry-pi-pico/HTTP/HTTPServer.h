@@ -11,14 +11,9 @@
 #include <optional>
 
 #include "HTTPRequest.h"
+#include "HTTPResponse.h"
 
 struct ConnectionContext;
-
-struct HTTPResponse {
-    int status_code;
-    std::string contentType;
-    std::string body;
-};
 
 class HTTPServer;
 using HTTPHandler = std::function<HTTPResponse(const HTTPRequest&)>;
