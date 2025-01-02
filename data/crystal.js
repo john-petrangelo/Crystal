@@ -228,24 +228,24 @@ const crystalData = {
 
 async function crystalDidChange(event) {
     switch (event.target.id) {
-        case "crystal-upper-color":
+        case "crystal-upper-color-input":
             crystalData.upper_color = event.target.value.substring(1);
             break;
-        case "crystal-upper-speed":
+        case "crystal-upper-speed-input":
             event.target.value = snapMin(event.target.value, 0.1);
             crystalData.upper_speed = parseFloat(event.target.value);
             break;
-        case "crystal-middle-color":
+        case "crystal-middle-color-input":
             crystalData.middle_color = event.target.value.substring(1);
             break;
-        case "crystal-middle-speed":
+        case "crystal-middle-speed-input":
             event.target.value = snapMin(event.target.value, 0.1);
             crystalData.middle_speed = parseFloat(event.target.value);
             break;
-        case "crystal-lower-color":
+        case "crystal-lower-color-input":
             crystalData.lower_color = event.target.value.substring(1);
             break;
-        case "crystal-lower-speed":
+        case "crystal-lower-speed-input":
             event.target.value = snapMin(event.target.value, 0.1);
             crystalData.lower_speed = parseFloat(event.target.value);
             break;
