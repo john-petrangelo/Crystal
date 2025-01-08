@@ -115,6 +115,13 @@ target_link_libraries(crystal-pi-pico
         pico_cyw43_arch_lwip_poll
 )
 
+# Include the mDNS source files
+target_sources(crystal-pi-pico PRIVATE
+    ${PICO_SDK_PATH}/lib/lwip/src/apps/mdns/mdns.c
+    ${PICO_SDK_PATH}/lib/lwip/src/apps/mdns/mdns_out.c
+    ${PICO_SDK_PATH}/lib/lwip/src/apps/mdns/mdns_domain.c
+)
+
 # Add extra outputs for the Raspberry Pi Pico
 pico_add_extra_outputs(crystal-pi-pico)
 

@@ -2,13 +2,12 @@
 
 #include <functional>
 #include <map>
+#include <optional>
 #include <string>
 
 #include <lwip/tcp.h>
-#include <pico/cyw43_arch.h>
 
 #include <ArduinoJson.h>
-#include <optional>
 
 #include "HTTPRequest.h"
 #include "HTTPResponse.h"
@@ -32,7 +31,7 @@ public:
     void addActiveConnection(ConnectionContext const *context);
     void removeActiveConnection(ConnectionContext const *context);
 
-    void getStatus(ArduinoJson::JsonObject obj) const;
+    void getStatus(JsonObject obj) const;
 
 private:
     err_t sendResponseAndClose(ConnectionContext *context, const HTTPResponse &response);

@@ -1,6 +1,8 @@
+#include <format>
 #include <iomanip>
 #include <iostream>
 
+#include <lwip/apps/mdns.h>
 #include <pico/cyw43_arch.h>
 
 #include "lumos-arduino/Logger.h"
@@ -19,6 +21,7 @@
 // Secrets are defined in another file called "secrets.h" to avoid committing secrets
 // into a public repo. You will need to change the secret values in secrets.h to
 // connect your device to your network.
+
 #include "../secrets.h"
 
 std::string Network::hostname = "pico";
@@ -165,12 +168,37 @@ void Network::setupHTTP() {
 }
 
 // Set up an MDNS responder, so we can be found by <host>.local instead of IP address
+void Network::mdnsAddServiceTextItem(struct mdns_service *service, void *txt_userdata) {
+  if (err_t const res = mdns_resp_add_service_txtitem(service, "path=/", 6); res != ERR_OK) {
+    logger << "mDNS Failed to add service TXT record, err=" << res << std::endl;
+  } else {
+    logger << "mDNS TXT record added successfully" << std::endl;
+  }
+}
+
+void Network::mdnsExampleReport(struct netif* netif, u8_t result, s8_t service) {
+  logger << std::format("mDNS status[netif {}][service {}]: {}", netif->num, service, result) << std::endl;
+}
+
 void Network::setupMDNS() {
-//  // Set the hostname for mDNS
-////  cyw43_arch_set_hostname(hostname);
-//
-//  // Advertise the HTTP service
-//  cyw43_arch_mdns_add_service(hostname, "_http._tcp.local", 80, "path=/");
+  mdns_resp_register_name_result_cb(mdnsExampleReport);
+  mdns_resp_init();
+
+  if (err_t const err = mdns_resp_add_netif(netif_default, "lwip"); err != ERR_OK) {
+    logger << "Failed to add netif to mDNS, err=" << err << std::endl;
+    return;
+  }
+  if (err_t const err = mdns_resp_add_service(netif_default, "Luminarium", "_http",
+        DNSSD_PROTO_TCP, 80, mdnsAddServiceTextItem, nullptr); err != ERR_OK) {
+    logger << "Failed to add mDNS service, err=" << err << std::endl;
+    return;
+  }
+
+  mdns_resp_announce(netif_default);
+  logger << "mDNS service announced successfully" << std::endl;
+
+  // cyw43_arch_set_hostname(hostname);
+
 }
 
 //// Server used for logging.
