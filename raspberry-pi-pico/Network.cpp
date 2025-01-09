@@ -58,6 +58,33 @@ std::string Network::macAddrToString(const uint8_t* mac) {
   return oss.str();
 }
 
+void Network::setupHostname(const std::string &baseName) {
+  std::istringstream macStream(macAddress);
+  std::vector<std::string> parts;
+  std::string segment;
+
+  // Every segment must be two characters long and be a valid hex number
+  while (std::getline(macStream, segment, ':')) {
+    if (segment.size() != 2 || !std::ranges::all_of(segment, ::isxdigit)) {
+      hostname = baseName + "-0000";
+    }
+    parts.push_back(segment);
+  }
+
+  // There must be exactly six parts
+  if (parts.size() != 6) {
+    hostname = baseName + "-0000";
+  }
+
+  // Construct the hostname using the basename and the fifth and sixth parts
+  hostname.reserve(baseName.size() + 4);
+  hostname += '-';
+  hostname += parts[4][0];
+  hostname += parts[4][1];
+  hostname += parts[5][0];
+  hostname += parts[5][1];
+}
+
 void Network::getStatus(JsonObject obj) {
   obj["hostname"] = hostname;
   obj["ipAddress"] = ipAddress;
@@ -83,7 +110,7 @@ bool Network::setupWiFiStation() {
   logger << "Connecting to " << SECRET_SSID << "..." << std::endl;
   int connect_error = cyw43_arch_wifi_connect_timeout_ms(
           SECRET_SSID, SECRET_PASSWORD,
-          CYW43_AUTH_WPA2_AES_PSK, 10000);
+          CYW43_AUTH_WPA2_AES_PSK, 15000);
   if (connect_error) {
     logger << "Failed to connect: error=" << connect_error << std::endl;
     return false;
@@ -93,7 +120,7 @@ bool Network::setupWiFiStation() {
   ipAddress = ipAddrToString(cyw43_state.netif[CYW43_ITF_STA].ip_addr.addr);
   macAddress = macAddrToString(cyw43_state.netif[CYW43_ITF_STA].hwaddr);
 
-  logger << "Connected to Wi-Fi, IP Address: " << ipAddress << std::endl;
+  logger << "Connected to " << SECRET_SSID << std::endl;
 
   // Success
   return true;
@@ -176,15 +203,21 @@ void Network::mdnsAddServiceTextItem(struct mdns_service *service, void *txt_use
   }
 }
 
-void Network::mdnsExampleReport(struct netif* netif, u8_t result, s8_t service) {
-  logger << std::format("mDNS status[netif {}][service {}]: {}", netif->num, service, result) << std::endl;
+void Network::mdnsExampleReport(netif * netif, u8_t const result, s8_t const service) {
+  if (result == MDNS_PROBING_SUCCESSFUL) {
+    logger << "mDNS name successfully registered on netif " << static_cast<int>(netif->num) << std::endl;
+  } else if (result == MDNS_PROBING_CONFLICT) {
+    logger << "mDNS name conflict detected on netif " << netif->num << ", service " << service << std::endl;
+  } else {
+    logger << "Unknown mDNS status result: " << result << std::endl;
+  }
 }
 
 void Network::setupMDNS() {
   mdns_resp_register_name_result_cb(mdnsExampleReport);
   mdns_resp_init();
 
-  if (err_t const err = mdns_resp_add_netif(netif_default, "lwip"); err != ERR_OK) {
+  if (err_t const err = mdns_resp_add_netif(netif_default, hostname.c_str()); err != ERR_OK) {
     logger << "Failed to add netif to mDNS, err=" << err << std::endl;
     return;
   }
@@ -196,9 +229,6 @@ void Network::setupMDNS() {
 
   mdns_resp_announce(netif_default);
   logger << "mDNS service announced successfully" << std::endl;
-
-  // cyw43_arch_set_hostname(hostname);
-
 }
 
 //// Server used for logging.
@@ -238,11 +268,14 @@ void Network::setup() {
     setupWiFiSoftAP();
   }
 
+  // Set up the hostname for this device
+  setupHostname("pico");
+
   setupHTTP();
   setupMDNS();
 
   logServer.init();
-  logger << "Network set up complete" << std::endl;
+  logger << "Network set up complete, host " << hostname << ".local (" << ipAddress << ')' << std::endl;
 }
 
 void Network::loop() {
