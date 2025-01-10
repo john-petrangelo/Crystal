@@ -22,7 +22,7 @@ public:
     static std::string ipAddrToString(u32_t ipAddr);
 
 private:
-    static bool setupWiFiStation();
+    static bool setupWiFiStation(char const *ssid, char const *password);
     static void setupWiFiSoftAP(); // Not implemented yet
 
     static void setupHTTP();
@@ -32,6 +32,9 @@ private:
     static void setupMDNS();
 
     static void checkLogger();
+
+    static std::string macAddrToString(const uint8_t *mac);
+    static std::string_view cyw43ErrStr(int err);
 
     static std::string hostname;
     static std::string ipAddress;
@@ -43,5 +46,4 @@ private:
 
     static Renderer *networkRenderer;
 
-    static std::string macAddrToString(const uint8_t *mac);
 };
