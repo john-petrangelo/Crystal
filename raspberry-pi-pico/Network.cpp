@@ -194,8 +194,7 @@ void Network::setupHTTP() {
   httpServer.onGet("/data", handleGetData);
 }
 
-// Set up an MDNS responder, so we can be found by <host>.local instead of IP address
-void Network::mdnsAddServiceTextItem(struct mdns_service *service, void *txt_userdata) {
+void Network::mdnsAddServiceTextItemCallback(struct mdns_service *service, void *txt_userdata) {
   if (err_t const res = mdns_resp_add_service_txtitem(service, "path=/", 6); res != ERR_OK) {
     logger << "mDNS Failed to add service TXT record, err=" << res << std::endl;
   } else {
@@ -203,7 +202,7 @@ void Network::mdnsAddServiceTextItem(struct mdns_service *service, void *txt_use
   }
 }
 
-void Network::mdnsExampleReport(netif * netif, u8_t const result, s8_t const service) {
+void Network::mdnsReportCallback(netif * netif, u8_t const result, s8_t const service) {
   if (result == MDNS_PROBING_SUCCESSFUL) {
     logger << "mDNS name successfully registered on netif " << static_cast<int>(netif->num) << std::endl;
   } else if (result == MDNS_PROBING_CONFLICT) {
@@ -214,7 +213,7 @@ void Network::mdnsExampleReport(netif * netif, u8_t const result, s8_t const ser
 }
 
 void Network::setupMDNS() {
-  mdns_resp_register_name_result_cb(mdnsExampleReport);
+  mdns_resp_register_name_result_cb(mdnsReportCallback);
   mdns_resp_init();
 
   if (err_t const err = mdns_resp_add_netif(netif_default, hostname.c_str()); err != ERR_OK) {
@@ -222,7 +221,7 @@ void Network::setupMDNS() {
     return;
   }
   if (err_t const err = mdns_resp_add_service(netif_default, "Luminarium", "_http",
-        DNSSD_PROTO_TCP, 80, mdnsAddServiceTextItem, nullptr); err != ERR_OK) {
+        DNSSD_PROTO_TCP, 80, mdnsAddServiceTextItemCallback, nullptr); err != ERR_OK) {
     logger << "Failed to add mDNS service, err=" << err << std::endl;
     return;
   }

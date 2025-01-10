@@ -27,8 +27,8 @@ private:
 
     static void setupHTTP();
 
-    static void mdnsAddServiceTextItem(struct mdns_service *service, void *txt_userdata);
-    static void mdnsExampleReport(netif *netif, u8_t result, s8_t service);
+    static void mdnsAddServiceTextItemCallback(struct mdns_service *service, void *txt_userdata);
+    static void mdnsReportCallback(netif *netif, u8_t result, s8_t service);
     static void setupMDNS();
 
     static void checkLogger();
