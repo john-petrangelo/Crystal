@@ -9,7 +9,6 @@
 
 class Network {
 public:
-
     static void setup();
     static void loop();
     static void getStatus(JsonObject obj);
@@ -23,7 +22,7 @@ public:
 
 private:
     static bool setupWiFiStation(char const *ssid, char const *password);
-    static void setupWiFiSoftAP(); // Not implemented yet
+    static bool setupWiFiSoftAP(std::string const &ssid, std::string const &password);
 
     static void setupHTTP();
 

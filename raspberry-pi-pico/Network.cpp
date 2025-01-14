@@ -145,16 +145,38 @@ bool Network::setupWiFiStation(char const *ssid, char const *password) {
 // Create our own network using Soft AP mode
 // NOTE: This code does not work yet. It does create a new network, but it's
 //       not possible to connect to the web server yet.
-void Network::setupWiFiSoftAP() {
-//  // Setup wifi soft AP mode
-//  cyw43_arch_enable_ap_mode("crystal.local", nullptr, CYW43_AUTH_WPA2_AES_PSK);
-//  logger << "Soft AP started: SSID = " << "crystal.local" << std::endl;
-//  wifiMode = "softAP";
-//
+bool Network::setupWiFiSoftAP(std::string const &ssid, std::string const &password) {
+  // We need to pass in NULL for no password
+  auto const pw = password.empty() ? nullptr : password.c_str();
+
+  // Setup Wi-Fi soft AP mode
+  cyw43_arch_enable_ap_mode(ssid.c_str(), pw, CYW43_AUTH_WPA2_AES_PSK);
+
+  // Check if the AP interface is up
+  if (!(cyw43_state.netif[CYW43_ITF_AP].flags & NETIF_FLAG_UP)) {
+    logger << "Failed to bring up the Access Point interface." << std::endl;
+    return false;
+  }
+
+  logger << "Soft AP started: SSID = " << hostname << std::endl;
+  wifiMode = "softAP";
+
+  // Assign a default IP address to the AP
+  ip4_addr_t ip;
+  IP4_ADDR(&ip, 192, 168, 4, 1);
+  netif_set_ipaddr(&cyw43_state.netif[CYW43_ITF_AP], &ip);
+
+  logger << "Access Point started: SSID=" << ssid << ", IP=" << ipAddrToString(ip.addr) << std::endl;
+  logger << "AP flags: " << cyw43_state.netif[CYW43_ITF_AP].flags << std::endl;
+
+  ipAddress = ipAddrToString(ip.addr);
+  macAddress = macAddrToString(cyw43_state.netif[CYW43_ITF_AP].hwaddr);
+  wifiMode = "access_point";
+
 //  // Set the address we can be reached at
 //  ip4_addr_t addr;
 //  ip4_addr_t mask;
-//  IP4_ADDR(ip_2_ip4(&addr), 192, 168, 4, 189);
+//  IP4_ADDR(ip_2_ip4(&addr), 192, 168, 4, 1);
 //  IP4_ADDR(ip_2_ip4(&mask), 255, 255, 255, 0);
 //
 //  // Start the dhcp server
@@ -177,6 +199,8 @@ void Network::setupWiFiSoftAP() {
 ////  logger << "Soft AP SSID = " << WiFi.softAPSSID() << str::endl
 ////  logger << "Soft AP PSK = " << WiFi.softAPPSK() << str::endl
 ////  logger << "Soft AP has " << WiFi.softAPgetStationNum() << "stations connected\n" << str::endl
+
+  return true;
 }
 
 // Set up the web server and handlers
@@ -276,12 +300,12 @@ void Network::setup() {
 //  networkRenderer = renderer;
 
   // First try to connect to a known base station
-  bool networkDidConnect = setupWiFiStation(SECRET_SSID, SECRET_PASSWORD);
+  // bool networkDidConnect = setupWiFiStation(SECRET_SSID, SECRET_PASSWORD);
 
   // If didn't connect, then start up our own soft access point
-  if (!networkDidConnect) {
-    setupWiFiSoftAP();
-  }
+  // if (!networkDidConnect) {
+    setupWiFiSoftAP(hostname, "");
+  // }
 
   // Set up the hostname for this device
   setupHostname("pico");
