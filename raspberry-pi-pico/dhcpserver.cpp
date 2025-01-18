@@ -153,6 +153,96 @@ void handleDHCPRequest(struct udp_pcb *pcb, const ip_addr_t *addr, uint8_t *payl
     }
 }
 
+bool handleDHCPDiscover(struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, uint32_t xid, uint8_t mac[6]) {
+    logger << "DHCP type DISCOVER" << std::endl;
+    Lease *lease = allocate_ip(mac);
+    if (!lease) {
+        logger << "No IP available for " << macStr(mac) << std::endl << std::endl;
+        pbuf_free(p);
+        return true;
+    }
+
+    // Create DHCP OFFER response
+    struct pbuf *response = pbuf_alloc(PBUF_TRANSPORT, 300, PBUF_RAM);
+    uint8_t *resp_payload = (uint8_t *)response->payload;
+    memset(resp_payload, 0, 300);
+
+    resp_payload[0] = 2; // Message type: Boot Reply
+
+    resp_payload[1] = 0x01; // Hardware type: Ethernet
+    resp_payload[2] = 0x06; // Hardware address length: 6
+
+    *(uint32_t *)&resp_payload[4] = htonl(xid); // Transaction ID
+
+    resp_payload[10] = 0x00; // Unicast
+    resp_payload[11] = 0x00;
+
+    resp_payload[16] = (lease->ip.addr & 0xFF);         // yiaddr
+    resp_payload[17] = (lease->ip.addr >> 8) & 0xFF;
+    resp_payload[18] = (lease->ip.addr >> 16) & 0xFF;
+    resp_payload[19] = (lease->ip.addr >> 24) & 0xFF;
+    memcpy(&resp_payload[28], mac, 6); // Client MAC address
+
+    memcpy(&resp_payload[28], mac, 6); // Client MAC address
+    memset(&resp_payload[34], 0, 10);        // Padding to fill the `chaddr` field
+
+    // DHCP Magic Cookie
+    resp_payload[236] = 0x63;
+    resp_payload[237] = 0x82;
+    resp_payload[238] = 0x53;
+    resp_payload[239] = 0x63;
+
+    // DHCP Options
+    resp_payload[240] = 53;  // DHCP Message Type
+    resp_payload[241] = 1;
+
+    resp_payload[242] = 2;   // DHCP OFFER
+    resp_payload[243] = 54;  // Server Identifier
+    resp_payload[244] = 4;
+    resp_payload[245] = 192; // 192.168.27.1
+    resp_payload[246] = 168;
+    resp_payload[247] = 27;
+    resp_payload[248] = 1;
+
+    resp_payload[249] = 51;  // IP Address Lease Time
+    resp_payload[250] = 4;
+    resp_payload[251] = 0x00; // 8 hours
+    resp_payload[252] = 0x00;
+    resp_payload[253] = 0x70;
+    resp_payload[254] = 0x80;
+
+    resp_payload[255] = 1;   // Subnet Mask
+    resp_payload[256] = 4;
+    resp_payload[257] = 255; // 255.255.255.0
+    resp_payload[258] = 255;
+    resp_payload[259] = 255;
+    resp_payload[260] = 0;
+
+    resp_payload[261] = 3;   // Router
+    resp_payload[262] = 4;
+    resp_payload[263] = 192; // 192.168.27.1
+    resp_payload[264] = 168;
+    resp_payload[265] = 27;
+    resp_payload[266] = 1;
+
+    resp_payload[267] = 6;   // Domain Name Server
+    resp_payload[268] = 4;
+    resp_payload[269] = 192; // 192.168.27.1
+    resp_payload[270] = 168;
+    resp_payload[271] = 27;
+    resp_payload[272] = 1;
+
+    resp_payload[273] = 255; // End Option
+
+    // Send response
+    udp_sendto(pcb, response, addr, DHCP_CLIENT_PORT);
+
+    pbuf_free(response);
+
+    logger << "Offered IP " << ip4addr_ntoa(&lease->ip) << " to MAC " << macStr(mac) << std::endl;
+    return false;
+}
+
 // Handle incoming DHCP requests
 void dhcp_server_callback(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, u16_t port) {
     uint8_t *payload = (uint8_t *)p->payload;
@@ -171,92 +261,7 @@ void dhcp_server_callback(void *arg, struct udp_pcb *pcb, struct pbuf *p, const 
     uint8_t dhcp_message_type = get_dhcp_message_type(payload, p->len);
     if (dhcp_message_type == 1) {
         // Handle DHCP DISCOVER
-        logger << "DHCP type DISCOVER" << std::endl;
-        Lease *lease = allocate_ip(mac);
-        if (!lease) {
-            logger << "No IP available for " << macStr(mac) << std::endl << std::endl;
-            pbuf_free(p);
-            return;
-        }
-
-        // Create DHCP OFFER response
-        struct pbuf *response = pbuf_alloc(PBUF_TRANSPORT, 300, PBUF_RAM);
-        uint8_t *resp_payload = (uint8_t *)response->payload;
-        memset(resp_payload, 0, 300);
-
-        resp_payload[0] = 2; // Message type: Boot Reply
-
-        resp_payload[1] = 0x01; // Hardware type: Ethernet
-        resp_payload[2] = 0x06; // Hardware address length: 6
-
-        *(uint32_t *)&resp_payload[4] = htonl(xid); // Transaction ID
-
-        resp_payload[10] = 0x00; // Unicast
-        resp_payload[11] = 0x00;
-
-        resp_payload[16] = (lease->ip.addr & 0xFF);         // yiaddr
-        resp_payload[17] = (lease->ip.addr >> 8) & 0xFF;
-        resp_payload[18] = (lease->ip.addr >> 16) & 0xFF;
-        resp_payload[19] = (lease->ip.addr >> 24) & 0xFF;
-        memcpy(&resp_payload[28], mac, 6); // Client MAC address
-
-        memcpy(&resp_payload[28], mac, 6); // Client MAC address
-        memset(&resp_payload[34], 0, 10);        // Padding to fill the `chaddr` field
-
-        // DHCP Magic Cookie
-        resp_payload[236] = 0x63;
-        resp_payload[237] = 0x82;
-        resp_payload[238] = 0x53;
-        resp_payload[239] = 0x63;
-
-        // DHCP Options
-        resp_payload[240] = 53;  // DHCP Message Type
-        resp_payload[241] = 1;
-
-        resp_payload[242] = 2;   // DHCP OFFER
-        resp_payload[243] = 54;  // Server Identifier
-        resp_payload[244] = 4;
-        resp_payload[245] = 192; // 192.168.27.1
-        resp_payload[246] = 168;
-        resp_payload[247] = 27;
-        resp_payload[248] = 1;
-
-        resp_payload[249] = 51;  // IP Address Lease Time
-        resp_payload[250] = 4;
-        resp_payload[251] = 0x00; // 8 hours
-        resp_payload[252] = 0x00;
-        resp_payload[253] = 0x70;
-        resp_payload[254] = 0x80;
-
-        resp_payload[255] = 1;   // Subnet Mask
-        resp_payload[256] = 4;
-        resp_payload[257] = 255; // 255.255.255.0
-        resp_payload[258] = 255;
-        resp_payload[259] = 255;
-        resp_payload[260] = 0;
-
-        resp_payload[261] = 3;   // Router
-        resp_payload[262] = 4;
-        resp_payload[263] = 192; // 192.168.27.1
-        resp_payload[264] = 168;
-        resp_payload[265] = 27;
-        resp_payload[266] = 1;
-
-        resp_payload[267] = 6;   // Domain Name Server
-        resp_payload[268] = 4;
-        resp_payload[269] = 192; // 192.168.27.1
-        resp_payload[270] = 168;
-        resp_payload[271] = 27;
-        resp_payload[272] = 1;
-
-        resp_payload[273] = 255; // End Option
-
-        // Send response
-        udp_sendto(pcb, response, addr, DHCP_CLIENT_PORT);
-
-        pbuf_free(response);
-
-        logger << "Offered IP " << ip4addr_ntoa(&lease->ip) << " to MAC " << macStr(mac) << std::endl;
+        if (handleDHCPDiscover(pcb, p, addr, xid, mac)) return;
     } else if (dhcp_message_type == 3) {
         handleDHCPRequest(pcb, addr, payload, xid, mac);
     } else if (dhcp_message_type == 5) {
