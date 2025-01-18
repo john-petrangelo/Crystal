@@ -14,6 +14,8 @@ add_executable(crystal-pi-pico
         Crystal.cpp
         Demos.h
         Demos.cpp
+        dhcpserver.h
+        dhcpserver.cpp
         Handlers.h
         Handlers.cpp
         Network.h

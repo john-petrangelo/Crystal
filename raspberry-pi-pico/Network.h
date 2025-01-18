@@ -44,5 +44,4 @@ private:
     static LogServer logServer;
 
     static Renderer *networkRenderer;
-
 };

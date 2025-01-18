@@ -2,11 +2,13 @@
 #include <iomanip>
 #include <iostream>
 
-#include <lwip/apps/mdns.h>
 #include <pico/cyw43_arch.h>
+
+#include <lwip/apps/mdns.h>
 
 #include "lumos-arduino/Logger.h"
 
+#include "dhcpserver.h"
 #include "Handlers.h"
 #include "HTTP/HTTPServer.h"
 #include "Logging/LogServer.h"
@@ -163,7 +165,7 @@ bool Network::setupWiFiSoftAP(std::string const &ssid, std::string const &passwo
 
   // Assign a default IP address to the AP
   ip4_addr_t ip;
-  IP4_ADDR(&ip, 192, 168, 4, 1);
+  IP4_ADDR(&ip, 192, 168, 27, 1);
   netif_set_ipaddr(&cyw43_state.netif[CYW43_ITF_AP], &ip);
 
   logger << "Access Point started: SSID=" << ssid << ", IP=" << ipAddrToString(ip.addr) << std::endl;
@@ -173,22 +175,12 @@ bool Network::setupWiFiSoftAP(std::string const &ssid, std::string const &passwo
   macAddress = macAddrToString(cyw43_state.netif[CYW43_ITF_AP].hwaddr);
   wifiMode = "access_point";
 
-//  // Set the address we can be reached at
-//  ip4_addr_t addr;
-//  ip4_addr_t mask;
-//  IP4_ADDR(ip_2_ip4(&addr), 192, 168, 4, 1);
-//  IP4_ADDR(ip_2_ip4(&mask), 255, 255, 255, 0);
-//
-//  // Start the dhcp server
-//  dhcp_server_t dhcp_server;
-//  dhcp_server_init(&dhcp_server, &addr, &mask);
-//
-//  // Start the dns server
-//  dns_server_t dns_server;
-//  dns_server_init(&dns_server, &addr);
-//
-//
-////  //   Log each time a station connects or disconnects
+  // Start the dhcp server
+  logger << "Starting DHCP server..." << std::endl;
+  start_dhcp_server();
+  logger << "DHCP server started" << std::endl;
+
+////  // TODO  Log each time a station connects or disconnects
 ////  WiFi.onSoftAPModeStationDisconnected([](const WiFiEventSoftAPModeStationDisconnected& evt) {
 ////      logger << "Station disconnected " << macToString(evt.mac) << std::endl;
 ////  });
@@ -304,7 +296,7 @@ void Network::setup() {
 
   // If didn't connect, then start up our own soft access point
   // if (!networkDidConnect) {
-    setupWiFiSoftAP(hostname, "");
+    setupWiFiSoftAP(hostname, "picopico");
   // }
 
   // Set up the hostname for this device
