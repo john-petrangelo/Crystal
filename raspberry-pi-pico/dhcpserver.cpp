@@ -217,6 +217,10 @@ void handleDHCPRequest(struct udp_pcb *pcb, const ip_addr_t *addr, uint8_t *payl
 
     // Fill DHCP ACK
     resp_payload[0] = 2; // Message type: Boot Reply
+
+    resp_payload[1] = 0x01; // Hardware type: Ethernet
+    resp_payload[2] = 0x06; // Hardware address length: 6 bytes
+
     *(uint32_t *)&resp_payload[4] = htonl(xid); // Transaction ID
 
     // Copy the flags from the client REQUEST
