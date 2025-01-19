@@ -2,8 +2,9 @@
 #include <format>
 #include <iomanip>
 
-#include "lwip/udp.h"
-#include "lwip/ip4_addr.h"
+#include <lwip/prot/dhcp.h>
+#include <lwip/ip4_addr.h>
+#include <lwip/udp.h>
 
 #include <lumos-arduino/Logger.h>
 
@@ -83,7 +84,7 @@ uint8_t get_dhcp_message_type(uint8_t *payload, uint16_t len) {
         if (option == 255) { // End of options
             break;
         }
-        if (option == 53) { // DHCP Message Type
+        if (option == DHCP_OPTION_MESSAGE_TYPE) {
             return payload[options_offset + 2]; // Value is at offset +2
         }
         options_offset += 2 + payload[options_offset + 1]; // Skip to the next option
@@ -150,44 +151,44 @@ void handleDHCPRequest(struct udp_pcb *pcb, const ip_addr_t *addr, uint8_t *payl
     uint16_t offset = 240;
 
     // Option: DHCP Message Type (ACK)
-    resp_payload[offset++] = 53; // Option: DHCP Message Type
-    resp_payload[offset++] = 1;  // Length
-    resp_payload[offset++] = 5;  // ACK
+    resp_payload[offset++] = DHCP_OPTION_MESSAGE_TYPE;
+    resp_payload[offset++] = DHCP_OPTION_MESSAGE_TYPE_LEN;
+    resp_payload[offset++] = DHCP_ACK;
 
     // Option: Server Identifier
-    resp_payload[offset++] = 54; // Server Identifier
-    resp_payload[offset++] = 4;
+    resp_payload[offset++] = DHCP_OPTION_SERVER_ID;
+    resp_payload[offset++] = 4; // Length
     resp_payload[offset++] = 192; // 192.168.27.1
     resp_payload[offset++] = 168;
     resp_payload[offset++] = 27;
     resp_payload[offset++] = 1;
 
     // Option: IP Address Lease Time
-    resp_payload[offset++] = 51; // IP Address Lease Time
-    resp_payload[offset++] = 4;
+    resp_payload[offset++] = DHCP_OPTION_LEASE_TIME;
+    resp_payload[offset++] = 4; // Length
     resp_payload[offset++] = 0x00; // 8 hours = 28800 seconds
     resp_payload[offset++] = 0x00;
     resp_payload[offset++] = 0x70;
     resp_payload[offset++] = 0x80;
 
     // Option: Renewal Time (T1)
-    resp_payload[offset++] = 58; // Renewal Time (T1)
-    resp_payload[offset++] = 4;
+    resp_payload[offset++] = DHCP_OPTION_T1; // Renewal Time (T1)
+    resp_payload[offset++] = 4; // Length
     resp_payload[offset++] = 0x00; // 50% of lease time
     resp_payload[offset++] = 0x00;
     resp_payload[offset++] = 0x38;
     resp_payload[offset++] = 0x40;
 
     // Option: Rebinding Time (T2)
-    resp_payload[offset++] = 59; // Rebinding Time (T2)
-    resp_payload[offset++] = 4;
+    resp_payload[offset++] = DHCP_OPTION_T2; // Rebinding Time (T2)
+    resp_payload[offset++] = 4; // Length
     resp_payload[offset++] = 0x00; // 87.5% of lease time
     resp_payload[offset++] = 0x00;
     resp_payload[offset++] = 0x61;
     resp_payload[offset++] = 0xA8;
 
     // Option: Subnet Mask
-    resp_payload[offset++] = 1;  // Option
+    resp_payload[offset++] = DHCP_OPTION_SUBNET_MASK;
     resp_payload[offset++] = 4;  // Length
     resp_payload[offset++] = 255;
     resp_payload[offset++] = 255;
@@ -195,7 +196,7 @@ void handleDHCPRequest(struct udp_pcb *pcb, const ip_addr_t *addr, uint8_t *payl
     resp_payload[offset++] = 0;
 
     // Option: Router
-    resp_payload[offset++] = 3;  // Option
+    resp_payload[offset++] = DHCP_OPTION_ROUTER;
     resp_payload[offset++] = 4;  // Length
     resp_payload[offset++] = 192;
     resp_payload[offset++] = 168;
@@ -203,14 +204,14 @@ void handleDHCPRequest(struct udp_pcb *pcb, const ip_addr_t *addr, uint8_t *payl
     resp_payload[offset++] = 1;
 
     // Option: DNS Server
-    resp_payload[offset++] = 6;  // Option
+    resp_payload[offset++] = DHCP_OPTION_DNS_SERVER;
     resp_payload[offset++] = 4;  // Length
     resp_payload[offset++] = 192;
     resp_payload[offset++] = 168;
     resp_payload[offset++] = 27;
     resp_payload[offset++] = 1;
 
-    resp_payload[offset++] = 255; // End Option
+    resp_payload[offset++] = DHCP_OPTION_END; // End Option
     memset(&resp_payload[offset], 0, 4); // Padding
 
     // Send the ACK (broadcast or unicast based on flags)
@@ -265,46 +266,46 @@ bool handleDHCPDiscover(struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *ad
     resp_payload[239] = 0x63;
 
     // DHCP Options
-    resp_payload[240] = 53;  // DHCP Message Type
-    resp_payload[241] = 1;
+    resp_payload[240] = DHCP_OPTION_MESSAGE_TYPE;
+    resp_payload[241] = DHCP_OPTION_MESSAGE_TYPE_LEN;
+    resp_payload[242] = DHCP_OFFER;
 
-    resp_payload[242] = 2;   // DHCP OFFER
-    resp_payload[243] = 54;  // Server Identifier
-    resp_payload[244] = 4;
+    resp_payload[243] = DHCP_OPTION_SERVER_ID;
+    resp_payload[244] = 4; // Length
     resp_payload[245] = 192; // 192.168.27.1
     resp_payload[246] = 168;
     resp_payload[247] = 27;
     resp_payload[248] = 1;
 
-    resp_payload[249] = 51;  // IP Address Lease Time
-    resp_payload[250] = 4;
+    resp_payload[249] = DHCP_OPTION_LEASE_TIME;
+    resp_payload[250] = 4; // Length
     resp_payload[251] = 0x00; // 8 hours
     resp_payload[252] = 0x00;
     resp_payload[253] = 0x70;
     resp_payload[254] = 0x80;
 
-    resp_payload[255] = 1;   // Subnet Mask
-    resp_payload[256] = 4;
+    resp_payload[255] = DHCP_OPTION_SUBNET_MASK;
+    resp_payload[256] = 4; // Length
     resp_payload[257] = 255; // 255.255.255.0
     resp_payload[258] = 255;
     resp_payload[259] = 255;
     resp_payload[260] = 0;
 
-    resp_payload[261] = 3;   // Router
-    resp_payload[262] = 4;
+    resp_payload[261] = DHCP_OPTION_ROUTER;
+    resp_payload[262] = 4; // Length
     resp_payload[263] = 192; // 192.168.27.1
     resp_payload[264] = 168;
     resp_payload[265] = 27;
     resp_payload[266] = 1;
 
-    resp_payload[267] = 6;   // Domain Name Server
-    resp_payload[268] = 4;
+    resp_payload[267] = DHCP_OPTION_DNS_SERVER;
+    resp_payload[268] = 4; // Length
     resp_payload[269] = 192; // 192.168.27.1
     resp_payload[270] = 168;
     resp_payload[271] = 27;
     resp_payload[272] = 1;
 
-    resp_payload[273] = 255; // End Option
+    resp_payload[273] = DHCP_OPTION_END;
 
     // Send response
     udp_sendto(pcb, response, addr, DHCP_CLIENT_PORT);
