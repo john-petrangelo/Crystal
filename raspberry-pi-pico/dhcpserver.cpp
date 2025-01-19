@@ -95,62 +95,134 @@ void handleDHCPRequest(struct udp_pcb *pcb, const ip_addr_t *addr, uint8_t *payl
     // Handle DHCP REQUEST
     logger << "DHCP type REQUEST" << std::endl;
 
-    ip4_addr_t requested_ip;
-    requested_ip.addr = *(uint32_t *)&payload[16]; // yiaddr
+    // Extract requested IP from Option 50
+    uint32_t requested_ip = 0;
+    uint16_t options_offset = 240; // Start of DHCP options
+    while (options_offset < 300) {
+        uint8_t option = payload[options_offset];
+        if (option == 50) { // Requested IP Address
+            memcpy(&requested_ip, &payload[options_offset + 2], sizeof(requested_ip));
+            break;
+        }
+        if (option == 255) break; // End Option
+        options_offset += 2 + payload[options_offset + 1]; // Skip to next option
+    }
+
+    if (requested_ip == 0) {
+        logger << "No requested IP in Option 50, using yiaddr" << std::endl;
+        requested_ip = *(uint32_t *)&payload[16]; // Fallback to yiaddr
+    }
 
     // Validate the requested IP
     bool valid_ip = false;
     for (int i = 0; i < sizeof(ip_pool) / sizeof(ip_pool[0]); i++) {
-        if (ip_pool[i].active && ip_pool[i].ip.addr == requested_ip.addr &&
-            memcmp(ip_pool[i].mac, mac, 6) == 0) {
+        if (ip_pool[i].active && ip_pool[i].ip.addr == requested_ip && memcmp(ip_pool[i].mac, mac, 6) == 0) {
             valid_ip = true;
             break;
         }
     }
 
-    if (valid_ip) {
-        // Create DHCP ACK response
-        struct pbuf *response = pbuf_alloc(PBUF_TRANSPORT, 300, PBUF_RAM);
-        uint8_t *resp_payload = (uint8_t *)response->payload;
-        memset(resp_payload, 0, 300);
-
-        // Fill DHCP ACK
-        resp_payload[0] = 2; // Message type: Boot Reply
-        *(uint32_t *)&resp_payload[4] = htonl(xid); // Transaction ID
-        resp_payload[10] = 0x80; // Set the first byte of flags
-        resp_payload[11] = 0x00; // Ensure the second byte is zero
-        resp_payload[16] = requested_ip.addr & 0xFF;         // yiaddr
-        resp_payload[17] = (requested_ip.addr >> 8) & 0xFF;
-        resp_payload[18] = (requested_ip.addr >> 16) & 0xFF;
-        resp_payload[19] = (requested_ip.addr >> 24) & 0xFF;
-        memcpy(&resp_payload[28], mac, 6); // Client MAC address
-
-        // DHCP Options
-        resp_payload[240] = 53; // Option: DHCP Message Type
-        resp_payload[241] = 1;  // Length
-        resp_payload[242] = 5;  // ACK
-
-        resp_payload[256] = 6;  // Option: DNS Server
-        resp_payload[257] = 4;  // Length
-        resp_payload[258] = 192; // DNS Server: 192.168.27.1 (same as router)
-        resp_payload[259] = 168;
-        resp_payload[260] = 27;
-        resp_payload[261] = 1;
-
-        resp_payload[262] = 54;  // Option: Server Identifier
-        resp_payload[263] = 4;   // Length
-        resp_payload[264] = 192; // Server IP: 192.168.27.1
-        resp_payload[265] = 168;
-        resp_payload[266] = 27;
-        resp_payload[267] = 1;
-
-        udp_sendto(pcb, response, addr, DHCP_CLIENT_PORT);
-        pbuf_free(response);
-
-        logger << "Acknowledged IP " << ip4addr_ntoa(&requested_ip) << " for MAC " << macStr(mac) << std::endl;
-    } else {
-        logger << "Invalid IP " << ip4addr_ntoa(&requested_ip) << " requested by MAC " << macStr(mac) << std::endl;
+    if (!valid_ip) {
+        logger << "Invalid IP " << ip4addr_ntoa((ip4_addr_t *)&requested_ip) << " requested by MAC " << macStr(mac) << std::endl;
+        return;
     }
+
+    // Create DHCP ACK response
+    struct pbuf *response = pbuf_alloc(PBUF_TRANSPORT, 300, PBUF_RAM);
+    uint8_t *resp_payload = (uint8_t *)response->payload;
+    memset(resp_payload, 0, 300);
+
+    // Fill DHCP ACK
+    resp_payload[0] = 2; // Message type: Boot Reply
+    *(uint32_t *)&resp_payload[4] = htonl(xid); // Transaction ID
+
+    // Copy the flags from the client REQUEST
+    resp_payload[10] = payload[10];
+    resp_payload[11] = payload[11];
+
+    resp_payload[16] = requested_ip & 0xFF;         // yiaddr
+    resp_payload[17] = (requested_ip >> 8) & 0xFF;
+    resp_payload[18] = (requested_ip >> 16) & 0xFF;
+    resp_payload[19] = (requested_ip >> 24) & 0xFF;
+    memcpy(&resp_payload[28], mac, 6); // Client MAC address
+
+    // DHCP Options
+    uint16_t offset = 240;
+
+    // Option: DHCP Message Type (ACK)
+    resp_payload[offset++] = 53; // Option: DHCP Message Type
+    resp_payload[offset++] = 1;  // Length
+    resp_payload[offset++] = 5;  // ACK
+
+    // Option: Server Identifier
+    resp_payload[offset++] = 54; // Server Identifier
+    resp_payload[offset++] = 4;
+    resp_payload[offset++] = 192; // 192.168.27.1
+    resp_payload[offset++] = 168;
+    resp_payload[offset++] = 27;
+    resp_payload[offset++] = 1;
+
+    // Option: IP Address Lease Time
+    resp_payload[offset++] = 51; // IP Address Lease Time
+    resp_payload[offset++] = 4;
+    resp_payload[offset++] = 0x00; // 8 hours = 28800 seconds
+    resp_payload[offset++] = 0x00;
+    resp_payload[offset++] = 0x70;
+    resp_payload[offset++] = 0x80;
+
+    // Option: Renewal Time (T1)
+    resp_payload[offset++] = 58; // Renewal Time (T1)
+    resp_payload[offset++] = 4;
+    resp_payload[offset++] = 0x00; // 50% of lease time
+    resp_payload[offset++] = 0x00;
+    resp_payload[offset++] = 0x38;
+    resp_payload[offset++] = 0x40;
+
+    // Option: Rebinding Time (T2)
+    resp_payload[offset++] = 59; // Rebinding Time (T2)
+    resp_payload[offset++] = 4;
+    resp_payload[offset++] = 0x00; // 87.5% of lease time
+    resp_payload[offset++] = 0x00;
+    resp_payload[offset++] = 0x61;
+    resp_payload[offset++] = 0xA8;
+
+    // Option: Subnet Mask
+    resp_payload[offset++] = 1;  // Option
+    resp_payload[offset++] = 4;  // Length
+    resp_payload[offset++] = 255;
+    resp_payload[offset++] = 255;
+    resp_payload[offset++] = 255;
+    resp_payload[offset++] = 0;
+
+    // Option: Router
+    resp_payload[offset++] = 3;  // Option
+    resp_payload[offset++] = 4;  // Length
+    resp_payload[offset++] = 192;
+    resp_payload[offset++] = 168;
+    resp_payload[offset++] = 27;
+    resp_payload[offset++] = 1;
+
+    // Option: DNS Server
+    resp_payload[offset++] = 6;  // Option
+    resp_payload[offset++] = 4;  // Length
+    resp_payload[offset++] = 192;
+    resp_payload[offset++] = 168;
+    resp_payload[offset++] = 27;
+    resp_payload[offset++] = 1;
+
+    resp_payload[offset++] = 255; // End Option
+    memset(&resp_payload[offset], 0, 4); // Padding
+
+    // Send the ACK (broadcast or unicast based on flags)
+    if (payload[10] & 0x80) { // Broadcast flag set
+        udp_sendto(pcb, response, IP_ADDR_BROADCAST, DHCP_CLIENT_PORT);
+    } else {
+        udp_sendto(pcb, response, addr, DHCP_CLIENT_PORT);
+    }
+
+    pbuf_free(response);
+
+    logger << "Acknowledged IP " << ip4addr_ntoa((ip4_addr_t *)&requested_ip) << " for MAC " << macStr(mac) << std::endl;
 }
 
 bool handleDHCPDiscover(struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, uint32_t xid, uint8_t mac[6]) {
