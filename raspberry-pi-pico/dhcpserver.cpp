@@ -229,6 +229,12 @@ void handleDHCPRequest(struct udp_pcb *pcb, const ip_addr_t *addr, uint8_t *payl
     resp_payload[19] = (requested_ip >> 24) & 0xFF;
     memcpy(&resp_payload[28], mac, 6); // Client MAC address
 
+    // DHCP Magic Cookie
+    resp_payload[236] = 0x63;
+    resp_payload[237] = 0x82;
+    resp_payload[238] = 0x53;
+    resp_payload[239] = 0x63;
+
     // DHCP Options
     uint8_t constexpr serverIP[] = {192, 168, 27, 1};
     uint16_t offset = 240;
