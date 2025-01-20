@@ -61,30 +61,32 @@ std::string Network::macAddrToString(const uint8_t* mac) {
 }
 
 void Network::setupHostname(const std::string &baseName) {
-  std::istringstream macStream(macAddress);
-  std::vector<std::string> parts;
-  std::string segment;
+  hostname = baseName;
 
-  // Every segment must be two characters long and be a valid hex number
-  while (std::getline(macStream, segment, ':')) {
-    if (segment.size() != 2 || !std::ranges::all_of(segment, ::isxdigit)) {
-      hostname = baseName + "-0000";
-    }
-    parts.push_back(segment);
-  }
-
-  // There must be exactly six parts
-  if (parts.size() != 6) {
-    hostname = baseName + "-0000";
-  }
-
-  // Construct the hostname using the basename and the fifth and sixth parts
-  hostname.reserve(baseName.size() + 4);
-  hostname += '-';
-  hostname += parts[4][0];
-  hostname += parts[4][1];
-  hostname += parts[5][0];
-  hostname += parts[5][1];
+  // std::istringstream macStream(macAddress);
+  // std::vector<std::string> parts;
+  // std::string segment;
+  //
+  // // Every segment must be two characters long and be a valid hex number
+  // while (std::getline(macStream, segment, ':')) {
+  //   if (segment.size() != 2 || !std::ranges::all_of(segment, ::isxdigit)) {
+  //     hostname = baseName + "-0000";
+  //   }
+  //   parts.push_back(segment);
+  // }
+  //
+  // // There must be exactly six parts
+  // if (parts.size() != 6) {
+  //   hostname = baseName + "-0000";
+  // }
+  //
+  // // Construct the hostname using the basename and the fifth and sixth parts
+  // hostname.reserve(baseName.size() + 4);
+  // hostname += '-';
+  // hostname += parts[4][0];
+  // hostname += parts[4][1];
+  // hostname += parts[5][0];
+  // hostname += parts[5][1];
 }
 
 void Network::getStatus(JsonObject obj) {
