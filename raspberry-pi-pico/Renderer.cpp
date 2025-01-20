@@ -1,9 +1,6 @@
 #include "Network.h"
 #include "Renderer.h"
 
-#include <hardware/pio.h>
-#include "ws2812.pio.h"
-
 // TODO Doc
 void Renderer::render() {
     // If there is no model, we're done.
@@ -19,7 +16,7 @@ void Renderer::render() {
   // Update the current state of the model to match the current time
   auto const before_update_ms = to_ms_since_boot(get_absolute_time());
   _model->update(now_sec);
-  updateDuration = static_cast<float>((to_ms_since_boot(get_absolute_time())) - before_update_ms) / 1000.0f;
+  updateDuration = (to_ms_since_boot(get_absolute_time()) - before_update_ms) / 1000.0f;
 
   // Set the color of each pixel
   auto const before_render_ms = to_ms_since_boot(get_absolute_time());
@@ -28,15 +25,15 @@ void Renderer::render() {
       auto const color = _model->render(pos);
       setPixel(i, color);
   }
-  renderDuration = static_cast<float>((to_ms_since_boot(get_absolute_time())) - before_render_ms) / 1000.0f;
+  renderDuration = (to_ms_since_boot(get_absolute_time()) - before_render_ms) / 1000.0f;
 
   // Write the colors to the LED strip
   auto const before_show_ms = to_ms_since_boot(get_absolute_time());
   show();
-  showDuration = static_cast<float>((to_ms_since_boot(get_absolute_time())) - before_show_ms) / 1000.0f;
+  showDuration = (to_ms_since_boot(get_absolute_time()) - before_show_ms) / 1000.0f;
 }
 
-void Renderer::getStatus(JsonObject obj) const {
+void Renderer::getStatus(JsonObject const obj) const {
   obj["updateDuration"] = updateDuration;
   obj["renderDuration"] = renderDuration;
   obj["showDuration"] = showDuration;
@@ -45,17 +42,17 @@ void Renderer::getStatus(JsonObject obj) const {
 }
 
 // TODO Doc
-RaspberryPiPico_Renderer::RaspberryPiPico_Renderer(int pixelsCount) :
+RaspberryPiPico_Renderer::RaspberryPiPico_Renderer(int const pixelsCount) :
         Renderer(), _strip(22, pixelsCount)
 {
     _strip.show();  // Initialize all pixels to 'off'
 }
 
-void RaspberryPiPico_Renderer::setPixel(int i, Color c) {
+void RaspberryPiPico_Renderer::setPixel(int const i, Color const c) {
     _strip.setPixel(i, c);
 }
 
-void RaspberryPiPico_Renderer::getStatus(JsonObject obj) const {
+void RaspberryPiPico_Renderer::getStatus(JsonObject const obj) const {
     obj["type"] = "RaspberryPiPico_Renderer";
     obj["pixelsCount"] = pixelsCount();
     obj["brightness"] = brightness();
