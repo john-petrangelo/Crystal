@@ -30,6 +30,8 @@ std::string Network::hostname = "pico";
 std::string Network::ipAddress = "undefined";
 std::string Network::macAddress = "undefined";
 std::string Network::wifiMode = "undefined";
+float Network::pollDuration = 0.0;
+float Network::checkLoggerDuration = 0.0;
 Renderer* Network::networkRenderer;
 
 // Server used for HTTP requests
@@ -94,6 +96,8 @@ void Network::getStatus(JsonObject obj) {
   obj["ipAddress"] = ipAddress;
   obj["macAddress"] = macAddress;
   obj["wifiMode"] = wifiMode;
+  obj["pollDuration"] = pollDuration;
+  obj["checkLoggerDuration"] = checkLoggerDuration;
   httpServer.getStatus(obj["httpServer"].to<JsonObject>());
 }
 
@@ -313,6 +317,12 @@ void Network::setup() {
 
 void Network::loop() {
   // Call poll to give the network a change run each iteration
+  float const beforePollMS = to_ms_since_boot(get_absolute_time());
   cyw43_arch_poll();
+  pollDuration = (to_ms_since_boot(get_absolute_time()) - beforePollMS) / 1000.0f;
+
+  // Check to see if the network logger needs to be setup or torn down
+  float const beforeCheckLoggerMS = to_ms_since_boot(get_absolute_time());
   checkLogger();
+  checkLoggerDuration = (to_ms_since_boot(get_absolute_time()) - beforeCheckLoggerMS) / 1000.0f;
 }

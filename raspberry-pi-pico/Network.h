@@ -44,4 +44,7 @@ private:
     static LogServer logServer;
 
     static Renderer *networkRenderer;
+
+    static float pollDuration;
+    static float checkLoggerDuration;
 };
