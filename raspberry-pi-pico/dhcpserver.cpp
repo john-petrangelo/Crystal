@@ -197,12 +197,12 @@ void handleDHCPRequest(struct udp_pcb *pcb, const ip_addr_t *addr, uint8_t *payl
 
     if (requested_ip == 0) {
         logger << "DHCP No requested IP in Option 50, using yiaddr" << std::endl;
-        requested_ip = *(uint32_t *)&payload[16]; // Fallback to yiaddr
+        requested_ip = *reinterpret_cast<uint32_t *>(&payload[16]); // Fallback to yiaddr
     }
 
     // Validate the requested IP
     bool valid_ip = false;
-    for (int i = 0; i < sizeof(ip_pool) / sizeof(ip_pool[0]); i++) {
+    for (int i = 0; i < std::size(ip_pool); i++) {
         if (ip_pool[i].active && ip_pool[i].ip.addr == requested_ip && memcmp(ip_pool[i].mac, mac, 6) == 0) {
             valid_ip = true;
             break;
@@ -210,13 +210,13 @@ void handleDHCPRequest(struct udp_pcb *pcb, const ip_addr_t *addr, uint8_t *payl
     }
 
     if (!valid_ip) {
-        logger << "DHCP Invalid IP " << ip4addr_ntoa((ip4_addr_t *)&requested_ip) << " requested by MAC " << macStr(mac) << std::endl;
+        logger << "DHCP Invalid IP " << ip4addr_ntoa(reinterpret_cast<ip4_addr_t *>(&requested_ip)) << " requested by MAC " << macStr(mac) << std::endl;
         return;
     }
 
     // Create DHCP ACK response
-    struct pbuf *response = pbuf_alloc(PBUF_TRANSPORT, 300, PBUF_RAM);
-    uint8_t *resp_payload = (uint8_t *)response->payload;
+    pbuf *response = pbuf_alloc(PBUF_TRANSPORT, 300, PBUF_RAM);
+    auto const resp_payload = static_cast<uint8_t *>(response->payload);
     memset(resp_payload, 0, 300);
 
     // Fill DHCP ACK
@@ -225,7 +225,7 @@ void handleDHCPRequest(struct udp_pcb *pcb, const ip_addr_t *addr, uint8_t *payl
     resp_payload[1] = 0x01; // Hardware type: Ethernet
     resp_payload[2] = 0x06; // Hardware address length: 6 bytes
 
-    *(uint32_t *)&resp_payload[4] = htonl(xid); // Transaction ID
+    *reinterpret_cast<uint32_t *>(&resp_payload[4]) = htonl(xid); // Transaction ID
 
     // Copy the flags from the client REQUEST
     resp_payload[10] = payload[10];
@@ -287,7 +287,7 @@ void handleDHCPRequest(struct udp_pcb *pcb, const ip_addr_t *addr, uint8_t *payl
 
     pbuf_free(response);
 
-    logger << "DHCP Acknowledged IP " << ip4addr_ntoa((ip4_addr_t *)&requested_ip) << " for MAC " << macStr(mac) << std::endl;
+    logger << "DHCP Acknowledged IP " << ip4addr_ntoa(reinterpret_cast<ip4_addr_t *>(&requested_ip)) << " for MAC " << macStr(mac) << std::endl;
 }
 
 void handleDHCPRelease(uint8_t mac[6]) {
@@ -300,7 +300,7 @@ void handleDHCPRelease(uint8_t mac[6]) {
 
 // Handle incoming DHCP requests
 void dhcp_server_callback(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, u16_t port) {
-    uint8_t *payload = (uint8_t *)p->payload;
+    auto const payload = static_cast<uint8_t *>(p->payload);
 
     // Extract transaction ID (xid) and client MAC address
     // uint32_t const rawXID = *reinterpret_cast<uint32_t *>(&payload[4]);
@@ -313,8 +313,7 @@ void dhcp_server_callback(void *arg, struct udp_pcb *pcb, struct pbuf *p, const 
 
     logger << "DHCP received " << p->len << "bytes, xid=" << xid_hex << " mac=" << macStr(mac) << std::endl;
 
-    uint8_t dhcp_message_type = get_dhcp_message_type(payload, p->len);
-    switch (dhcp_message_type) {
+    switch (uint8_t dhcp_message_type = get_dhcp_message_type(payload, p->len)) {
         case DHCP_DISCOVER:
             handleDHCPDiscover(pcb, addr, xid, mac);
             break;
@@ -333,9 +332,7 @@ void dhcp_server_callback(void *arg, struct udp_pcb *pcb, struct pbuf *p, const 
 
 // Start the DHCP server
 void start_dhcp_server() {
-    // logger << "Not starting DHCP server, commented out" << std::endl;
-
-    struct udp_pcb *dhcp_pcb = udp_new();
+    udp_pcb *dhcp_pcb = udp_new();
     udp_bind(dhcp_pcb, IP_ADDR_ANY, DHCP_SERVER_PORT);
-    udp_recv(dhcp_pcb, dhcp_server_callback, NULL);
+    udp_recv(dhcp_pcb, dhcp_server_callback, nullptr);
 }
