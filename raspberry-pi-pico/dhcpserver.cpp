@@ -68,12 +68,12 @@ std::string macStr(uint8_t mac[6]) {
         }
     }
 
-    uint8_t ghostMac[6] =         {0x5e, 0x04, 0xc0, 0x31, 0x61, 0x36};
-    uint8_t purplePhoenexMac[6] = {0xa2, 0x32, 0xc1, 0xfa, 0x01, 0x70};
+    uint8_t const ghostMac[6] =         {0x5e, 0x04, 0xc0, 0x31, 0x61, 0x36};
+    uint8_t const purplePhoenixMac[6] = {0xa2, 0x32, 0xc1, 0xfa, 0x01, 0x70};
 
     if (memcmp(mac, ghostMac, 6) == 0) {
         oss << " (Ghost)";
-    } else if (memcmp(mac, purplePhoenexMac, 6) == 0) {
+    } else if (memcmp(mac, purplePhoenixMac, 6) == 0) {
         oss << " (PurplePhoenix)";
     }
 
@@ -109,12 +109,11 @@ void appendDHCPMsgTypeOption(uint8_t *payload, uint16_t &offset, uint8_t msgType
     payload[offset++] = msgType;
 }
 
-bool handleDHCPDiscover(struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, uint32_t xid, uint8_t mac[6]) {
+bool handleDHCPDiscover(struct udp_pcb *pcb, const ip_addr_t *addr, uint32_t xid, uint8_t mac[6]) {
     logger << "DHCP type DISCOVER" << std::endl;
     Lease *lease = allocate_ip(mac);
     if (!lease) {
         logger << "No IP available for " << macStr(mac) << std::endl << std::endl;
-        pbuf_free(p);
         return true;
     }
 
@@ -175,6 +174,7 @@ bool handleDHCPDiscover(struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *ad
     pbuf_free(response);
 
     logger << "Offered IP " << ip4addr_ntoa(&lease->ip) << " to MAC " << macStr(mac) << std::endl;
+
     return false;
 }
 
@@ -306,12 +306,12 @@ void dhcp_server_callback(void *arg, struct udp_pcb *pcb, struct pbuf *p, const 
     logger << "DHCP received " << p->len << "bytes, xid=" << xid_hex << " mac=" << macStr(mac) << std::endl;
 
     uint8_t dhcp_message_type = get_dhcp_message_type(payload, p->len);
-    if (dhcp_message_type == 1) {
+    if (dhcp_message_type == DHCP_DISCOVER) {
         // Handle DHCP DISCOVER
-        if (handleDHCPDiscover(pcb, p, addr, xid, mac)) return;
-    } else if (dhcp_message_type == 3) {
+        if (handleDHCPDiscover(pcb, addr, xid, mac)) return;
+    } else if (dhcp_message_type == DHCP_REQUEST) {
         handleDHCPRequest(pcb, addr, payload, xid, mac);
-    } else if (dhcp_message_type == 5) {
+    } else if (dhcp_message_type == DHCP_RELEASE) {
         // Handle DHCP RELEASE
         logger << "DHCP type RELEASE" << std::endl;
 
