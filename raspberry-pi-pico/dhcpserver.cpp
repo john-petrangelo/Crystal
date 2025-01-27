@@ -55,7 +55,7 @@ void release_ip(uint8_t mac[6]) {
     }
 }
 
-std::string_view macStr(uint8_t mac[6]) {
+std::string macStr(uint8_t mac[6]) {
     std::ostringstream oss;
     for (size_t i = 0; i < 6; ++i) {
         oss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(mac[i]);
