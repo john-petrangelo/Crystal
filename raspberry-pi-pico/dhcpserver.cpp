@@ -173,7 +173,7 @@ bool handleDHCPDiscover(struct udp_pcb *pcb, const ip_addr_t *addr, uint32_t xid
 
     pbuf_free(response);
 
-    logger << "Offered IP " << ip4addr_ntoa(&lease->ip) << " to MAC " << macStr(mac) << std::endl;
+    logger << "DHCP Offered IP " << ip4addr_ntoa(&lease->ip) << " to MAC " << macStr(mac) << std::endl;
 
     return false;
 }
@@ -196,7 +196,7 @@ void handleDHCPRequest(struct udp_pcb *pcb, const ip_addr_t *addr, uint8_t *payl
     }
 
     if (requested_ip == 0) {
-        logger << "No requested IP in Option 50, using yiaddr" << std::endl;
+        logger << "DHCP No requested IP in Option 50, using yiaddr" << std::endl;
         requested_ip = *(uint32_t *)&payload[16]; // Fallback to yiaddr
     }
 
@@ -210,7 +210,7 @@ void handleDHCPRequest(struct udp_pcb *pcb, const ip_addr_t *addr, uint8_t *payl
     }
 
     if (!valid_ip) {
-        logger << "Invalid IP " << ip4addr_ntoa((ip4_addr_t *)&requested_ip) << " requested by MAC " << macStr(mac) << std::endl;
+        logger << "DHCP Invalid IP " << ip4addr_ntoa((ip4_addr_t *)&requested_ip) << " requested by MAC " << macStr(mac) << std::endl;
         return;
     }
 
@@ -287,7 +287,15 @@ void handleDHCPRequest(struct udp_pcb *pcb, const ip_addr_t *addr, uint8_t *payl
 
     pbuf_free(response);
 
-    logger << "Acknowledged IP " << ip4addr_ntoa((ip4_addr_t *)&requested_ip) << " for MAC " << macStr(mac) << std::endl;
+    logger << "DHCP Acknowledged IP " << ip4addr_ntoa((ip4_addr_t *)&requested_ip) << " for MAC " << macStr(mac) << std::endl;
+}
+
+void handleDHCPRelease(uint8_t mac[6]) {
+    logger << "DHCP type RELEASE" << std::endl;
+
+    // Free the IP address
+    release_ip(mac);
+    logger << "DHCP Freed IP for MAC " << macStr(mac) << std::endl;
 }
 
 // Handle incoming DHCP requests
@@ -306,23 +314,20 @@ void dhcp_server_callback(void *arg, struct udp_pcb *pcb, struct pbuf *p, const 
     logger << "DHCP received " << p->len << "bytes, xid=" << xid_hex << " mac=" << macStr(mac) << std::endl;
 
     uint8_t dhcp_message_type = get_dhcp_message_type(payload, p->len);
-    if (dhcp_message_type == DHCP_DISCOVER) {
-        // Handle DHCP DISCOVER
-        if (handleDHCPDiscover(pcb, addr, xid, mac)) return;
-    } else if (dhcp_message_type == DHCP_REQUEST) {
-        handleDHCPRequest(pcb, addr, payload, xid, mac);
-    } else if (dhcp_message_type == DHCP_RELEASE) {
-        // Handle DHCP RELEASE
-        logger << "DHCP type RELEASE" << std::endl;
-
-        // Free the IP address
-        release_ip(mac);
-        logger << "Freed IP for MAC " << macStr(mac) << std::endl;
-    } else {
-        logger << "DHCP Unknown request type " << static_cast<int>(dhcp_message_type) << std::endl;
+    switch (dhcp_message_type) {
+        case DHCP_DISCOVER:
+            handleDHCPDiscover(pcb, addr, xid, mac);
+            break;
+        case DHCP_REQUEST:
+            handleDHCPRequest(pcb, addr, payload, xid, mac);
+            break;
+        case DHCP_RELEASE:
+            handleDHCPRelease(mac);
+            break;
+        default:
+            logger << "DHCP Unknown request type " << static_cast<int>(dhcp_message_type) << std::endl;
     }
 
-    logger << "DHCP Ending request callback" << std::endl << std::endl;
     pbuf_free(p);
 }
 
