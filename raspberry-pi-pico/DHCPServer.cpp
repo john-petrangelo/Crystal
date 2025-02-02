@@ -8,7 +8,7 @@
 
 #include <lumos-arduino/Logger.h>
 
-#include "dhcpserver.h"
+#include "DHCPServer.h"
 
 // Allocate an IP address from the pool
 DHCPServer::Lease* DHCPServer::allocate_ip(uint8_t mac[6]) {

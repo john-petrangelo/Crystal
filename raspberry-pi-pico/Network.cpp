@@ -6,7 +6,7 @@
 
 #include "lumos-arduino/Logger.h"
 
-#include "dhcpserver.h"
+#include "DHCPServer.h"
 #include "Handlers.h"
 #include "HTTP/HTTPServer.h"
 #include "Logging/LogServer.h"
