@@ -2,8 +2,6 @@
 #include <iomanip>
 #include <iostream>
 
-#include <pico/cyw43_arch.h>
-
 #include <lwip/apps/mdns.h>
 
 #include "lumos-arduino/Logger.h"
@@ -33,6 +31,9 @@ std::string Network::wifiMode = "undefined";
 float Network::pollDuration = 0.0;
 float Network::checkLoggerDuration = 0.0;
 Renderer* Network::networkRenderer;
+
+// Server used for DHCP requests
+DHCPServer Network::dhcpServer;
 
 // Server used for HTTP requests
 HTTPServer Network::httpServer;
@@ -166,7 +167,6 @@ bool Network::setupWiFiSoftAP(std::string const &ssid, std::string const &passwo
     return false;
   }
 
-  logger << "Soft AP started: SSID = " << hostname << std::endl;
   wifiMode = "softAP";
 
   // Assign a default IP address to the AP
@@ -174,16 +174,18 @@ bool Network::setupWiFiSoftAP(std::string const &ssid, std::string const &passwo
   IP4_ADDR(&ip, 192, 168, 27, 1);
   netif_set_ipaddr(&cyw43_state.netif[CYW43_ITF_AP], &ip);
 
-  logger << "Access Point started: SSID=" << ssid << ", IP=" << ipAddrToString(ip.addr) << std::endl;
-  logger << "AP flags: " << cyw43_state.netif[CYW43_ITF_AP].flags << std::endl;
-
   ipAddress = ipAddrToString(ip.addr);
   macAddress = macAddrToString(cyw43_state.netif[CYW43_ITF_AP].hwaddr);
   wifiMode = "access_point";
 
+  logger << "Soft Access Point started: SSID=" << ssid
+    << ", IP=" << ipAddress
+    << ", MAC=" << macAddress
+    << ", flags=0x" << std::hex << static_cast<int>(cyw43_state.netif[CYW43_ITF_AP].flags) << std::dec
+    << std::endl;
+
   // Start the dhcp server
-  logger << "Starting DHCP server..." << std::endl;
-  start_dhcp_server();
+  dhcpServer.start();
   logger << "DHCP server started" << std::endl;
 
 ////  // TODO  Log each time a station connects or disconnects
@@ -240,11 +242,11 @@ void Network::mdnsAddServiceTextItemCallback(struct mdns_service *service, void 
   }
 }
 
-void Network::mdnsReportCallback(netif * netif, u8_t const result, s8_t const service) {
+void Network::mdnsReportCallback(netif * netif, u8_t const result, int8_t const slot) {
   if (result == MDNS_PROBING_SUCCESSFUL) {
     logger << "mDNS name successfully registered on netif " << static_cast<int>(netif->num) << std::endl;
   } else if (result == MDNS_PROBING_CONFLICT) {
-    logger << "mDNS name conflict detected on netif " << netif->num << ", service " << service << std::endl;
+    logger << "mDNS name conflict detected on netif " << netif->num << ", slot " << slot << std::endl;
   } else {
     logger << "Unknown mDNS status result: " << result << std::endl;
   }

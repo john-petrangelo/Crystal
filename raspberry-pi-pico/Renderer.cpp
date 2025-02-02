@@ -1,4 +1,3 @@
-#include "Network.h"
 #include "Renderer.h"
 
 // TODO Doc

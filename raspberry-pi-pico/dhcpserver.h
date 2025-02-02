@@ -1,3 +1,9 @@
 #pragma once
 
-void start_dhcp_server();
+class DHCPServer {
+public:
+  void start();
+
+private:
+
+};

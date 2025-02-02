@@ -8,8 +8,10 @@
 
 #include <lumos-arduino/Logger.h>
 
-#define DHCP_SERVER_PORT 67
-#define DHCP_CLIENT_PORT 68
+#include "dhcpserver.h"
+
+constexpr uint16_t DHCP_SERVER_PORT = 67;
+constexpr uint16_t DHCP_CLIENT_PORT = 68;
 
 struct Lease {
     ip4_addr_t ip;
@@ -19,23 +21,23 @@ struct Lease {
 
 // IP pool for DHCP server
 Lease ip_pool[] = {
-    {IPADDR4_INIT_BYTES(192, 168, 27, 2), {0}, false},
-    {IPADDR4_INIT_BYTES(192, 168, 27, 3), {0}, false},
-    {IPADDR4_INIT_BYTES(192, 168, 27, 4), {0}, false},
-    // Add more IPs as needed
+    {IPADDR4_INIT_BYTES(192, 168, 27, 11), {0}, false},
+    {IPADDR4_INIT_BYTES(192, 168, 27, 12), {0}, false},
+    {IPADDR4_INIT_BYTES(192, 168, 27, 13), {0}, false},
+    {IPADDR4_INIT_BYTES(192, 168, 27, 14), {0}, false},
 };
 
 // Allocate an IP address from the pool
 Lease* allocate_ip(uint8_t mac[6]) {
     // First, check if the MAC already has an assigned IP
-    for (int i = 0; i < sizeof(ip_pool) / sizeof(ip_pool[0]); i++) {
+    for (int i = 0; i < std::size(ip_pool); i++) {
         if (ip_pool[i].active && memcmp(ip_pool[i].mac, mac, 6) == 0) {
             return &ip_pool[i]; // Return the existing lease
         }
     }
 
     // If no existing lease, assign a new IP
-    for (int i = 0; i < sizeof(ip_pool) / sizeof(ip_pool[0]); i++) {
+    for (int i = 0; i < std::size(ip_pool); i++) {
         if (!ip_pool[i].active) {
             memcpy(ip_pool[i].mac, mac, 6);
             ip_pool[i].active = true;
@@ -47,7 +49,7 @@ Lease* allocate_ip(uint8_t mac[6]) {
 
 // Release an IP address back to the pool
 void release_ip(uint8_t mac[6]) {
-    for (int i = 0; i < sizeof(ip_pool) / sizeof(ip_pool[0]); i++) {
+    for (int i = 0; i < std::size(ip_pool); i++) {
         if (ip_pool[i].active && memcmp(ip_pool[i].mac, mac, 6) == 0) {
             ip_pool[i].active = false;
             memset(ip_pool[i].mac, 0, 6);
@@ -84,7 +86,7 @@ uint8_t get_dhcp_message_type(uint8_t *payload, uint16_t len) {
     // DHCP options start at offset 240 in the packet
     uint16_t options_offset = 240;
     while (options_offset < len) {
-        uint8_t option = payload[options_offset];
+        uint8_t const option = payload[options_offset];
         if (option == 255) { // End of options
             break;
         }
@@ -111,7 +113,7 @@ void appendDHCPMsgTypeOption(uint8_t *payload, uint16_t &offset, uint8_t msgType
 
 bool handleDHCPDiscover(struct udp_pcb *pcb, const ip_addr_t *addr, uint32_t xid, uint8_t mac[6]) {
     logger << "DHCP type DISCOVER" << std::endl;
-    Lease *lease = allocate_ip(mac);
+    Lease const *lease = allocate_ip(mac);
     if (!lease) {
         logger << "No IP available for " << macStr(mac) << std::endl << std::endl;
         return true;
@@ -119,7 +121,7 @@ bool handleDHCPDiscover(struct udp_pcb *pcb, const ip_addr_t *addr, uint32_t xid
 
     // Create DHCP OFFER response
     struct pbuf *response = pbuf_alloc(PBUF_TRANSPORT, 300, PBUF_RAM);
-    uint8_t *resp_payload = (uint8_t *)response->payload;
+    auto const resp_payload = static_cast<uint8_t *>(response->payload);
     memset(resp_payload, 0, 300);
 
     resp_payload[0] = 2; // Message type: Boot Reply
@@ -303,7 +305,6 @@ void dhcp_server_callback(void *arg, struct udp_pcb *pcb, struct pbuf *p, const 
     auto const payload = static_cast<uint8_t *>(p->payload);
 
     // Extract transaction ID (xid) and client MAC address
-    // uint32_t const rawXID = *reinterpret_cast<uint32_t *>(&payload[4]);
     uint32_t xid;
     memcpy(&xid, &payload[4], sizeof(xid)); // Copy xid safely
     xid = ntohl(xid); // Convert to host byte order
@@ -331,7 +332,7 @@ void dhcp_server_callback(void *arg, struct udp_pcb *pcb, struct pbuf *p, const 
 }
 
 // Start the DHCP server
-void start_dhcp_server() {
+void DHCPServer::start() {
     udp_pcb *dhcp_pcb = udp_new();
     udp_bind(dhcp_pcb, IP_ADDR_ANY, DHCP_SERVER_PORT);
     udp_recv(dhcp_pcb, dhcp_server_callback, nullptr);

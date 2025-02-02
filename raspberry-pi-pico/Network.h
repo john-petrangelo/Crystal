@@ -2,10 +2,13 @@
 
 #include <string>
 
-#include "Logging/LogServer.h"
-#include "HTTP/HTTPServer.h"
+#include <lwip/netif.h>
 
 #include "Renderer.h"
+
+class DHCPServer;
+class HTTPServer;
+class LogServer;
 
 class Network {
 public:
@@ -18,7 +21,7 @@ public:
     static std::string const &getHostname() { return hostname; }
     static void setupHostname(std::string const &baseName);
 
-    static std::string ipAddrToString(u32_t ipAddr);
+    static std::string ipAddrToString(uint32_t ipAddr);
 
 private:
     static bool setupWiFiStation(char const *ssid, char const *password);
@@ -27,7 +30,7 @@ private:
     static void setupHTTP();
 
     static void mdnsAddServiceTextItemCallback(struct mdns_service *service, void *txt_userdata);
-    static void mdnsReportCallback(netif *netif, u8_t result, s8_t service);
+    static void mdnsReportCallback(netif *netif, uint8_t result, int8_t slot);
     static void setupMDNS();
 
     static void checkLogger();
@@ -40,6 +43,7 @@ private:
     static std::string macAddress;
     static std::string wifiMode;
 
+    static DHCPServer dhcpServer;
     static HTTPServer httpServer;
     static LogServer logServer;
 
