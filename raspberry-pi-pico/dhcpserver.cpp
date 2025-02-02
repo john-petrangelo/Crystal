@@ -10,25 +10,8 @@
 
 #include "dhcpserver.h"
 
-constexpr uint16_t DHCP_SERVER_PORT = 67;
-constexpr uint16_t DHCP_CLIENT_PORT = 68;
-
-struct Lease {
-    ip4_addr_t ip;
-    uint8_t mac[6]; // MAC address of the client
-    bool active;
-};
-
-// IP pool for DHCP server
-Lease ip_pool[] = {
-    {IPADDR4_INIT_BYTES(192, 168, 27, 11), {0}, false},
-    {IPADDR4_INIT_BYTES(192, 168, 27, 12), {0}, false},
-    {IPADDR4_INIT_BYTES(192, 168, 27, 13), {0}, false},
-    {IPADDR4_INIT_BYTES(192, 168, 27, 14), {0}, false},
-};
-
 // Allocate an IP address from the pool
-Lease* allocate_ip(uint8_t mac[6]) {
+DHCPServer::Lease* DHCPServer::allocate_ip(uint8_t mac[6]) {
     // First, check if the MAC already has an assigned IP
     for (int i = 0; i < std::size(ip_pool); i++) {
         if (ip_pool[i].active && memcmp(ip_pool[i].mac, mac, 6) == 0) {
@@ -48,7 +31,7 @@ Lease* allocate_ip(uint8_t mac[6]) {
 }
 
 // Release an IP address back to the pool
-void release_ip(uint8_t mac[6]) {
+void DHCPServer::release_ip(uint8_t mac[6]) {
     for (int i = 0; i < std::size(ip_pool); i++) {
         if (ip_pool[i].active && memcmp(ip_pool[i].mac, mac, 6) == 0) {
             ip_pool[i].active = false;
@@ -57,7 +40,7 @@ void release_ip(uint8_t mac[6]) {
     }
 }
 
-std::string macStr(uint8_t mac[6]) {
+std::string DHCPServer::macStr(uint8_t mac[6]) {
     if (!mac) { // Check for a null pointer
         return "<null>";
     }
@@ -82,7 +65,7 @@ std::string macStr(uint8_t mac[6]) {
     return oss.str();
 }
 
-uint8_t get_dhcp_message_type(uint8_t *payload, uint16_t len) {
+uint8_t DHCPServer::get_dhcp_message_type(uint8_t *payload, uint16_t len) {
     // DHCP options start at offset 240 in the packet
     uint16_t options_offset = 240;
     while (options_offset < len) {
@@ -98,20 +81,20 @@ uint8_t get_dhcp_message_type(uint8_t *payload, uint16_t len) {
     return 0; // Return 0 if no valid message type is found
 }
 
-void appendDHCPOption(uint8_t const code, uint8_t const length, uint8_t *payload, uint16_t &offset, const uint8_t *data) {
+void DHCPServer::appendDHCPOption(uint8_t const code, uint8_t const length, uint8_t *payload, uint16_t &offset, const uint8_t *data) {
     payload[offset++] = code;
     payload[offset++] = length;
     memcpy(&payload[offset], data, length);
     offset += length;
 }
 
-void appendDHCPMsgTypeOption(uint8_t *payload, uint16_t &offset, uint8_t msgType) {
+void DHCPServer::appendDHCPMsgTypeOption(uint8_t *payload, uint16_t &offset, uint8_t msgType) {
     payload[offset++] = DHCP_OPTION_MESSAGE_TYPE;
     payload[offset++] = DHCP_OPTION_MESSAGE_TYPE_LEN;
     payload[offset++] = msgType;
 }
 
-bool handleDHCPDiscover(struct udp_pcb *pcb, const ip_addr_t *addr, uint32_t xid, uint8_t mac[6]) {
+bool DHCPServer::handleDHCPDiscover(struct udp_pcb *pcb, const ip_addr_t *addr, uint32_t xid, uint8_t mac[6]) {
     logger << "DHCP type DISCOVER" << std::endl;
     Lease const *lease = allocate_ip(mac);
     if (!lease) {
@@ -180,7 +163,7 @@ bool handleDHCPDiscover(struct udp_pcb *pcb, const ip_addr_t *addr, uint32_t xid
     return false;
 }
 
-void handleDHCPRequest(struct udp_pcb *pcb, const ip_addr_t *addr, uint8_t *payload, uint32_t xid, uint8_t mac[6]) {
+void DHCPServer::handleDHCPRequest(struct udp_pcb *pcb, const ip_addr_t *addr, uint8_t *payload, uint32_t xid, uint8_t mac[6]) {
     // Handle DHCP REQUEST
     logger << "DHCP type REQUEST" << std::endl;
 
@@ -292,7 +275,7 @@ void handleDHCPRequest(struct udp_pcb *pcb, const ip_addr_t *addr, uint8_t *payl
     logger << "DHCP Acknowledged IP " << ip4addr_ntoa(reinterpret_cast<ip4_addr_t *>(&requested_ip)) << " for MAC " << macStr(mac) << std::endl;
 }
 
-void handleDHCPRelease(uint8_t mac[6]) {
+void DHCPServer::handleDHCPRelease(uint8_t mac[6]) {
     logger << "DHCP type RELEASE" << std::endl;
 
     // Free the IP address
@@ -301,8 +284,9 @@ void handleDHCPRelease(uint8_t mac[6]) {
 }
 
 // Handle incoming DHCP requests
-void dhcp_server_callback(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, u16_t port) {
-    auto const payload = static_cast<uint8_t *>(p->payload);
+void DHCPServer::dhcp_server_callback(void *arg, udp_pcb *pcb, pbuf *p, const ip_addr_t *addr, u16_t port) {
+    auto * const dhcpServer = static_cast<DHCPServer*>(arg);
+    auto * const payload = static_cast<uint8_t *>(p->payload);
 
     // Extract transaction ID (xid) and client MAC address
     uint32_t xid;
@@ -316,13 +300,13 @@ void dhcp_server_callback(void *arg, struct udp_pcb *pcb, struct pbuf *p, const 
 
     switch (uint8_t dhcp_message_type = get_dhcp_message_type(payload, p->len)) {
         case DHCP_DISCOVER:
-            handleDHCPDiscover(pcb, addr, xid, mac);
+            dhcpServer->handleDHCPDiscover(pcb, addr, xid, mac);
             break;
         case DHCP_REQUEST:
-            handleDHCPRequest(pcb, addr, payload, xid, mac);
+            dhcpServer->handleDHCPRequest(pcb, addr, payload, xid, mac);
             break;
         case DHCP_RELEASE:
-            handleDHCPRelease(mac);
+            dhcpServer->handleDHCPRelease(mac);
             break;
         default:
             logger << "DHCP Unknown request type " << static_cast<int>(dhcp_message_type) << std::endl;
@@ -335,5 +319,5 @@ void dhcp_server_callback(void *arg, struct udp_pcb *pcb, struct pbuf *p, const 
 void DHCPServer::start() {
     udp_pcb *dhcp_pcb = udp_new();
     udp_bind(dhcp_pcb, IP_ADDR_ANY, DHCP_SERVER_PORT);
-    udp_recv(dhcp_pcb, dhcp_server_callback, nullptr);
+    udp_recv(dhcp_pcb, dhcp_server_callback, this);
 }
