@@ -9,22 +9,22 @@
  * Represents the context of a single HTTP connection.
  * Tracks state, manages data buffers, and provides utility methods for JSON output and comparison.
  */
-struct ConnectionContext {
+struct HTTPConnectionContext {
   /**
-   * Constructs a new ConnectionContext.
+   * Constructs a new HTTPConnectionContext.
    * Associates the connection with the specified server and PCB (Protocol Control Block),
    * and adds it to the server's active connections.
    *
    * @param server Pointer to the HTTP server managing this connection.
    * @param pcb Pointer to the lwIP TCP PCB for this connection.
    */
-  explicit ConnectionContext(HTTPServer *server, tcp_pcb *pcb);
+  explicit HTTPConnectionContext(HTTPServer *server, tcp_pcb *pcb);
 
   /**
-   * Destroys the ConnectionContext.
+   * Destroys the HTTPConnectionContext.
    * Automatically removes the connection from the server's active connections.
    */
-  ~ConnectionContext();
+  ~HTTPConnectionContext();
 
   /**
    * Resets the context for reuse with the same connection.
@@ -45,7 +45,7 @@ struct ConnectionContext {
    * @param other The other connection context to compare against.
    * @return `true` if this connection is less active than the other; otherwise, `false`.
    */
-  bool isLessRecentlyActiveThan(ConnectionContext const& other) const { return _lastActive < other._lastActive; }
+  bool isLessRecentlyActiveThan(HTTPConnectionContext const& other) const { return _lastActive < other._lastActive; }
 
   /**
    * Serializes the context into a JSON object.
@@ -95,11 +95,11 @@ struct ConnectionContext {
   HTTPRequestParser &parser() { return _parser; }
 
   /// Overload for printing a connection context to an output stream.
-  friend std::ostream& operator<<(std::ostream& os, const ConnectionContext& context);
+  friend std::ostream& operator<<(std::ostream& os, const HTTPConnectionContext& context);
 
 private:
   /// Static counter for generating unique IDs for connections.
-  /// Incremented every time a new ConnectionContext is created.
+  /// Incremented every time a new HTTPConnectionContext is created.
   static uint32_t nextID;
 
   /// Unique identifier for this connection.

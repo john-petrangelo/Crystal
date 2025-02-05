@@ -12,7 +12,7 @@
 #include "HTTPRequest.h"
 #include "HTTPResponse.h"
 
-struct ConnectionContext;
+struct HTTPConnectionContext;
 
 class HTTPServer;
 using HTTPHandler = std::function<HTTPResponse(const HTTPRequest&)>;
@@ -28,18 +28,18 @@ public:
     void onGet(std::string path, HTTPHandler func) { onMethod("GET", std::move(path), std::move(func)); }
     void onPut(std::string path, HTTPHandler func) { onMethod("PUT", std::move(path), std::move(func)); }
 
-    void addActiveConnection(ConnectionContext const *context);
-    void removeActiveConnection(ConnectionContext const *context);
+    void addActiveConnection(HTTPConnectionContext const *context);
+    void removeActiveConnection(HTTPConnectionContext const *context);
 
     void getStatus(JsonObject obj) const;
 
 private:
-    err_t sendResponseAndClose(ConnectionContext *context, const HTTPResponse &response);
-    err_t sendResponse(ConnectionContext *context, const HTTPResponse &response);
-    err_t writeResponseBytes(ConnectionContext *context);
+    err_t sendResponseAndClose(HTTPConnectionContext *context, const HTTPResponse &response);
+    err_t sendResponse(HTTPConnectionContext *context, const HTTPResponse &response);
+    err_t writeResponseBytes(HTTPConnectionContext *context);
 
-    void closeConnection(ConnectionContext const *context);
-    void abortConnection(ConnectionContext const *context);
+    void closeConnection(HTTPConnectionContext const *context);
+    void abortConnection(HTTPConnectionContext const *context);
 
     // Callback functions for LWP
     static err_t onAccept(void *arg, tcp_pcb *newpcb, err_t err);
@@ -50,13 +50,13 @@ private:
     // Add handlers to the handler list
     void onMethod(std::string method, std::string path, HTTPHandler func);
 
-    std::optional<ConnectionContext const *> getLRUConnection() const;
+    std::optional<HTTPConnectionContext const *> getLRUConnection() const;
     static std::string makeHandlersKey(std::string_view const &method, std::string_view const &path);
     [[maybe_unused]] void logHandlers() const;
 
     static std::string errToString(err_t const err);
 
-    std::map<uint32_t, ConnectionContext const *> activeConnections;
+    std::map<uint32_t, HTTPConnectionContext const *> activeConnections;
     std::unordered_map<std::string, HTTPHandler> handlers;
 
     /**

@@ -8,7 +8,7 @@
 
 #include <lumos-arduino/Logger.h>
 
-#include "ConnectionContext.h"
+#include "HTTPConnectionContext.h"
 #include "HTTPRequestParser.h"
 #include "HTTPServer.h"
 
@@ -87,7 +87,7 @@ err_t HTTPServer::onAccept(void *arg, tcp_pcb *newpcb, err_t const err) {
   }
 
   // Associate a new context with the pcb
-  auto *context = new ConnectionContext{server, newpcb};
+  auto *context = new HTTPConnectionContext{server, newpcb};
   tcp_arg(newpcb, context);
 
   // Register callbacks
@@ -104,7 +104,7 @@ err_t HTTPServer::onAccept(void *arg, tcp_pcb *newpcb, err_t const err) {
 }
 
 err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t const err) {
-  auto const context = static_cast<ConnectionContext*>(arg);
+  auto const context = static_cast<HTTPConnectionContext*>(arg);
 
   // If there was an error, then abort the connection
   if (err != ERR_OK) {
@@ -183,7 +183,7 @@ err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t const err) 
 }
 
 err_t HTTPServer::onSent(void *arg, tcp_pcb *tpcb, u16_t const len) noexcept {
-  auto const context = static_cast<ConnectionContext*>(arg);
+  auto const context = static_cast<HTTPConnectionContext*>(arg);
   context->updateLastActive();
   context->didSendBytes(len);
 
@@ -223,7 +223,7 @@ err_t HTTPServer::onSent(void *arg, tcp_pcb *tpcb, u16_t const len) noexcept {
 }
 
 void HTTPServer::onError(void *arg, err_t const err) noexcept {
-  auto const context = static_cast<ConnectionContext*>(arg);
+  auto const context = static_cast<HTTPConnectionContext*>(arg);
 
   if (!context) {
     logger << "Error: null connection context in onError. Error: " << errToString(err) << std::endl;
@@ -234,14 +234,14 @@ void HTTPServer::onError(void *arg, err_t const err) noexcept {
   context->server()->abortConnection(context);
 }
 
-err_t HTTPServer::sendResponseAndClose(ConnectionContext *context, HTTPResponse const &response) {
+err_t HTTPServer::sendResponseAndClose(HTTPConnectionContext *context, HTTPResponse const &response) {
   auto const err = sendResponse(context, response);
   context->setShouldCloseAfterResponse();
 
   return err;
 }
 
-err_t HTTPServer::sendResponse(ConnectionContext *context, HTTPResponse const &response) {
+err_t HTTPServer::sendResponse(HTTPConnectionContext *context, HTTPResponse const &response) {
   std::ostringstream responseStream;
 
   // Status line
@@ -271,7 +271,7 @@ err_t HTTPServer::sendResponse(ConnectionContext *context, HTTPResponse const &r
   return writeResponseBytes(context);
 }
 
-err_t HTTPServer::writeResponseBytes(ConnectionContext *context) {
+err_t HTTPServer::writeResponseBytes(HTTPConnectionContext *context) {
   auto const remainingBytes = context->remainingResponseData().length();
 
   if (remainingBytes == 0) {
@@ -313,7 +313,7 @@ err_t HTTPServer::writeResponseBytes(ConnectionContext *context) {
   return ERR_OK;
 }
 
-void HTTPServer::closeConnection(ConnectionContext const *context) noexcept {
+void HTTPServer::closeConnection(HTTPConnectionContext const *context) noexcept {
   if (!context) {
     logger << *context << "Attempted to close a null connection context" << std::endl;
     return;
@@ -332,7 +332,7 @@ void HTTPServer::closeConnection(ConnectionContext const *context) noexcept {
   delete context;
 }
 
-void HTTPServer::abortConnection(ConnectionContext const *context) noexcept {
+void HTTPServer::abortConnection(HTTPConnectionContext const *context) noexcept {
   if (!context) {
     logger << *context << "Attempted to abort a null connection context" << std::endl;
     return;
@@ -391,14 +391,14 @@ void HTTPServer::onMethod(std::string method, std::string path, HTTPHandler func
   handlers[handlersKey] = {std::move(func)};
 }
 
-void HTTPServer::addActiveConnection(ConnectionContext const *context) {
+void HTTPServer::addActiveConnection(HTTPConnectionContext const *context) {
   if (context == nullptr) {
     return;
   }
   activeConnections[context->id()] = context;
 }
 
-void HTTPServer::removeActiveConnection(ConnectionContext const *context) {
+void HTTPServer::removeActiveConnection(HTTPConnectionContext const *context) {
   if (context == nullptr) {
     return;
   }
@@ -407,7 +407,7 @@ void HTTPServer::removeActiveConnection(ConnectionContext const *context) {
   }
 }
 
-std::optional<ConnectionContext const *> HTTPServer::getLRUConnection() const {
+std::optional<HTTPConnectionContext const *> HTTPServer::getLRUConnection() const {
   auto const lruIter = std::min_element(
     activeConnections.begin(),
     activeConnections.end(),
