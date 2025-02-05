@@ -2,8 +2,6 @@
 
 #include <string>
 
-#include <lwip/netif.h>
-
 #include "Renderer.h"
 
 class DHCPServer;
@@ -26,10 +24,6 @@ private:
     static bool setupWiFiSoftAP(std::string const &ssid, std::string const &password);
 
     static void setupHTTP();
-
-    static void mdnsAddServiceTextItemCallback(struct mdns_service *service, void *txt_userdata);
-    static void mdnsReportCallback(netif *netif, uint8_t result, int8_t slot);
-    static void setupMDNS();
 
     static void checkLogger();
 

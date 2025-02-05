@@ -2,7 +2,6 @@
 #include <iomanip>
 #include <iostream>
 
-#include <lwip/apps/mdns.h>
 #include <pico/cyw43_arch.h>
 
 #include "lumos-arduino/Logger.h"
@@ -11,6 +10,7 @@
 #include "Handlers.h"
 #include "HTTP/HTTPServer.h"
 #include "Logging/LogServer.h"
+#include "MDNS.h"
 #include "Network.h"
 #include "NetworkUtils.h"
 
@@ -196,42 +196,6 @@ void Network::setupHTTP() {
   httpServer.onGet("/data", handleGetData);
 }
 
-void Network::mdnsAddServiceTextItemCallback(struct mdns_service *service, void *txt_userdata) {
-  if (err_t const res = mdns_resp_add_service_txtitem(service, "path=/", 6); res != ERR_OK) {
-    logger << "mDNS Failed to add service TXT record, err=" << res << std::endl;
-  } else {
-    logger << "mDNS TXT record added successfully" << std::endl;
-  }
-}
-
-void Network::mdnsReportCallback(netif * netif, u8_t const result, int8_t const slot) {
-  if (result == MDNS_PROBING_SUCCESSFUL) {
-    logger << "mDNS name successfully registered on netif " << static_cast<int>(netif->num) << std::endl;
-  } else if (result == MDNS_PROBING_CONFLICT) {
-    logger << "mDNS name conflict detected on netif " << netif->num << ", slot " << slot << std::endl;
-  } else {
-    logger << "Unknown mDNS status result: " << result << std::endl;
-  }
-}
-
-void Network::setupMDNS() {
-  mdns_resp_register_name_result_cb(mdnsReportCallback);
-  mdns_resp_init();
-
-  if (err_t const err = mdns_resp_add_netif(netif_default, hostname.c_str()); err != ERR_OK) {
-    logger << "Failed to add netif to mDNS, err=" << err << std::endl;
-    return;
-  }
-  if (err_t const err = mdns_resp_add_service(netif_default, "Luminarium", "_http",
-        DNSSD_PROTO_TCP, 80, mdnsAddServiceTextItemCallback, nullptr); err != ERR_OK) {
-    logger << "Failed to add mDNS service, err=" << err << std::endl;
-    return;
-  }
-
-  mdns_resp_announce(netif_default);
-  logger << "mDNS service announced successfully" << std::endl;
-}
-
 //// Server used for logging.
 //WiFiServer Network::logServer(8000);
 //WiFiClient Network::logClient;
@@ -273,7 +237,7 @@ void Network::setup() {
   setupHostname("pico");
 
   setupHTTP();
-  setupMDNS();
+  MDNS::setup(hostname);
 
   logServer.init();
   logger << "Network set up complete, host " << hostname << ".local (" << ipAddress << ')' << std::endl;
