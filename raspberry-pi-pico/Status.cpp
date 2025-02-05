@@ -1,6 +1,6 @@
 #include <ArduinoJson.h>
 
-#include "Network.h"
+#include "Networking/Network.h"
 #include "Status.h"
 #include "System.h"
 

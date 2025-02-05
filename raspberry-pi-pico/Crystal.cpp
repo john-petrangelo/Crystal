@@ -4,7 +4,7 @@
 #include <lumos-arduino/Logger.h>
 
 #include "Logging/ConsoleLogger.h"
-#include "Network.h"
+#include "Networking/Network.h"
 #include "Renderer.h"
 #include "Status.h"
 

@@ -14,12 +14,6 @@ add_executable(crystal-pi-pico
         Crystal.cpp
         Demos.h
         Demos.cpp
-        DHCPServer.h
-        DHCPServer.cpp
-        Handlers.h
-        Handlers.cpp
-        Network.h
-        Network.cpp
         Renderer.h
         Renderer.cpp
         Status.h
@@ -45,6 +39,16 @@ target_sources(crystal-pi-pico PRIVATE
         Logging/LogServer.h
         Logging/LogServer.cpp
         Logging/NetworkLogger.h
+)
+
+# Add Networking classes to the target
+target_sources(crystal-pi-pico PRIVATE
+        Networking/DHCPServer.h
+        Networking/DHCPServer.cpp
+        Networking/Handlers.h
+        Networking/Handlers.cpp
+        Networking/Network.h
+        Networking/Network.cpp
 )
 
 # Add HTTPServer classes to the target
