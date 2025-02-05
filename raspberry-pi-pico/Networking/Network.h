@@ -21,8 +21,6 @@ public:
     static std::string const &getHostname() { return hostname; }
     static void setupHostname(std::string const &baseName);
 
-    static std::string ipAddrToString(uint32_t ipAddr);
-
 private:
     static bool setupWiFiStation(char const *ssid, char const *password);
     static bool setupWiFiSoftAP(std::string const &ssid, std::string const &password);
@@ -34,9 +32,6 @@ private:
     static void setupMDNS();
 
     static void checkLogger();
-
-    static std::string macAddrToString(const uint8_t *mac);
-    static std::string_view cyw43ErrStr(int err);
 
     static std::string hostname;
     static std::string ipAddress;

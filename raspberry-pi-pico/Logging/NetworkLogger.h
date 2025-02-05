@@ -1,8 +1,10 @@
 #pragma once
 
-#include "LogServer.h"
+#include <cstring>
 
 #include <lumos-arduino/ILogger.h>
+
+#include "LogServer.h"
 
 class NetworkLogger : public ILogger {
 public:

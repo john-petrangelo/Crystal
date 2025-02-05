@@ -27,7 +27,7 @@ add_executable(crystal-pi-pico
         ws2812.pio
 
         ${CMAKE_SOURCE_DIR}/lib/lumos-arduino/Colors.cpp
-#        ${CMAKE_SOURCE_DIR}/lib/lumos-arduino/Patterns.cpp
+        # ${CMAKE_SOURCE_DIR}/lib/lumos-arduino/Patterns.cpp
 )
 
 # Generate header file from PIO source
@@ -49,6 +49,8 @@ target_sources(crystal-pi-pico PRIVATE
         Networking/Handlers.cpp
         Networking/Network.h
         Networking/Network.cpp
+        Networking/NetworkUtils.h
+        Networking/NetworkUtils.cpp
 )
 
 # Add HTTPServer classes to the target

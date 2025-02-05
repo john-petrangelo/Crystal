@@ -1,7 +1,6 @@
 #pragma once
 
 #include <lwip/tcp.h>
-#include <pico/cyw43_arch.h>
 
 class LogServer {
 public:
