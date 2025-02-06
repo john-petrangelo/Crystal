@@ -2,14 +2,6 @@
 
 #include "lumos-arduino/Colors.h"
 #include "lumos-arduino/Logger.h"
-
-#include "Demos.h"
-#include "Handlers.h"
-#include "HTTP/HTTPServer.h"
-#include "Networking/Network.h"
-#include "System.h"
-#include "web_files.h"
-
 #include "lumos-arduino/Models/ModelUtils.h"
 #include "lumos-arduino/Models/Crystal.h"
 #include "lumos-arduino/Models/Flame.h"
@@ -19,78 +11,28 @@
 #include "lumos-arduino/Models/Solid.h"
 #include "lumos-arduino/Models/WarpCore.h"
 
-static bool parseJsonBody(JsonDocument &doc, std::string const &body, char const *handlerName) {
-  DeserializationError const error = deserializeJson(doc, body);
-  if (error) {
-      logger << handlerName << " failed to parse JSON: " << error.c_str() << std::endl;
-      return false;
-  }
+#include "Demos.h"
+#include "Handlers.h"
+#include "HandlerUtils.h"
+#include "HTTP/HTTPRequest.h"
+#include "HTTP/HTTPResponse.h"
+#include "Networking/Network.h"
+#include "System.h"
+#include "web_files.h"
 
-  return true;
-}
-
-template<typename T>
-static T getJsonValue(JsonVariant obj, const char *paramName, T defaultValue) {
-    auto const value = obj[paramName];
-    if (value.isNull() || !value.is<T>()) {
-        return defaultValue;
-    }
-
-    return value.as<T>();
-}
-
-static Color getJsonColor(JsonVariant const obj, const char *paramName, Color const defaultColor = BLACK) {
-    auto const value = obj[paramName];
-    if (value.isNull() || !value.is<const char *>()) {
-        return defaultColor;
-    }
-
-    return strtol(value.as<char const *>(), nullptr, 16);
-}
-
-static bool getArgAsLong(std::unordered_map<std::string, std::string> const &queryParams, char const* paramName, long& paramValue) {
-    if (auto const param = queryParams.find(paramName); param != queryParams.end()) {
-        paramValue = strtol(static_cast<std::string>(param->second).c_str(), nullptr, 10);
-        return true;
-    }
-
-    logger << "Missing '" << paramName << "' parameter in request" << std::endl;
-    return false;
-}
-
-static bool getArgAsFloat(std::unordered_map<std::string, std::string> const &queryParams, char const* paramName, float& paramValue) {
-    if (auto const param = queryParams.find(paramName); param != queryParams.end()) {
-        paramValue = strtof(static_cast<std::string>(param->second).c_str(), nullptr);
-        return true;
-    }
-
-    logger << "Missing '" << paramName << "' parameter in request" << std::endl;
-    return false;
-}
-
-static bool getArgAsColor(std::unordered_map<std::string, std::string> const &queryParams, char const* paramName, Color& paramValue) {
-    if (auto const param = queryParams.find(paramName); param != queryParams.end()) {
-        paramValue = strtol(static_cast<std::string>(param->second).c_str(), nullptr, 16);
-        return true;
-    }
-
-    logger << "Missing '" << paramName << "' parameter in request" << std::endl;
-    return false;
-}
-
-HTTPResponse handleRoot(HTTPRequest const &request) {
+HTTPResponse handleRoot(HTTPRequest const & /*request*/) {
     return {200, "text/html", INDEX_HTML};
 }
 
-HTTPResponse handleCSS(HTTPRequest const &request) {
+HTTPResponse handleCSS(HTTPRequest const & /*request*/) {
     return {200, "text/css", CRYSTAL_CSS};
 }
 
-HTTPResponse handleJS(HTTPRequest const &request) {
+HTTPResponse handleJS(HTTPRequest const & /*request*/) {
     return {200, "application/javascript", CRYSTAL_JS};
 }
 
-HTTPResponse handleStatus(HTTPRequest const &request) {
+HTTPResponse handleStatus(HTTPRequest const & /*request*/) {
     JsonDocument doc;
 
     System::getStatus(doc["system"].to<JsonObject>());
@@ -104,7 +46,7 @@ HTTPResponse handleStatus(HTTPRequest const &request) {
     return {200, "application/json", output};
 }
 
-HTTPResponse handleGetBrightness(HTTPRequest const &request) {
+HTTPResponse handleGetBrightness(HTTPRequest const & /*request*/) {
     JsonDocument doc;
     doc["value"] = Network::getRenderer()->brightness();
 
@@ -115,22 +57,22 @@ HTTPResponse handleGetBrightness(HTTPRequest const &request) {
 }
 
 HTTPResponse handleSetBrightness(HTTPRequest const &request) {
-    long brightness;
-    if (!getArgAsLong(request.queryParams, "value", brightness)) {
+    auto const brightness = HandlerUtils::getArgAsLong(request.queryParams, "value");
+    if (!brightness) {
         return {400, "text/plain", "Invalid 'value' parameter"};
     }
 
-    if (brightness < 0 || brightness > 255) {
-        logger << "Invalid brightness value" << std::endl;
+    if (*brightness < 0 || *brightness > 255) {
+        logger << "Invalid brightness value: " << *brightness << std::endl;
         return {400, "text/plain", "Invalid brightness value. Must be >= 0 and <= 255"};
     }
 
     // Success
-    Network::getRenderer()->setBrightness(brightness);
+    Network::getRenderer()->setBrightness(*brightness);
     return {200, "text/plain"};
 }
 
-HTTPResponse handleGetGamma(HTTPRequest const &request) {
+HTTPResponse handleGetGamma(HTTPRequest const & /*request*/) {
     JsonDocument doc;
     doc["value"] = Network::getRenderer()->gamma();
 
@@ -141,33 +83,33 @@ HTTPResponse handleGetGamma(HTTPRequest const &request) {
 }
 
 HTTPResponse handleSetGamma(HTTPRequest const &request) {
-    float gamma;
-    if (!getArgAsFloat(request.queryParams, "value", gamma)) {
+    auto const gamma = HandlerUtils::getArgAsFloat(request.queryParams, "value");
+    if (!gamma) {
         return {400, "text/plain", "Invalid 'value' parameter"};
     }
 
-    if (gamma <= 0.0f || gamma > 10.0f) {
+    if (*gamma <= 0.0f || *gamma > 10.0f) {
         logger << "Invalid gamma value" << std::endl;
         return {400, "text/plain", "Invalid gamma value. Must be > 0.0 and <= 10.0"};
     }
 
     // Success
-    Network::getRenderer()->setGamma(gamma);
+    Network::getRenderer()->setGamma(*gamma);
     return {200, "text/plain"};
 }
 
 HTTPResponse handleCrystal(HTTPRequest const &request) {
     JsonDocument doc;
-    if (!parseJsonBody(doc, request.body, "handleCrystal")) {
+    if (!HandlerUtils::parseJsonBody(doc, request.body, "handleCrystal")) {
         return {400, "text/plain", "Failed to parse JSON body"};
     }
 
-    Color const upperColor = getJsonColor(doc, "upper_color", 0xff00d0);
-    Color const middleColor = getJsonColor(doc, "middle_color", 0xff00d0);
-    Color const lowerColor = getJsonColor(doc, "lower_color", 0xff00d0);
-    float const upperSpeed = getJsonValue(doc, "upper_speed", 0.5f);
-    float const middleSpeed = getJsonValue(doc, "middle_speed", 0.2f);
-    float const lowerSpeed = getJsonValue(doc, "lower_speed", 0.3f);
+    Color const upperColor = HandlerUtils::getJsonColor(doc, "upper_color", 0xff00d0);
+    Color const middleColor = HandlerUtils::getJsonColor(doc, "middle_color", 0xff00d0);
+    Color const lowerColor = HandlerUtils::getJsonColor(doc, "lower_color", 0xff00d0);
+    float const upperSpeed = HandlerUtils::getJsonValue(doc, "upper_speed", 0.5f);
+    float const middleSpeed = HandlerUtils::getJsonValue(doc, "middle_speed", 0.2f);
+    float const lowerSpeed = HandlerUtils::getJsonValue(doc, "lower_speed", 0.3f);
 
     float upperPeriodSec = fmap(upperSpeed, 0.0, 1.0, 11.0, 1.0);
     float middlePeriodSec = fmap(middleSpeed, 0.0, 1.0, 11.0, 1.0);
@@ -182,7 +124,7 @@ HTTPResponse handleCrystal(HTTPRequest const &request) {
     return {200, "text/plain"};
 }
 
-HTTPResponse handleFlame(HTTPRequest const &request) {
+HTTPResponse handleFlame(HTTPRequest const & /*request*/) {
     ModelPtr const model = std::make_shared<Flame>();
     Network::getRenderer()->setModel(model);
     return {200, "text/plain"};
@@ -190,11 +132,11 @@ HTTPResponse handleFlame(HTTPRequest const &request) {
 
 HTTPResponse handleRainbow(HTTPRequest const &request) {
     JsonDocument doc;
-    if (!parseJsonBody(doc, request.body, "handleRainbow")) {
+    if (!HandlerUtils::parseJsonBody(doc, request.body, "handleRainbow")) {
         return {400, "text/plain", "Failed to parse JSON body"};
     };
-    std::string const mode = getJsonValue(doc, "mode", "classic");
-    float const speed = getJsonValue(doc, "speed", 0.3f);
+    std::string const mode = HandlerUtils::getJsonValue(doc, "mode", "classic");
+    float const speed = HandlerUtils::getJsonValue(doc, "speed", 0.3f);
 
     ModelPtr gm = nullptr;
     if (mode == "tv") {
@@ -235,15 +177,15 @@ HTTPResponse handleRainbow(HTTPRequest const &request) {
 
 HTTPResponse handleWarpCore(HTTPRequest const &request) {
     JsonDocument doc;
-    if (!parseJsonBody(doc, request.body, "handleWarpCore")) {
+    if (!HandlerUtils::parseJsonBody(doc, request.body, "handleWarpCore")) {
         return {400, "text/plain", "Failed to parse JSON body"};
     };
 
-    float const frequency = getJsonValue(doc, "frequency", 0.6f);
-    float const size = getJsonValue(doc, "size", 0.6f);
-    float const dutyCycle = getJsonValue(doc, "dutyCycle", 0.4f);
-    Color const color = getJsonColor(doc, "color", WarpCore::defaultColor);
-    bool const dual = getJsonValue(doc, "dual", false);
+    float const frequency = HandlerUtils::getJsonValue(doc, "frequency", 0.6f);
+    float const size = HandlerUtils::getJsonValue(doc, "size", 0.6f);
+    float const dutyCycle = HandlerUtils::getJsonValue(doc, "dutyCycle", 0.4f);
+    Color const color = HandlerUtils::getJsonColor(doc, "color", WarpCore::defaultColor);
+    bool const dual = HandlerUtils::getJsonValue(doc, "dual", false);
 
     auto const model = Network::getRenderer()->getModel();
     if (strcmp(model->getName(), "WarpCore") == 0) {
@@ -260,14 +202,14 @@ HTTPResponse handleWarpCore(HTTPRequest const &request) {
 
 HTTPResponse  handleJacobsLadder(HTTPRequest const &request) {
     JsonDocument doc;
-    if (!parseJsonBody(doc, request.body, "handleJacobsLadder")) {
+    if (!HandlerUtils::parseJsonBody(doc, request.body, "handleJacobsLadder")) {
         return {400, "text/plain", "Failed to parse JSON body"};
     };
-    float const frequency = getJsonValue(doc, "frequency", 0.6f);
-    float const size = getJsonValue(doc, "size", 0.15f);
-    Color const color = getJsonColor(doc, "color", JacobsLadder::defaultColor);
-    float const jitterSize = getJsonValue(doc, "jitterSize", 0.15f);
-    float const jitterPeriod = getJsonValue(doc, "jitterPeriod", 0.150f);
+    float const frequency = HandlerUtils::getJsonValue(doc, "frequency", 0.6f);
+    float const size = HandlerUtils::getJsonValue(doc, "size", 0.15f);
+    Color const color = HandlerUtils::getJsonColor(doc, "color", JacobsLadder::defaultColor);
+    float const jitterSize = HandlerUtils::getJsonValue(doc, "jitterSize", 0.15f);
+    float const jitterPeriod = HandlerUtils::getJsonValue(doc, "jitterPeriod", 0.150f);
 
     auto const model = Network::getRenderer()->getModel();
     if (strcmp(model->getName(), "JacobsLadder") == 0) {
@@ -284,12 +226,12 @@ HTTPResponse  handleJacobsLadder(HTTPRequest const &request) {
 }
 
 HTTPResponse handleSolid(HTTPRequest const &request) {
-    Color color;
-    if (!getArgAsColor(request.queryParams, "color", color)) {
+    auto color = HandlerUtils::getArgAsColor(request.queryParams, "color");
+    if (!color) {
         return { 400, "text/plain", "Invalid color"};
     }
 
-    ModelPtr const model = std::make_shared<Solid>(color);
+    ModelPtr const model = std::make_shared<Solid>(*color);
     Network::getRenderer()->setModel(model);
 
     return {200, "text/plain"};
@@ -314,16 +256,16 @@ HTTPResponse handleDemo3(HTTPRequest const &request) {
 }
 
 HTTPResponse handleGetData(HTTPRequest const &request) {
-    long length;
-    if (!getArgAsLong(request.queryParams, "length", length)) {
+    auto length = HandlerUtils::getArgAsLong(request.queryParams, "length");
+    if (!length) {
         return {400, "text/plain", "Invalid 'value' parameter"};
     }
 
-    if (length < 0 || length > 100000) {
-        logger << "Invalid length: " << length << std::endl;
+    if (*length < 0 || *length > 100000) {
+        logger << "Invalid length: " << *length << std::endl;
         return {400, "text/plain", "Invalid data length. Must be >= 0 and <= 100,000"};
     }
 
     // Success
-    return {200, "text/plain", std::string(length, 'D')};
+    return {200, "text/plain", std::string(*length, 'D')};
 }

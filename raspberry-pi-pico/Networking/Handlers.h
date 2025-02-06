@@ -1,7 +1,7 @@
 #pragma once
 
-#include "HTTP/HTTPRequest.h"
-#include "HTTP/HTTPResponse.h"
+class HTTPRequest;
+class HTTPResponse;
 
 extern HTTPResponse handleRoot(HTTPRequest const &request);
 extern HTTPResponse handleCSS(HTTPRequest const &request);
