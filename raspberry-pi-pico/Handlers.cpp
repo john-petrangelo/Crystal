@@ -13,12 +13,12 @@
 
 #include "Demos.h"
 #include "Handlers.h"
-#include "HandlerUtils.h"
 #include "HTTP/HTTPRequest.h"
 #include "HTTP/HTTPResponse.h"
+#include "Networking/HandlerUtils.h"
 #include "Networking/Network.h"
 #include "System.h"
-#include "web_files.h"
+#include "../cmake-build-pico-w-debug/raspberry-pi-pico/web_files.h"
 
 HTTPResponse handleRoot(HTTPRequest const & /*request*/) {
     return {200, "text/html", INDEX_HTML};

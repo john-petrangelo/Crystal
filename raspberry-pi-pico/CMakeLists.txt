@@ -14,6 +14,8 @@ add_executable(crystal-pi-pico
         Crystal.cpp
         Demos.h
         Demos.cpp
+        Handlers.h
+        Handlers.cpp
         Renderer.h
         Renderer.cpp
         Status.h
@@ -45,8 +47,6 @@ target_sources(crystal-pi-pico PRIVATE
 target_sources(crystal-pi-pico PRIVATE
         Networking/DHCPServer.h
         Networking/DHCPServer.cpp
-        Networking/Handlers.h
-        Networking/Handlers.cpp
         Networking/HandlerUtils.h
         Networking/HandlerUtils.cpp
         Networking/MDNS.h
