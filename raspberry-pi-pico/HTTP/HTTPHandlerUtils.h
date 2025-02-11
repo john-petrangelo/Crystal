@@ -8,7 +8,7 @@
 
 #include "lumos-arduino/Colors.h"
 
-class HandlerUtils {
+class HTTPHandlerUtils {
 public:
   static bool parseJsonBody(JsonDocument &doc, std::string const &body, char const *handlerName);
 

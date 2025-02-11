@@ -47,8 +47,6 @@ target_sources(crystal-pi-pico PRIVATE
 target_sources(crystal-pi-pico PRIVATE
         Networking/DHCPServer.h
         Networking/DHCPServer.cpp
-        Networking/HandlerUtils.h
-        Networking/HandlerUtils.cpp
         Networking/MDNS.h
         Networking/MDNS.cpp
         Networking/Network.h
@@ -61,6 +59,8 @@ target_sources(crystal-pi-pico PRIVATE
 target_sources(crystal-pi-pico PRIVATE
         HTTP/HTTPConnectionContext.h
         HTTP/HTTPConnectionContext.cpp
+        HTTP/HTTPHandlerUtils.h
+        HTTP/HTTPHandlerUtils.cpp
         HTTP/HTTPRequest.h
         HTTP/HTTPRequest.cpp
         HTTP/HTTPRequestParser.h

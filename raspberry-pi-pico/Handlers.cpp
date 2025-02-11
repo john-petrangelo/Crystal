@@ -13,9 +13,10 @@
 
 #include "Demos.h"
 #include "Handlers.h"
+#include "HTTP/HTTPHandlerRegistry.h"
+#include "HTTP/HTTPHandlerUtils.h"
 #include "HTTP/HTTPRequest.h"
 #include "HTTP/HTTPResponse.h"
-#include "Networking/HandlerUtils.h"
 #include "Networking/Network.h"
 #include "System.h"
 #include "../cmake-build-pico-w-debug/raspberry-pi-pico/web_files.h"
@@ -57,7 +58,7 @@ HTTPResponse handleGetBrightness(HTTPRequest const & /*request*/) {
 }
 
 HTTPResponse handleSetBrightness(HTTPRequest const &request) {
-    auto const brightness = HandlerUtils::getArgAsLong(request.queryParams, "value");
+    auto const brightness = HTTPHandlerUtils::getArgAsLong(request.queryParams, "value");
     if (!brightness) {
         return {400, "text/plain", "Invalid 'value' parameter"};
     }
@@ -83,7 +84,7 @@ HTTPResponse handleGetGamma(HTTPRequest const & /*request*/) {
 }
 
 HTTPResponse handleSetGamma(HTTPRequest const &request) {
-    auto const gamma = HandlerUtils::getArgAsFloat(request.queryParams, "value");
+    auto const gamma = HTTPHandlerUtils::getArgAsFloat(request.queryParams, "value");
     if (!gamma) {
         return {400, "text/plain", "Invalid 'value' parameter"};
     }
@@ -100,16 +101,16 @@ HTTPResponse handleSetGamma(HTTPRequest const &request) {
 
 HTTPResponse handleCrystal(HTTPRequest const &request) {
     JsonDocument doc;
-    if (!HandlerUtils::parseJsonBody(doc, request.body, "handleCrystal")) {
+    if (!HTTPHandlerUtils::parseJsonBody(doc, request.body, "handleCrystal")) {
         return {400, "text/plain", "Failed to parse JSON body"};
     }
 
-    Color const upperColor = HandlerUtils::getJsonColor(doc, "upper_color", 0xff00d0);
-    Color const middleColor = HandlerUtils::getJsonColor(doc, "middle_color", 0xff00d0);
-    Color const lowerColor = HandlerUtils::getJsonColor(doc, "lower_color", 0xff00d0);
-    float const upperSpeed = HandlerUtils::getJsonValue(doc, "upper_speed", 0.5f);
-    float const middleSpeed = HandlerUtils::getJsonValue(doc, "middle_speed", 0.2f);
-    float const lowerSpeed = HandlerUtils::getJsonValue(doc, "lower_speed", 0.3f);
+    Color const upperColor = HTTPHandlerUtils::getJsonColor(doc, "upper_color", 0xff00d0);
+    Color const middleColor = HTTPHandlerUtils::getJsonColor(doc, "middle_color", 0xff00d0);
+    Color const lowerColor = HTTPHandlerUtils::getJsonColor(doc, "lower_color", 0xff00d0);
+    float const upperSpeed = HTTPHandlerUtils::getJsonValue(doc, "upper_speed", 0.5f);
+    float const middleSpeed = HTTPHandlerUtils::getJsonValue(doc, "middle_speed", 0.2f);
+    float const lowerSpeed = HTTPHandlerUtils::getJsonValue(doc, "lower_speed", 0.3f);
 
     float upperPeriodSec = fmap(upperSpeed, 0.0, 1.0, 11.0, 1.0);
     float middlePeriodSec = fmap(middleSpeed, 0.0, 1.0, 11.0, 1.0);
@@ -132,11 +133,11 @@ HTTPResponse handleFlame(HTTPRequest const & /*request*/) {
 
 HTTPResponse handleRainbow(HTTPRequest const &request) {
     JsonDocument doc;
-    if (!HandlerUtils::parseJsonBody(doc, request.body, "handleRainbow")) {
+    if (!HTTPHandlerUtils::parseJsonBody(doc, request.body, "handleRainbow")) {
         return {400, "text/plain", "Failed to parse JSON body"};
     };
-    std::string const mode = HandlerUtils::getJsonValue(doc, "mode", "classic");
-    float const speed = HandlerUtils::getJsonValue(doc, "speed", 0.3f);
+    std::string const mode = HTTPHandlerUtils::getJsonValue(doc, "mode", "classic");
+    float const speed = HTTPHandlerUtils::getJsonValue(doc, "speed", 0.3f);
 
     ModelPtr gm = nullptr;
     if (mode == "tv") {
@@ -177,15 +178,15 @@ HTTPResponse handleRainbow(HTTPRequest const &request) {
 
 HTTPResponse handleWarpCore(HTTPRequest const &request) {
     JsonDocument doc;
-    if (!HandlerUtils::parseJsonBody(doc, request.body, "handleWarpCore")) {
+    if (!HTTPHandlerUtils::parseJsonBody(doc, request.body, "handleWarpCore")) {
         return {400, "text/plain", "Failed to parse JSON body"};
     };
 
-    float const frequency = HandlerUtils::getJsonValue(doc, "frequency", 0.6f);
-    float const size = HandlerUtils::getJsonValue(doc, "size", 0.6f);
-    float const dutyCycle = HandlerUtils::getJsonValue(doc, "dutyCycle", 0.4f);
-    Color const color = HandlerUtils::getJsonColor(doc, "color", WarpCore::defaultColor);
-    bool const dual = HandlerUtils::getJsonValue(doc, "dual", false);
+    float const frequency = HTTPHandlerUtils::getJsonValue(doc, "frequency", 0.6f);
+    float const size = HTTPHandlerUtils::getJsonValue(doc, "size", 0.6f);
+    float const dutyCycle = HTTPHandlerUtils::getJsonValue(doc, "dutyCycle", 0.4f);
+    Color const color = HTTPHandlerUtils::getJsonColor(doc, "color", WarpCore::defaultColor);
+    bool const dual = HTTPHandlerUtils::getJsonValue(doc, "dual", false);
 
     auto const model = Network::getRenderer()->getModel();
     if (strcmp(model->getName(), "WarpCore") == 0) {
@@ -202,14 +203,14 @@ HTTPResponse handleWarpCore(HTTPRequest const &request) {
 
 HTTPResponse  handleJacobsLadder(HTTPRequest const &request) {
     JsonDocument doc;
-    if (!HandlerUtils::parseJsonBody(doc, request.body, "handleJacobsLadder")) {
+    if (!HTTPHandlerUtils::parseJsonBody(doc, request.body, "handleJacobsLadder")) {
         return {400, "text/plain", "Failed to parse JSON body"};
     };
-    float const frequency = HandlerUtils::getJsonValue(doc, "frequency", 0.6f);
-    float const size = HandlerUtils::getJsonValue(doc, "size", 0.15f);
-    Color const color = HandlerUtils::getJsonColor(doc, "color", JacobsLadder::defaultColor);
-    float const jitterSize = HandlerUtils::getJsonValue(doc, "jitterSize", 0.15f);
-    float const jitterPeriod = HandlerUtils::getJsonValue(doc, "jitterPeriod", 0.150f);
+    float const frequency = HTTPHandlerUtils::getJsonValue(doc, "frequency", 0.6f);
+    float const size = HTTPHandlerUtils::getJsonValue(doc, "size", 0.15f);
+    Color const color = HTTPHandlerUtils::getJsonColor(doc, "color", JacobsLadder::defaultColor);
+    float const jitterSize = HTTPHandlerUtils::getJsonValue(doc, "jitterSize", 0.15f);
+    float const jitterPeriod = HTTPHandlerUtils::getJsonValue(doc, "jitterPeriod", 0.150f);
 
     auto const model = Network::getRenderer()->getModel();
     if (strcmp(model->getName(), "JacobsLadder") == 0) {
@@ -226,7 +227,7 @@ HTTPResponse  handleJacobsLadder(HTTPRequest const &request) {
 }
 
 HTTPResponse handleSolid(HTTPRequest const &request) {
-    auto color = HandlerUtils::getArgAsColor(request.queryParams, "color");
+    auto color = HTTPHandlerUtils::getArgAsColor(request.queryParams, "color");
     if (!color) {
         return { 400, "text/plain", "Invalid color"};
     }
@@ -256,7 +257,7 @@ HTTPResponse handleDemo3(HTTPRequest const &request) {
 }
 
 HTTPResponse handleGetData(HTTPRequest const &request) {
-    auto length = HandlerUtils::getArgAsLong(request.queryParams, "length");
+    auto length = HTTPHandlerUtils::getArgAsLong(request.queryParams, "length");
     if (!length) {
         return {400, "text/plain", "Invalid 'value' parameter"};
     }

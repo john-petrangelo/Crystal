@@ -2,9 +2,9 @@
 
 #include "lumos-arduino/Logger.h"
 
-#include "HandlerUtils.h"
+#include "HTTPHandlerUtils.h"
 
-bool HandlerUtils::parseJsonBody(JsonDocument &doc, std::string const &body, char const *handlerName) {
+bool HTTPHandlerUtils::parseJsonBody(JsonDocument &doc, std::string const &body, char const *handlerName) {
   DeserializationError const error = deserializeJson(doc, body);
   if (error) {
     logger << handlerName << " failed to parse JSON: " << error.c_str() << std::endl;
@@ -14,7 +14,7 @@ bool HandlerUtils::parseJsonBody(JsonDocument &doc, std::string const &body, cha
   return true;
 }
 
-Color HandlerUtils::getJsonColor(JsonVariant const obj, std::string_view const paramName, Color const defaultColor) {
+Color HTTPHandlerUtils::getJsonColor(JsonVariant const obj, std::string_view const paramName, Color const defaultColor) {
   auto const value = obj[paramName];
   if (value.isNull() || !value.is<const char *>()) {
     return defaultColor;
@@ -23,7 +23,7 @@ Color HandlerUtils::getJsonColor(JsonVariant const obj, std::string_view const p
   return strtol(value.as<char const *>(), nullptr, 16);
 }
 
-std::optional<long> HandlerUtils::getArgAsLong(std::unordered_map<std::string, std::string> const &queryParams, std::string_view const paramName) {
+std::optional<long> HTTPHandlerUtils::getArgAsLong(std::unordered_map<std::string, std::string> const &queryParams, std::string_view const paramName) {
   if (auto const param = queryParams.find(std::string(paramName)); param != queryParams.end()) {
     // Convert the value from string to long
     char *endPtr = nullptr;
@@ -39,7 +39,7 @@ std::optional<long> HandlerUtils::getArgAsLong(std::unordered_map<std::string, s
   return std::nullopt;
 }
 
-std::optional<float> HandlerUtils::getArgAsFloat(std::unordered_map<std::string, std::string> const &queryParams, std::string_view const paramName) {
+std::optional<float> HTTPHandlerUtils::getArgAsFloat(std::unordered_map<std::string, std::string> const &queryParams, std::string_view const paramName) {
   if (auto const param = queryParams.find(std::string(paramName)); param != queryParams.end()) {
     // Convert the value from string to float
     char *endPtr = nullptr;
@@ -55,7 +55,7 @@ std::optional<float> HandlerUtils::getArgAsFloat(std::unordered_map<std::string,
   return std::nullopt;
 }
 
-std::optional<Color> HandlerUtils::getArgAsColor(std::unordered_map<std::string, std::string> const &queryParams, std::string_view const paramName) {
+std::optional<Color> HTTPHandlerUtils::getArgAsColor(std::unordered_map<std::string, std::string> const &queryParams, std::string_view const paramName) {
   if (auto const param = queryParams.find(std::string(paramName)); param != queryParams.end()) {
     // Convert the value from hex string to Color
     char *endPtr = nullptr;
