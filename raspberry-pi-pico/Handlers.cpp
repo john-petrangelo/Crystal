@@ -13,7 +13,6 @@
 
 #include "Demos.h"
 #include "Handlers.h"
-#include "HTTP/HTTPHandlerRegistry.h"
 #include "HTTP/HTTPHandlerUtils.h"
 #include "HTTP/HTTPRequest.h"
 #include "HTTP/HTTPResponse.h"
