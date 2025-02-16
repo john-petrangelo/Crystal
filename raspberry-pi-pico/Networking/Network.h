@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include <pico/cyw43_arch.h>
+
 #include "Renderer.h"
 
 class DHCPServer;
@@ -19,9 +21,20 @@ public:
     static std::string const &getHostname() { return hostname; }
     static void setupHostname(std::string const &baseName);
 
+    struct ScanResult {
+        std::string ssid;
+        int rssi;
+        uint8_t bssid[6];
+        uint16_t channel;
+        bool isSecure;
+    };
+
 private:
     static bool setupWiFiStation(char const *ssid, char const *password);
     static bool setupWiFiSoftAP(std::string const &ssid, std::string const &password);
+
+    static void scanWiFi();
+    static int scanWiFiCallback(void *env, cyw43_ev_scan_result_t const *result);
 
     static void setupHTTP();
 
@@ -40,4 +53,6 @@ private:
 
     static float pollDuration;
     static float checkLoggerDuration;
+
+    static std::vector<ScanResult> scanResults;
 };

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <pico/cyw43_arch.h>
+
 class DHCPServer {
 public:
   void start();

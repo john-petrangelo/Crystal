@@ -2,7 +2,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include <pico/cyw43_arch.h>
+// #include <pico/cyw43_arch.h>
 
 #include "lumos-arduino/Logger.h"
 
@@ -37,6 +37,8 @@ Renderer* Network::networkRenderer;
 DHCPServer Network::dhcpServer;
 HTTPServer Network::httpServer;
 LogServer Network::logServer;
+
+std::vector<Network::ScanResult> Network::scanResults;
 
 //Renderer* Network::networkRenderer = nullptr;
 
@@ -219,9 +221,102 @@ void Network::checkLogger() {
 //  }
 }
 
+char const * getSoftAPStatus() {
+  if (cyw43_state.netif[CYW43_ITF_AP].flags & NETIF_FLAG_UP) {
+    return "Soft AP is active";
+  }
+
+  return "Soft AP is NOT active";
+}
+
+std::string getStationModeStatus() {
+  switch (int const status = cyw43_wifi_link_status(&cyw43_state, CYW43_ITF_STA)) {
+    case CYW43_LINK_DOWN:
+      return "WiFi is in station mode but NOT connected";
+    case CYW43_LINK_JOIN:
+      return "WiFi is in the process of joining an access point";
+    case CYW43_LINK_NOIP:
+      return "WiFi is connected but does NOT have an IP address yet";
+    case CYW43_LINK_UP:
+      return "WiFi is fully connected with an IP address";
+    default:
+      return "Unknown WiFi state: " + status;
+  }
+}
+
+int Network::scanWiFiCallback(void * /*env*/, cyw43_ev_scan_result_t const *result) {
+  // Return 0 to continue scanning, return 1 to stop scanning
+  constexpr int SCAN_CALLBACK_OK = 0;
+
+  if (!result) {
+    logger << "WiFi scan callback with null result" << std::endl;
+    return SCAN_CALLBACK_OK;
+  }
+
+  if (result->ssid_len == 0) {
+    logger << "WiFi scan found an SSID with length 0, skipping" << std::endl;
+    return SCAN_CALLBACK_OK;
+  }
+
+  // Convert SSID to a string, the source array may not be null-terminated
+  std::string const ssid(reinterpret_cast<char const *>(result->ssid), result->ssid_len);
+
+  ScanResult scanResult = {
+    .ssid = ssid,
+    .rssi = result->rssi,
+    .channel = result->channel,
+    .isSecure = result->auth_mode != 0
+  };
+  std::copy(std::begin(result->bssid), std::end(result->bssid), std::begin(scanResult.bssid));
+
+  // Add to the list of scan results
+  scanResults.push_back(scanResult);
+
+  return SCAN_CALLBACK_OK;
+}
+
+void logScanResults(std::vector<Network::ScanResult> const &results) {
+  logger << "Logging stored scan results..." << std::endl;
+  for (auto const &result : results) {
+    logger
+      << "  Wi-Fi scan found SSID=\"" << result.ssid << "\""
+      << " BSSID=" << macAddrToString(result.bssid)
+      << " RSSI=" << result.rssi
+      << " Channel=" << result.channel
+      << " Security=" << (result.isSecure ? "Secured" : "Open")
+      << std::endl;
+  }
+}
+
+void Network::scanWiFi() {
+  cyw43_wifi_scan_options_t scan_options = {};
+  scan_options.ssid_len = 0; /*all*/
+  scan_options.scan_type = 0; /*active*/
+
+  // Clear out any previous scan results
+  scanResults.clear();
+
+  logger << "Starting Wi-Fi scan..." << std::endl;
+  cyw43_arch_enable_sta_mode();
+  cyw43_wifi_scan(&cyw43_state, &scan_options, nullptr, scanWiFiCallback);
+
+  // TODO Add timeout for safety
+  while (cyw43_wifi_scan_active(&cyw43_state)) {
+    cyw43_arch_poll();
+    sleep_ms(100);
+  }
+
+  std::ranges::sort(scanResults,
+                    [](ScanResult const &a, ScanResult const &b) { return a.rssi > b.rssi; });
+
+  logger << "Finished Wi-Fi scan" << std::endl;
+}
+
 // One-stop to set up all the network components
 //void Network::setup(Renderer *renderer) {
 void Network::setup() {
+  scanWiFi();
+
   // Use this renderer if we ever want to use the LEDs for network status
 //  networkRenderer = renderer;
 
@@ -241,6 +336,8 @@ void Network::setup() {
 
   logServer.init();
   logger << "Network set up complete, host " << hostname << ".local (" << ipAddress << ')' << std::endl;
+
+  logScanResults(scanResults);
 }
 
 void Network::loop() {
