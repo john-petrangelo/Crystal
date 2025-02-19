@@ -38,7 +38,7 @@ DHCPServer Network::dhcpServer;
 HTTPServer Network::httpServer;
 LogServer Network::logServer;
 
-std::vector<Network::ScanResult> Network::scanResults;
+std::vector<Network::WiFiScanResult> Network::scanResults;
 
 //Renderer* Network::networkRenderer = nullptr;
 
@@ -261,7 +261,7 @@ int Network::scanWiFiCallback(void * /*env*/, cyw43_ev_scan_result_t const *resu
   // Convert SSID to a string, the source array may not be null-terminated
   std::string const ssid(reinterpret_cast<char const *>(result->ssid), result->ssid_len);
 
-  ScanResult scanResult = {
+  WiFiScanResult scanResult = {
     .ssid = ssid,
     .rssi = result->rssi,
     .channel = result->channel,
@@ -275,7 +275,7 @@ int Network::scanWiFiCallback(void * /*env*/, cyw43_ev_scan_result_t const *resu
   return SCAN_CALLBACK_OK;
 }
 
-void logScanResults(std::vector<Network::ScanResult> const &results) {
+void logScanResults(std::vector<Network::WiFiScanResult> const &results) {
   logger << "Logging stored scan results..." << std::endl;
   for (auto const &result : results) {
     logger
@@ -330,7 +330,7 @@ void Network::scanWiFi() {
 
   // Sort scan results by RSSI (strongest signal first)
   std::ranges::sort(scanResults,
-      [](ScanResult const &a, ScanResult const &b) { return a.rssi > b.rssi; });
+      [](WiFiScanResult const &a, WiFiScanResult const &b) { return a.rssi > b.rssi; });
 
   logger << "Finished Wi-Fi scan" << std::endl;
 }
