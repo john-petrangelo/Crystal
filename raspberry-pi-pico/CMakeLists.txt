@@ -53,6 +53,8 @@ target_sources(crystal-pi-pico PRIVATE
         Networking/Network.cpp
         Networking/NetworkUtils.h
         Networking/NetworkUtils.cpp
+        Networking/WiFiScanResult.h
+        Networking/WiFiScanResult.cpp
 )
 
 # Add HTTPServer classes to the target

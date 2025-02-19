@@ -2,8 +2,6 @@
 #include <iomanip>
 #include <iostream>
 
-// #include <pico/cyw43_arch.h>
-
 #include "lumos-arduino/Logger.h"
 
 #include "DHCPServer.h"
@@ -13,6 +11,7 @@
 #include "MDNS.h"
 #include "Network.h"
 #include "NetworkUtils.h"
+#include "WiFiScanResult.h"
 
 //#include "lumos-arduino/Colors.h"
 
@@ -38,7 +37,7 @@ DHCPServer Network::dhcpServer;
 HTTPServer Network::httpServer;
 LogServer Network::logServer;
 
-std::vector<Network::WiFiScanResult> Network::scanResults;
+std::vector<WiFiScanResult> Network::scanResults;
 
 //Renderer* Network::networkRenderer = nullptr;
 
@@ -267,13 +266,7 @@ int Network::scanWiFiCallback(void * /*env*/, cyw43_ev_scan_result_t const *resu
   // Convert SSID to a string, the source array may not be null-terminated
   std::string const ssid(reinterpret_cast<char const *>(result->ssid), result->ssid_len);
 
-  WiFiScanResult scanResult = {
-    .ssid = ssid,
-    .rssi = result->rssi,
-    .channel = result->channel,
-    .isSecure = result->auth_mode != 0
-  };
-  std::copy(std::begin(result->bssid), std::end(result->bssid), std::begin(scanResult.bssid));
+  WiFiScanResult scanResult(ssid, result->rssi, result->bssid, result->channel, result->auth_mode != 0);
 
   // Add to the list of scan results
   scanResults.push_back(scanResult);
@@ -365,12 +358,3 @@ void Network::loop() {
   checkLogger();
   checkLoggerDuration = (to_ms_since_boot(get_absolute_time()) - beforeCheckLoggerMS) / 1000.0f;
 }
-
-void Network::WiFiScanResult::asJson(JsonObject const obj) const {
-  obj["ssid"] = ssid;
-  obj["bssid"] = macAddrToString(bssid);
-  obj["rssi"] = rssi;
-  obj["channel"] = channel;
-  obj["isSecure"] = isSecure;
-}
-

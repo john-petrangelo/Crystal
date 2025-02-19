@@ -9,18 +9,10 @@
 class DHCPServer;
 class HTTPServer;
 class LogServer;
+class WiFiScanResult;
 
 class Network {
 public:
-    struct WiFiScanResult {
-        std::string ssid;
-        int rssi;
-        uint8_t bssid[6];
-        uint16_t channel;
-        bool isSecure;
-
-        void asJson(JsonObject const obj) const;
-    };
     using WiFiScanResults = std::vector<WiFiScanResult>;
 
     static void setup();
