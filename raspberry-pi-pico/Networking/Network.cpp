@@ -75,7 +75,13 @@ void Network::getStatus(JsonObject obj) {
   obj["hostname"] = hostname;
   obj["ipAddress"] = ipAddress;
   obj["macAddress"] = macAddress;
-  obj["wifiMode"] = wifiMode;
+
+  obj["wiFiMode"] = wifiMode;
+  auto const scanResultsArray = obj["wiFiScanResults"].to<JsonArray>();
+  for (const auto &scanResult : scanResults) {
+    scanResult.asJson(scanResultsArray.add<JsonObject>());
+  }
+
   obj["pollDuration"] = pollDuration;
   obj["checkLoggerDuration"] = checkLoggerDuration;
   httpServer.getStatus(obj["httpServer"].to<JsonObject>());
@@ -221,7 +227,7 @@ void Network::checkLogger() {
 //  }
 }
 
-char const * getSoftAPStatus() {
+std::string_view Network::getSoftAPStatus() {
   if (cyw43_state.netif[CYW43_ITF_AP].flags & NETIF_FLAG_UP) {
     return "Soft AP is active";
   }
@@ -229,7 +235,7 @@ char const * getSoftAPStatus() {
   return "Soft AP is NOT active";
 }
 
-std::string getStationModeStatus() {
+std::string_view Network::getStationModeStatus() {
   switch (int const status = cyw43_wifi_link_status(&cyw43_state, CYW43_ITF_STA)) {
     case CYW43_LINK_DOWN:
       return "WiFi is in station mode but NOT connected";
@@ -273,19 +279,6 @@ int Network::scanWiFiCallback(void * /*env*/, cyw43_ev_scan_result_t const *resu
   scanResults.push_back(scanResult);
 
   return SCAN_CALLBACK_OK;
-}
-
-void logScanResults(std::vector<Network::WiFiScanResult> const &results) {
-  logger << "Logging stored scan results..." << std::endl;
-  for (auto const &result : results) {
-    logger
-      << "  Wi-Fi scan found SSID=\"" << result.ssid << "\""
-      << " BSSID=" << macAddrToString(result.bssid)
-      << " RSSI=" << result.rssi
-      << " Channel=" << result.channel
-      << " Security=" << (result.isSecure ? "Secured" : "Open")
-      << std::endl;
-  }
 }
 
 void Network::scanWiFi() {
@@ -359,8 +352,6 @@ void Network::setup() {
 
   logServer.init();
   logger << "Network set up complete, host " << hostname << ".local (" << ipAddress << ')' << std::endl;
-
-  logScanResults(scanResults);
 }
 
 void Network::loop() {
@@ -374,3 +365,12 @@ void Network::loop() {
   checkLogger();
   checkLoggerDuration = (to_ms_since_boot(get_absolute_time()) - beforeCheckLoggerMS) / 1000.0f;
 }
+
+void Network::WiFiScanResult::asJson(JsonObject const obj) const {
+  obj["ssid"] = ssid;
+  obj["bssid"] = macAddrToString(bssid);
+  obj["rssi"] = rssi;
+  obj["channel"] = channel;
+  obj["isSecure"] = isSecure;
+}
+

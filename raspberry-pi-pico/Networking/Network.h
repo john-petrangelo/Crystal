@@ -18,6 +18,8 @@ public:
         uint8_t bssid[6];
         uint16_t channel;
         bool isSecure;
+
+        void asJson(JsonObject const obj) const;
     };
     using WiFiScanResults = std::vector<WiFiScanResult>;
 
@@ -43,6 +45,9 @@ private:
     static void setupHTTP();
 
     static void checkLogger();
+
+    static std::string_view getSoftAPStatus();
+    static std::string_view getStationModeStatus();
 
     static std::string hostname;
     static std::string ipAddress;
