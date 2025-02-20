@@ -76,7 +76,7 @@ void Network::getStatus(JsonObject obj) {
 
   obj["wiFiMode"] = wifiMode;
   auto const scanResultsArray = obj["wiFiScanResults"].to<JsonArray>();
-  for (const auto &scanResult : WiFiScanner::getScanResults()) {
+  for (const auto &scanResult : WiFiScanner::getInstance().getScanResults()) {
     scanResult.asJson(scanResultsArray.add<JsonObject>());
   }
 
@@ -251,7 +251,7 @@ std::string_view Network::getStationModeStatus() {
 // One-stop to set up all the network components
 //void Network::setup(Renderer *renderer) {
 void Network::setup() {
-  WiFiScanner::scanWiFi();
+  WiFiScanner::getInstance().scanWiFi();
 
   // Use this renderer if we ever want to use the LEDs for network status
 //  networkRenderer = renderer;
@@ -280,7 +280,7 @@ void Network::loop() {
   cyw43_arch_poll();
   pollDuration = (to_ms_since_boot(get_absolute_time()) - beforePollMS) / 1000.0f;
 
-  // Check to see if the network logger needs to be setup or torn down
+  // Check to see if the network logger needs to be set up or torn down
   float const beforeCheckLoggerMS = to_ms_since_boot(get_absolute_time());
   checkLogger();
   checkLoggerDuration = (to_ms_since_boot(get_absolute_time()) - beforeCheckLoggerMS) / 1000.0f;

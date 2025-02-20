@@ -9,9 +9,13 @@
 #include "WiFiScanner.h"
 #include "WiFiScanResult.h"
 
-std::vector<WiFiScanResult> WiFiScanner::scanResults;
+WiFiScanner &WiFiScanner::getInstance() {
+  static WiFiScanner instance;
+  return instance;
+}
 
-int WiFiScanner::scanWiFiCallback(void * /*env*/, cyw43_ev_scan_result_t const *result) {
+
+int WiFiScanner::scanWiFiCallback(void * env, cyw43_ev_scan_result_t const *result) {
   // Return 0 to continue scanning, return 1 to stop scanning
   constexpr int SCAN_CALLBACK_OK = 0;
 
@@ -25,13 +29,16 @@ int WiFiScanner::scanWiFiCallback(void * /*env*/, cyw43_ev_scan_result_t const *
     return SCAN_CALLBACK_OK;
   }
 
+  // Convert `env` back to `WiFiScanner*`
+  auto *scanner = static_cast<WiFiScanner *>(env);
+
   // Convert SSID to a string, the source array may not be null-terminated
   std::string const ssid(reinterpret_cast<char const *>(result->ssid), result->ssid_len);
 
-  WiFiScanResult scanResult(ssid, result->rssi, result->bssid, result->channel, result->auth_mode != 0);
+  WiFiScanResult const scanResult(ssid, result->rssi, result->bssid, result->channel, result->auth_mode != 0);
 
   // Add to the list of scan results
-  scanResults.push_back(scanResult);
+  scanner->scanResults.push_back(scanResult);
 
   return SCAN_CALLBACK_OK;
 }
@@ -48,7 +55,7 @@ void WiFiScanner::scanWiFi() {
   cyw43_wifi_scan_options_t scan_options = {};
   scan_options.ssid_len = 0; /*all*/
   scan_options.scan_type = 0; /*active*/
-  auto const err = cyw43_wifi_scan(&cyw43_state, &scan_options, nullptr, scanWiFiCallback);
+  auto const err = cyw43_wifi_scan(&cyw43_state, &scan_options, this, scanWiFiCallback);
   if (err) {
     logger << "Wi-Fi scan failed: " << cyw43ErrStr(err) << std::endl;
     return;
