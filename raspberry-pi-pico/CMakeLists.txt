@@ -53,6 +53,8 @@ target_sources(crystal-pi-pico PRIVATE
         Networking/Network.cpp
         Networking/NetworkUtils.h
         Networking/NetworkUtils.cpp
+        Networking/WiFiScanner.h
+        Networking/WiFiScanner.cpp
         Networking/WiFiScanResult.h
         Networking/WiFiScanResult.cpp
 )

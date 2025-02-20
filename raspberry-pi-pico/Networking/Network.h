@@ -13,8 +13,6 @@ class WiFiScanResult;
 
 class Network {
 public:
-    using WiFiScanResults = std::vector<WiFiScanResult>;
-
     static void setup();
     static void loop();
     static void getStatus(JsonObject obj);
@@ -25,14 +23,10 @@ public:
     static std::string const &getHostname() { return hostname; }
     static void setupHostname(std::string const &baseName);
 
-    static void scanWiFi();
-    static WiFiScanResults const &getScanResults() { return scanResults; }
 
 private:
     static bool setupWiFiStation(char const *ssid, char const *password);
     static bool setupWiFiSoftAP(std::string const &ssid, std::string const &password);
-
-    static int scanWiFiCallback(void *env, cyw43_ev_scan_result_t const *result);
 
     static void setupHTTP();
 
@@ -54,6 +48,4 @@ private:
 
     static float pollDuration;
     static float checkLoggerDuration;
-
-    static WiFiScanResults scanResults;
 };
