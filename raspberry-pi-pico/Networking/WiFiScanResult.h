@@ -25,9 +25,7 @@ public:
   * @param isSecure Indicates whether the network is secured (true) or open (false).
   */
   WiFiScanResult(std::string ssid, int const rssi, uint8_t const bssid[6], uint16_t const channel, bool const isSecure)
-    : ssid(std::move(ssid)), rssi(rssi), bssid(macAddrToString(bssid)), channel(channel), isSecure(isSecure) {
-    std::copy_n(bssid, 6, this->bssid.begin());
-  }
+    : ssid(std::move(ssid)), rssi(rssi), bssid(macAddrToString(bssid)), channel(channel), isSecure(isSecure) {}
 
   /// @brief The Wi-Fi network's SSID (name).
   std::string ssid;
