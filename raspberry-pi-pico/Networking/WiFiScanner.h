@@ -32,6 +32,8 @@ private:
   WiFiScanner &operator=(WiFiScanner const &) = delete;
   WiFiScanner &operator=(WiFiScanner &&) = delete;
 
+  void addScanResult(WiFiScanResult const &scanResult);
+
   /**
    * @brief Callback function for processing Wi-Fi scan results, passed to the LWIP Wi-Fi scan function.
    * @param env Pointer to user-defined environment (unused in this case).
@@ -39,6 +41,8 @@ private:
    * @return 0 to continue scanning, 1 to stop scanning early.
    */
   static int scanWiFiCallback(void *env, cyw43_ev_scan_result_t const *result);
+
+  static constexpr int MAX_RESULTS = 10;
 
   WiFiScanResults scanResults;
 };

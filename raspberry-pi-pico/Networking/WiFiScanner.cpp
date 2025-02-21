@@ -15,6 +15,27 @@ WiFiScanner &WiFiScanner::getInstance() {
 }
 
 
+void WiFiScanner::addScanResult(WiFiScanResult const &scanResult) {
+  // Find the existing entry for this SSID
+  auto const it = std::ranges::find_if(scanResults, [&](WiFiScanResult const &entry) {
+    return entry.ssid == scanResult.ssid;
+  });
+
+  if (it == scanResults.end()) {
+    // Didn't find a match, this is a new result, add it to the results
+    scanResults.push_back(scanResult);
+  } else if (scanResult.rssi > it->rssi) {
+    // Found a matching SSID, but the new one has a stronger signal, update the existing entry
+    *it = scanResult;
+  }
+
+  // Remove the weakest signal if we have more than 10 results
+  if (scanResults.size() > MAX_RESULTS) {
+    std::ranges::sort(scanResults, [](WiFiScanResult const &a, WiFiScanResult const &b) { return a.rssi < b.rssi; });
+    scanResults.pop_back();
+  }
+}
+
 int WiFiScanner::scanWiFiCallback(void * env, cyw43_ev_scan_result_t const *result) {
   // Return 0 to continue scanning, return 1 to stop scanning
   constexpr int SCAN_CALLBACK_OK = 0;
@@ -29,16 +50,17 @@ int WiFiScanner::scanWiFiCallback(void * env, cyw43_ev_scan_result_t const *resu
     return SCAN_CALLBACK_OK;
   }
 
-  // Convert `env` back to `WiFiScanner*`
-  auto *scanner = static_cast<WiFiScanner *>(env);
-
   // Convert SSID to a string, the source array may not be null-terminated
   std::string const ssid(reinterpret_cast<char const *>(result->ssid), result->ssid_len);
 
+  // Create the scan result object
   WiFiScanResult const scanResult(ssid, result->rssi, result->bssid, result->channel, result->auth_mode != 0);
 
-  // Add to the list of scan results
-  scanner->scanResults.push_back(scanResult);
+  // Convert `env` back to `WiFiScanner*`
+  auto *scanner = static_cast<WiFiScanner *>(env);
+
+  // Add the scan result to the list
+  scanner->addScanResult(scanResult);
 
   return SCAN_CALLBACK_OK;
 }
