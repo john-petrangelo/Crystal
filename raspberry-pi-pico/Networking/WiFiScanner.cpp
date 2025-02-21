@@ -14,7 +14,6 @@ WiFiScanner &WiFiScanner::getInstance() {
   return instance;
 }
 
-
 void WiFiScanner::addScanResult(WiFiScanResult const &scanResult) {
   // Find the existing entry for this SSID
   auto const it = std::ranges::find_if(scanResults, [&](WiFiScanResult const &entry) {

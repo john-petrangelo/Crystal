@@ -32,6 +32,19 @@ private:
   WiFiScanner &operator=(WiFiScanner const &) = delete;
   WiFiScanner &operator=(WiFiScanner &&) = delete;
 
+
+  /**
+   * @brief Adds a new Wi-Fi scan result to the list,
+   * ensuring uniqueness by SSID and limiting the list to the strongest 10 signals.
+   *
+   * @param scanResult The new Wi-Fi scan result to be added.
+   *
+   * This function checks if the SSID from the new scan result already exists in the list:
+   * - If it does not exist, the new result is added.
+   * - If an entry with the same SSID exists but has a weaker signal (lower RSSI), it is updated with the stronger one.
+   *
+   * To maintain efficiency, the list is limited to `MAX_RESULTS` by removing the weakest signal when it exceeds this limit.
+   */
   void addScanResult(WiFiScanResult const &scanResult);
 
   /**
@@ -42,7 +55,13 @@ private:
    */
   static int scanWiFiCallback(void *env, cyw43_ev_scan_result_t const *result);
 
+  /**
+   * @brief The maximum number of Wi-Fi scan results to store.
+   */
   static constexpr int MAX_RESULTS = 10;
 
+  /**
+   * @brief The list of Wi-Fi scan results.
+   */
   WiFiScanResults scanResults;
 };
