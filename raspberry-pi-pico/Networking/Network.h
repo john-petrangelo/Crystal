@@ -5,11 +5,12 @@
 #include <pico/cyw43_arch.h>
 
 #include "Renderer.h"
+#include "WiFiScanner.h"
 
 class DHCPServer;
 class HTTPServer;
 class LogServer;
-class WiFiScanResult;
+class WiFiScanResults;
 
 class Network {
 public:
@@ -23,6 +24,7 @@ public:
     static std::string const &getHostname() { return hostname; }
     static void setupHostname(std::string const &baseName);
 
+    static WiFiScanner::WiFiScanResults const & getScanResults();
 
 private:
     static bool setupWiFiStation(char const *ssid, char const *password);

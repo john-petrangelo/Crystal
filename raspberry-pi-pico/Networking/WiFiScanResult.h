@@ -1,10 +1,11 @@
 #pragma once
 
 #include <algorithm>
-#include <array>
 #include <string>
 
 #include <ArduinoJson.h>
+
+#include "NetworkUtils.h"
 
 /**
  * @class WiFiScanResult

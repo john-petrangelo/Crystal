@@ -296,8 +296,6 @@ void DHCPServer::dhcp_server_callback(void *arg, udp_pcb *pcb, pbuf *p, const ip
     uint8_t mac[6];
     memcpy(mac, &payload[28], 6); // Client MAC address
 
-    logger << "DHCP received " << p->len << "bytes, xid=" << xid_hex << " mac=" << macStr(mac) << std::endl;
-
     switch (uint8_t dhcp_message_type = get_dhcp_message_type(payload, p->len)) {
         case DHCP_DISCOVER:
             dhcpServer->handleDHCPDiscover(pcb, addr, xid, mac);

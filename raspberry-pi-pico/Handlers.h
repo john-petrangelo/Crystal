@@ -8,6 +8,7 @@ extern HTTPResponse handleCSS(HTTPRequest const &request);
 extern HTTPResponse handleJS(HTTPRequest const &request);
 
 extern HTTPResponse handleStatus(HTTPRequest const &request);
+extern HTTPResponse handleGetWiFiNetworks(HTTPRequest const &request);
 
 extern HTTPResponse handleGetBrightness(HTTPRequest const &reqeust);
 extern HTTPResponse handleSetBrightness(HTTPRequest const &request);

@@ -17,6 +17,7 @@
 #include "HTTP/HTTPRequest.h"
 #include "HTTP/HTTPResponse.h"
 #include "Networking/Network.h"
+#include "Networking/WiFiScanResult.h"
 #include "System.h"
 #include "../cmake-build-pico-w-debug/raspberry-pi-pico/web_files.h"
 
@@ -42,6 +43,20 @@ HTTPResponse handleStatus(HTTPRequest const & /*request*/) {
     std::string output;
     serializeJsonPretty(doc, output);
     output += "\n";
+
+    return {200, "application/json", output};
+}
+
+HTTPResponse handleGetWiFiNetworks(HTTPRequest const & /*request*/) {
+    JsonDocument doc;
+
+    auto const scanResultsArray = doc.to<JsonArray>();
+    for (const auto &scanResult : WiFiScanner::getInstance().getScanResults()) {
+        scanResult.asJson(scanResultsArray.add<JsonObject>());
+    }
+
+    std::string output;
+    serializeJsonPretty(doc, output);
 
     return {200, "application/json", output};
 }

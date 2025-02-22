@@ -69,6 +69,10 @@ void Network::setupHostname(const std::string &baseName) {
   // hostname += parts[5][1];
 }
 
+WiFiScanner::WiFiScanResults const & Network::getScanResults() {
+  return WiFiScanner::getInstance().getScanResults();
+}
+
 void Network::getStatus(JsonObject obj) {
   obj["hostname"] = hostname;
   obj["ipAddress"] = ipAddress;
@@ -183,6 +187,7 @@ void Network::setupHTTP() {
   httpServer.onGet("/crystal.js", handleJS);
 
   httpServer.onGet("/status", handleStatus);
+  httpServer.onGet("/wifiScanResults", handleGetWiFiNetworks);
 
   httpServer.onGet("/brightness", handleGetBrightness);
   httpServer.onPut("/brightness", handleSetBrightness);
