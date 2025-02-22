@@ -21,7 +21,7 @@ public:
    * @brief Get the scan results from the last Wi-Fi scan.
    * @return A const reference to the list of scan results.
    */
-  WiFiScanResults const &getScanResults() { return scanResults; }
+  WiFiScanResults const & getScanResults() { return scanResults; }
 
 private:
   // Enforce the singleton pattern
@@ -31,7 +31,6 @@ private:
   WiFiScanner(WiFiScanner &&) = delete;
   WiFiScanner &operator=(WiFiScanner const &) = delete;
   WiFiScanner &operator=(WiFiScanner &&) = delete;
-
 
   /**
    * @brief Adds a new Wi-Fi scan result to the list,
