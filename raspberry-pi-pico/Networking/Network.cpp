@@ -188,6 +188,7 @@ void Network::setupHTTP() {
 
   httpServer.onGet("/status", handleStatus);
   httpServer.onGet("/wifiScanResults", handleGetWiFiNetworks);
+  httpServer.onGet("/setup", handleSetup);
 
   httpServer.onGet("/brightness", handleGetBrightness);
   httpServer.onPut("/brightness", handleSetBrightness);

@@ -146,6 +146,7 @@ set(DATA_FILES
         ${CMAKE_SOURCE_DIR}/data/crystal.css
         ${CMAKE_SOURCE_DIR}/data/crystal.js
         ${CMAKE_SOURCE_DIR}/data/index.html
+        ${CMAKE_SOURCE_DIR}/data/setup.html
 )
 
 # The static web files after converting to C code

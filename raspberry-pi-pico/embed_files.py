@@ -23,7 +23,8 @@ def main():
     files = [
         '../../data/index.html',
         '../../data/crystal.css',
-        '../../data/crystal.js'
+        '../../data/crystal.js',
+        '../../data/setup.html',
     ]
 
     file_data = {}

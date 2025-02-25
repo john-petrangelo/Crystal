@@ -33,6 +33,10 @@ HTTPResponse handleJS(HTTPRequest const & /*request*/) {
     return {200, "application/javascript", CRYSTAL_JS};
 }
 
+HTTPResponse handleSetup(HTTPRequest const & /*request*/) {
+    return {200, "text/html", SETUP_HTML};
+}
+
 HTTPResponse handleStatus(HTTPRequest const & /*request*/) {
     JsonDocument doc;
 
