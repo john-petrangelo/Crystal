@@ -8,14 +8,29 @@
         body {
             font-family: Arial, sans-serif;
             max-width: 400px;
-            margin: auto;
+            margin: 40px auto;
             text-align: center;
+            padding: 20px;
         }
+
         select, input, button {
             width: 100%;
             margin: 10px 0;
-            padding: 10px;
+            padding: 12px;
+            font-size: 16px;
         }
+
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
         .hidden {
             display: none;
         }
@@ -34,7 +49,7 @@
         <input type="password" id="wifi-password" placeholder="Password">
     </div>
 
-    <button onclick="connectToWiFi()">"Connect""</button>
+    <button onclick="connectToWiFi()">Connect</button>
 
     <p id="status"></p>
 
@@ -42,32 +57,39 @@
         let GET_SCAN_RESULTS_URL = "/wifiScanResults"
         let CONNECT_URL = "/connect"
 
+        let wifiScanResults = []; // Store scan results globally
+
         // Fetch Wi-Fi networks from the server
         async function fetchWiFiNetworks() {
+            let statusElement = document.getElementById('status');
+            statusElement.textContent = "Getting Wi-Fi networks...";
+
+            let select = document.getElementById('wifi-list');
+            select.innerHTML = '<option value="">Loading</option>'; // Reset the dropdown
+
             try {
-                console.log("Getting scan results...");
                 let response = await fetch(GET_SCAN_RESULTS_URL);
-                console.log("Got scan results");
-                console.log("response", response);
-                let networks = await response.json();
+                wifiScanResults = await response.json();
 
-                let select = document.getElementById('wifi-list');
-                select.innerHTML = ''; // Clear the previous options
+                select.innerHTML = ''; // Clear the loading message
 
-                networks.forEach(network => {
+                if (wifiScanResults.length === 0) {
+                    statusElement.textContent = "No Wi-Fi networks found.";
+                    select.innerHTML = '<option value="">No networks available</option>';
+                    return;
+                }
+
+                wifiScanResults.forEach(network => {
                     let option = document.createElement('option');
                     option.value = network.ssid;
-                    option.textContent = `${network.ssid} (RSSI: ${network.rssi}) ${network.isSecure
-                        ? "🔒" : "🌐"}`;
+                    option.textContent = `${network.ssid} (RSSI: ${network.rssi}) ${network.isSecure ? "🔒" : "🌐"}`;
                     select.appendChild(option);
                 });
 
-                if (networks.length > 0) {
-                    togglePasswordField();
-                }
+                statusElement.textContent = "Select a Wi-Fi network.";
+                togglePasswordField();
             } catch (error) {
                 document.getElementById('status').textContent = "Error fetching networks.";
-                console.log("Caught error");
                 console.log("Error:", error);
             }
         }
@@ -83,23 +105,24 @@
                 return;
             }
 
-            fetch(GET_SCAN_RESULTS_URL)
-                .then(response => response.json())
-                .then(networks => {
-                    let selectedNetwork = networks.find(network => network.ssid === selectedSSID);
-                    passwordField.classList.toggle("hidden", !selectedNetwork.isSecure);
-                });
+            let selectedNetwork = wifiScanResults.find(network => network.ssid === selectedSSID);
+            passwordField.classList.toggle("hidden", !selectedNetwork || !selectedNetwork.isSecure);
         }
 
         // Send selected Wi-Fi credentials to the server
         async function connectToWiFi() {
             let ssid = document.getElementById('wifi-list').value;
             let password = document.getElementById('wifi-password').value;
+            let statusElement = document.getElementById('status');
+            let button = document.querySelector("button");
 
             if (!ssid) {
                 document.getElementById('status').textContent = "Please select a network.";
                 return;
             }
+
+            button.disabled = true;
+            statusElement.textContent = `Connecting to ${ssid}...`;
 
             let requestData = { ssid: ssid, password: password };
             try {
@@ -109,11 +132,17 @@
                     body: JSON.stringify(requestData)
                 });
 
-                let result = await response.text();
-                document.getElementById('status').textContent = result;
+                if (!response.ok) {
+                    throw new Error(`Failed to connect. Status: ${response.status}`);
+                }
+
+                let responseText = await response.text();
+                statusElement.textContent = responseText;
             } catch (error) {
-                document.getElementById('status').textContent = result;
+                document.getElementById('status').textContent = "An error occurred: " + error.message;
                 console.error("Error:", error);
+            } finally {
+                button.disabled = false; // Re-enable the button
             }
         }
 
