@@ -124,8 +124,6 @@ bool Network::setupWiFiStation(char const *ssid, char const *password) {
 }
 
 // Create our own network using Soft AP mode
-// NOTE: This code does not work yet. It does create a new network, but it's
-//       not possible to connect to the web server yet.
 bool Network::setupWiFiSoftAP(std::string const &ssid, std::string const &password) {
   // We need to pass in NULL for no password
   auto const pw = password.empty() ? nullptr : password.c_str();
