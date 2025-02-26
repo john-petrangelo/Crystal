@@ -13,7 +13,7 @@
 constexpr long logDurationIntervalMS = 60000;
 
 #define BUTTON_PIN 10  // GPIO pin for the button
-#define DEBOUNCE_TIME_US 500 * 1000  // debounce time in microseconds
+#define DEBOUNCE_TIME_US 100 * 1000  // debounce time in microseconds
 
 volatile bool button_pressed = false;  // Flag for button press
 volatile uint32_t last_press_time_us = 0;  // Last time the button was pressed
@@ -36,20 +36,6 @@ void button_callback(uint const gpio, uint32_t events) {
     return;
   }
 
-  // Filter out "released" events
-  if (gpio_get(BUTTON_PIN) != IS_PRESSED) {
-    return;
-  }
-
-  // Debounce
-  uint32_t const now = time_us_32();
-  if (now - last_press_time_us < DEBOUNCE_TIME_US) {
-    // Too soon, ignore it
-    return;
-  }
-
-  // Record the time of the press and set the flag
-  last_press_time_us = now;
   button_pressed = true;
 }
 
@@ -66,7 +52,7 @@ int main() {
   gpio_init(BUTTON_PIN);
   gpio_set_dir(BUTTON_PIN, GPIO_IN);
   gpio_pull_up(BUTTON_PIN);
-  gpio_set_irq_enabled_with_callback(BUTTON_PIN, GPIO_IRQ_EDGE_FALL, true, &button_callback);
+  gpio_set_irq_enabled_with_callback(BUTTON_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &button_callback);
 
   logger << "Connecting to network" << std::endl;
   Network::setup();
@@ -87,13 +73,19 @@ int main() {
 
     if (button_pressed) {
       button_pressed = false;
-      logger << "Status button was pressed" << std::endl;
-      logger << getStatus() << std::endl << std::endl;
+
+      auto const now_us = time_us_32();
+      if (now_us - last_press_time_us > DEBOUNCE_TIME_US) {
+        last_press_time_us = now_us;
+        logger << "Status button was pressed" << std::endl;
+        logger << getStatus() << std::endl << std::endl;
+      }
     }
 
     if (now_ms - lastUpdateMS >= logDurationIntervalMS) {
       lastUpdateMS = now_ms;
-      logger << getStatus() << std::endl << std::endl;
+      // logger << getStatus() << std::endl << std::endl;
+      logger << "Tick" << std::endl;
     }
   }
 }
