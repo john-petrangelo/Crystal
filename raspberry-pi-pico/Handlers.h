@@ -6,7 +6,9 @@ class HTTPResponse;
 extern HTTPResponse handleRoot(HTTPRequest const &request);
 extern HTTPResponse handleCSS(HTTPRequest const &request);
 extern HTTPResponse handleJS(HTTPRequest const &request);
+
 extern HTTPResponse handleSetup(HTTPRequest const &request);
+extern HTTPResponse handleConnect(HTTPRequest const &request);
 
 extern HTTPResponse handleStatus(HTTPRequest const &request);
 extern HTTPResponse handleGetWiFiNetworks(HTTPRequest const &request);

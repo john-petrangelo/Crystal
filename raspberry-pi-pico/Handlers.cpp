@@ -65,6 +65,20 @@ HTTPResponse handleGetWiFiNetworks(HTTPRequest const & /*request*/) {
     return {200, "application/json", output};
 }
 
+HTTPResponse handleConnect(HTTPRequest const &request) {
+    JsonDocument doc;
+    if (!HTTPHandlerUtils::parseJsonBody(doc, request.body, "handleConnect")) {
+        return {400, "text/plain", "Failed to parse JSON body"};
+    }
+
+    std::string const ssid = HTTPHandlerUtils::getJsonValue(doc, "ssid", "");
+    std::string const password = HTTPHandlerUtils::getJsonValue(doc, "password", "");
+
+    logger << "handleConnect ssid=" << ssid << " password=" << password << std::endl;
+
+    return {200, "text/plain"};
+}
+
 HTTPResponse handleGetBrightness(HTTPRequest const & /*request*/) {
     JsonDocument doc;
     doc["value"] = Network::getRenderer()->brightness();

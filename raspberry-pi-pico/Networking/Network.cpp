@@ -187,8 +187,10 @@ void Network::setupHTTP() {
   httpServer.onGet("/crystal.js", handleJS);
 
   httpServer.onGet("/status", handleStatus);
-  httpServer.onGet("/wifiScanResults", handleGetWiFiNetworks);
   httpServer.onGet("/setup", handleSetup);
+
+  httpServer.onGet("/wifiScanResults", handleGetWiFiNetworks);
+  httpServer.onPut("/connect", handleConnect);
 
   httpServer.onGet("/brightness", handleGetBrightness);
   httpServer.onPut("/brightness", handleSetBrightness);
