@@ -127,7 +127,7 @@
             let requestData = { ssid: ssid, password: password };
             try {
                 let response = await fetch(CONNECT_URL, {
-                    method: "POST",
+                    method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(requestData)
                 });
