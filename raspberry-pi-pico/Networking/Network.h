@@ -26,9 +26,10 @@ public:
 
     static WiFiScanner::WiFiScanResults const & getScanResults();
 
-private:
     static bool setupWiFiStation(char const *ssid, char const *password);
     static bool setupWiFiSoftAP(std::string const &ssid, std::string const &password);
+
+private:
 
     static void setupHTTP();
 

@@ -11,33 +11,68 @@
 #include "lumos-arduino/Models/Solid.h"
 #include "lumos-arduino/Models/WarpCore.h"
 
-#include "Demos.h"
-#include "Handlers.h"
 #include "HTTP/HTTPHandlerUtils.h"
 #include "HTTP/HTTPRequest.h"
 #include "HTTP/HTTPResponse.h"
+#include "HTTP/HTTPServer.h"
+
 #include "Networking/Network.h"
 #include "Networking/WiFiScanResult.h"
+
+#include "Demos.h"
+#include "HTTPHandlers.h"
 #include "System.h"
+
 #include "../cmake-build-pico-w-debug/raspberry-pi-pico/web_files.h"
 
-HTTPResponse handleRoot(HTTPRequest const & /*request*/) {
+// Set up the web server and handlers
+void HTTPHandlers::setup(HTTPServer &httpServer) {
+    httpServer.onGet("/", handleRoot);
+    httpServer.onGet("/crystal.css", handleCSS);
+    httpServer.onGet("/crystal.js", handleJS);
+
+    httpServer.onGet("/status", handleStatus);
+    httpServer.onGet("/setup", handleSetup);
+
+    httpServer.onGet("/wifiScanResults", handleGetWiFiNetworks);
+    httpServer.onPut("/connect", handleConnect);
+
+    httpServer.onGet("/brightness", handleGetBrightness);
+    httpServer.onPut("/brightness", handleSetBrightness);
+
+    httpServer.onGet("/gamma", handleGetGamma);
+    httpServer.onPut("/gamma", handleSetGamma);
+
+    httpServer.onPut("/crystal", handleCrystal);
+    httpServer.onPut("/rainbow", handleRainbow);
+    httpServer.onPut("/flame", handleFlame);
+    httpServer.onPut("/solid", handleSolid);
+    httpServer.onPut("/warpcore", handleWarpCore);
+    httpServer.onPut("/jacobsladder", handleJacobsLadder);
+    httpServer.onPut("/demo1", handleDemo1);
+    httpServer.onPut("/demo2", handleDemo2);
+    httpServer.onPut("/demo3", handleDemo3);
+    httpServer.onGet("/data", handleGetData);
+}
+
+
+HTTPResponse HTTPHandlers::handleRoot(HTTPRequest const & /*request*/) {
     return {200, "text/html", INDEX_HTML};
 }
 
-HTTPResponse handleCSS(HTTPRequest const & /*request*/) {
+HTTPResponse HTTPHandlers::handleCSS(HTTPRequest const & /*request*/) {
     return {200, "text/css", CRYSTAL_CSS};
 }
 
-HTTPResponse handleJS(HTTPRequest const & /*request*/) {
+HTTPResponse HTTPHandlers::handleJS(HTTPRequest const & /*request*/) {
     return {200, "application/javascript", CRYSTAL_JS};
 }
 
-HTTPResponse handleSetup(HTTPRequest const & /*request*/) {
+HTTPResponse HTTPHandlers::handleSetup(HTTPRequest const & /*request*/) {
     return {200, "text/html", SETUP_HTML};
 }
 
-HTTPResponse handleStatus(HTTPRequest const & /*request*/) {
+HTTPResponse HTTPHandlers::handleStatus(HTTPRequest const & /*request*/) {
     JsonDocument doc;
 
     System::getStatus(doc["system"].to<JsonObject>());
@@ -51,7 +86,7 @@ HTTPResponse handleStatus(HTTPRequest const & /*request*/) {
     return {200, "application/json", output};
 }
 
-HTTPResponse handleGetWiFiNetworks(HTTPRequest const & /*request*/) {
+HTTPResponse HTTPHandlers::handleGetWiFiNetworks(HTTPRequest const & /*request*/) {
     JsonDocument doc;
 
     auto const scanResultsArray = doc.to<JsonArray>();
@@ -65,7 +100,7 @@ HTTPResponse handleGetWiFiNetworks(HTTPRequest const & /*request*/) {
     return {200, "application/json", output};
 }
 
-HTTPResponse handleConnect(HTTPRequest const &request) {
+HTTPResponse HTTPHandlers::handleConnect(HTTPRequest const &request) {
     JsonDocument doc;
     if (!HTTPHandlerUtils::parseJsonBody(doc, request.body, "handleConnect")) {
         return {400, "text/plain", "Failed to parse JSON body"};
@@ -76,10 +111,12 @@ HTTPResponse handleConnect(HTTPRequest const &request) {
 
     logger << "handleConnect ssid=" << ssid << " password=" << password << std::endl;
 
+    Network::setupWiFiStation(ssid.c_str(), password.c_str());
+
     return {200, "text/plain"};
 }
 
-HTTPResponse handleGetBrightness(HTTPRequest const & /*request*/) {
+HTTPResponse HTTPHandlers::handleGetBrightness(HTTPRequest const & /*request*/) {
     JsonDocument doc;
     doc["value"] = Network::getRenderer()->brightness();
 
@@ -89,7 +126,7 @@ HTTPResponse handleGetBrightness(HTTPRequest const & /*request*/) {
     return {200, "application/json", output};
 }
 
-HTTPResponse handleSetBrightness(HTTPRequest const &request) {
+HTTPResponse HTTPHandlers::handleSetBrightness(HTTPRequest const &request) {
     auto const brightness = HTTPHandlerUtils::getArgAsLong(request.queryParams, "value");
     if (!brightness) {
         return {400, "text/plain", "Invalid 'value' parameter"};
@@ -105,7 +142,7 @@ HTTPResponse handleSetBrightness(HTTPRequest const &request) {
     return {200, "text/plain"};
 }
 
-HTTPResponse handleGetGamma(HTTPRequest const & /*request*/) {
+HTTPResponse HTTPHandlers::handleGetGamma(HTTPRequest const & /*request*/) {
     JsonDocument doc;
     doc["value"] = Network::getRenderer()->gamma();
 
@@ -115,7 +152,7 @@ HTTPResponse handleGetGamma(HTTPRequest const & /*request*/) {
     return {200, "application/json", output};
 }
 
-HTTPResponse handleSetGamma(HTTPRequest const &request) {
+HTTPResponse HTTPHandlers::handleSetGamma(HTTPRequest const &request) {
     auto const gamma = HTTPHandlerUtils::getArgAsFloat(request.queryParams, "value");
     if (!gamma) {
         return {400, "text/plain", "Invalid 'value' parameter"};
@@ -131,7 +168,7 @@ HTTPResponse handleSetGamma(HTTPRequest const &request) {
     return {200, "text/plain"};
 }
 
-HTTPResponse handleCrystal(HTTPRequest const &request) {
+HTTPResponse HTTPHandlers::handleCrystal(HTTPRequest const &request) {
     JsonDocument doc;
     if (!HTTPHandlerUtils::parseJsonBody(doc, request.body, "handleCrystal")) {
         return {400, "text/plain", "Failed to parse JSON body"};
@@ -157,13 +194,13 @@ HTTPResponse handleCrystal(HTTPRequest const &request) {
     return {200, "text/plain"};
 }
 
-HTTPResponse handleFlame(HTTPRequest const & /*request*/) {
+HTTPResponse HTTPHandlers::handleFlame(HTTPRequest const & /*request*/) {
     ModelPtr const model = std::make_shared<Flame>();
     Network::getRenderer()->setModel(model);
     return {200, "text/plain"};
 }
 
-HTTPResponse handleRainbow(HTTPRequest const &request) {
+HTTPResponse HTTPHandlers::handleRainbow(HTTPRequest const &request) {
     JsonDocument doc;
     if (!HTTPHandlerUtils::parseJsonBody(doc, request.body, "handleRainbow")) {
         return {400, "text/plain", "Failed to parse JSON body"};
@@ -208,7 +245,7 @@ HTTPResponse handleRainbow(HTTPRequest const &request) {
     return {200, "text/plain"};
 }
 
-HTTPResponse handleWarpCore(HTTPRequest const &request) {
+HTTPResponse HTTPHandlers::handleWarpCore(HTTPRequest const &request) {
     JsonDocument doc;
     if (!HTTPHandlerUtils::parseJsonBody(doc, request.body, "handleWarpCore")) {
         return {400, "text/plain", "Failed to parse JSON body"};
@@ -233,7 +270,7 @@ HTTPResponse handleWarpCore(HTTPRequest const &request) {
     return {200, "text/plain"};
 }
 
-HTTPResponse  handleJacobsLadder(HTTPRequest const &request) {
+HTTPResponse  HTTPHandlers::handleJacobsLadder(HTTPRequest const &request) {
     JsonDocument doc;
     if (!HTTPHandlerUtils::parseJsonBody(doc, request.body, "handleJacobsLadder")) {
         return {400, "text/plain", "Failed to parse JSON body"};
@@ -258,7 +295,7 @@ HTTPResponse  handleJacobsLadder(HTTPRequest const &request) {
     return {200, "text/plain"};
 }
 
-HTTPResponse handleSolid(HTTPRequest const &request) {
+HTTPResponse HTTPHandlers::handleSolid(HTTPRequest const &request) {
     auto color = HTTPHandlerUtils::getArgAsColor(request.queryParams, "color");
     if (!color) {
         return { 400, "text/plain", "Invalid color"};
@@ -270,25 +307,25 @@ HTTPResponse handleSolid(HTTPRequest const &request) {
     return {200, "text/plain"};
 }
 
-HTTPResponse handleDemo1(HTTPRequest const &request) {
+HTTPResponse HTTPHandlers::handleDemo1(HTTPRequest const &request) {
   auto const model = makeDemo1();
   Network::getRenderer()->setModel(model);
   return {200, "text/plain"};
 }
 
-HTTPResponse handleDemo2(HTTPRequest const &request) {
+HTTPResponse HTTPHandlers::handleDemo2(HTTPRequest const &request) {
   auto const model = makeDemo2();
   Network::getRenderer()->setModel(model);
   return {200, "text/plain"};
 }
 
-HTTPResponse handleDemo3(HTTPRequest const &request) {
+HTTPResponse HTTPHandlers::handleDemo3(HTTPRequest const &request) {
   auto const model = makeDemo3();
   Network::getRenderer()->setModel(model);
   return {200, "text/plain"};
 }
 
-HTTPResponse handleGetData(HTTPRequest const &request) {
+HTTPResponse HTTPHandlers::handleGetData(HTTPRequest const &request) {
     auto length = HTTPHandlerUtils::getArgAsLong(request.queryParams, "length");
     if (!length) {
         return {400, "text/plain", "Invalid 'value' parameter"};

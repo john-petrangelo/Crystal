@@ -2,7 +2,8 @@
 
 #include <string>
 
-struct HTTPResponse {
+class HTTPResponse {
+public:
     int status_code;
     std::string contentType;
     std::string body;

@@ -5,8 +5,8 @@
 #include "lumos-arduino/Logger.h"
 
 #include "DHCPServer.h"
-#include "Handlers.h"
 #include "HTTP/HTTPServer.h"
+#include "HTTPHandlers.h"
 #include "Logging/LogServer.h"
 #include "MDNS.h"
 #include "Network.h"
@@ -180,32 +180,7 @@ void Network::setupHTTP() {
     return;
   }
 
-  httpServer.onGet("/", handleRoot);
-  httpServer.onGet("/crystal.css", handleCSS);
-  httpServer.onGet("/crystal.js", handleJS);
-
-  httpServer.onGet("/status", handleStatus);
-  httpServer.onGet("/setup", handleSetup);
-
-  httpServer.onGet("/wifiScanResults", handleGetWiFiNetworks);
-  httpServer.onPut("/connect", handleConnect);
-
-  httpServer.onGet("/brightness", handleGetBrightness);
-  httpServer.onPut("/brightness", handleSetBrightness);
-
-  httpServer.onGet("/gamma", handleGetGamma);
-  httpServer.onPut("/gamma", handleSetGamma);
-
-  httpServer.onPut("/crystal", handleCrystal);
-  httpServer.onPut("/rainbow", handleRainbow);
-  httpServer.onPut("/flame", handleFlame);
-  httpServer.onPut("/solid", handleSolid);
-  httpServer.onPut("/warpcore", handleWarpCore);
-  httpServer.onPut("/jacobsladder", handleJacobsLadder);
-  httpServer.onPut("/demo1", handleDemo1);
-  httpServer.onPut("/demo2", handleDemo2);
-  httpServer.onPut("/demo3", handleDemo3);
-  httpServer.onGet("/data", handleGetData);
+  HTTPHandlers::setup(httpServer);
 }
 
 //// Server used for logging.

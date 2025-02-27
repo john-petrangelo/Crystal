@@ -14,8 +14,8 @@ add_executable(crystal-pi-pico
         Crystal.cpp
         Demos.h
         Demos.cpp
-        Handlers.h
-        Handlers.cpp
+        HTTPHandlers.h
+        HTTPHandlers.cpp
         Renderer.h
         Renderer.cpp
         Status.h
