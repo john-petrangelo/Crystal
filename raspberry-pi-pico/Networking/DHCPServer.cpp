@@ -40,13 +40,14 @@ void DHCPServer::appendDHCPMsgTypeOption(uint8_t *payload, uint16_t &offset, uin
     payload[offset++] = msgType;
 }
 
-bool DHCPServer::handleDHCPDiscover(struct udp_pcb *pcb, const ip_addr_t *addr, uint32_t xid, uint8_t mac[6]) {
+bool DHCPServer::handleDHCPDiscover(struct udp_pcb *pcb, const ip_addr_t *addr, uint32_t const xid, uint8_t mac[6]) {
     logger << "DHCP type DISCOVER" << std::endl;
-    DHCPLeasePool::Lease const *lease = leasePool.allocate_ip(mac);
-    if (!lease) {
+    auto const ip = leasePool.allocate_ip(mac);
+    if (!ip) {
         logger << "No IP available for " << macAddrToString(mac) << std::endl << std::endl;
         return true;
     }
+    auto const ipAddr = ip.value().addr;
 
     // Create DHCP OFFER response
     struct pbuf *response = pbuf_alloc(PBUF_TRANSPORT, 300, PBUF_RAM);
@@ -63,10 +64,10 @@ bool DHCPServer::handleDHCPDiscover(struct udp_pcb *pcb, const ip_addr_t *addr, 
     resp_payload[10] = 0x00; // Unicast
     resp_payload[11] = 0x00;
 
-    resp_payload[16] = (lease->ip.addr & 0xFF);         // yiaddr
-    resp_payload[17] = (lease->ip.addr >> 8) & 0xFF;
-    resp_payload[18] = (lease->ip.addr >> 16) & 0xFF;
-    resp_payload[19] = (lease->ip.addr >> 24) & 0xFF;
+    resp_payload[16] = (ipAddr & 0xFF);         // yiaddr
+    resp_payload[17] = (ipAddr >> 8) & 0xFF;
+    resp_payload[18] = (ipAddr >> 16) & 0xFF;
+    resp_payload[19] = (ipAddr >> 24) & 0xFF;
     memcpy(&resp_payload[28], mac, 6); // Client MAC address
 
     memcpy(&resp_payload[28], mac, 6); // Client MAC address
@@ -104,7 +105,7 @@ bool DHCPServer::handleDHCPDiscover(struct udp_pcb *pcb, const ip_addr_t *addr, 
 
     pbuf_free(response);
 
-    logger << "DHCP Offered IP " << ip4addr_ntoa(&lease->ip) << " to MAC " << macAddrToString(mac) << std::endl;
+    logger << "DHCP Offered IP " << ip4addr_ntoa(&ip.value()) << " to MAC " << macAddrToString(mac) << std::endl;
 
     return false;
 }
@@ -138,8 +139,8 @@ void DHCPServer::handleDHCPRequest(struct udp_pcb *pcb, const ip_addr_t *addr, u
     logger << "JHP DHCP requested MAC = " << macAddrToString(mac) << std::endl;
 
     for (int i = 0; i < std::size(leasePool.ip_pool); i++) {
-        logger << "JHP DHCP pool[" << i << "] = {" << ip4addr_ntoa(reinterpret_cast<ip4_addr_t *>(&leasePool.ip_pool[i].ip.addr))
-            << ", " << macAddrToString(leasePool.ip_pool[i].mac) << ", " << (leasePool.ip_pool[i].active ? "active" : "inactive") << "}" << std::endl;
+        // logger << "JHP DHCP pool[" << i << "] = {" << ip4addr_ntoa(reinterpret_cast<ip4_addr_t *>(&leasePool.ip_pool[i].ip.addr))
+        //     << ", " << macAddrToString(leasePool.ip_pool[i].mac) << ", " << (leasePool.ip_pool[i].active ? "active" : "inactive") << "}" << std::endl;
         if (leasePool.ip_pool[i].active && leasePool.ip_pool[i].ip.addr == requested_ip && memcmp(leasePool.ip_pool[i].mac, mac, 6) == 0) {
             valid_ip = true;
             break;
