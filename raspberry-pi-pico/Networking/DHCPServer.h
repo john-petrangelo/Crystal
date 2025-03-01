@@ -21,7 +21,6 @@ private:
   void appendDHCPMsgTypeOption(uint8_t *payload, uint16_t &offset, uint8_t msgType);
 
   static uint8_t get_dhcp_message_type(uint8_t *payload, uint16_t len);
-  static std::string macStr(uint8_t mac[6]);
 
   // DHCP server and client ports
   static constexpr uint16_t DHCP_SERVER_PORT = 67;

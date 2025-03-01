@@ -9,6 +9,7 @@
 #include <lumos-arduino/Logger.h>
 
 #include "DHCPServer.h"
+#include "NetworkUtils.h"
 
 // Allocate an IP address from the pool
 DHCPServer::Lease* DHCPServer::allocate_ip(uint8_t mac[6]) {
@@ -38,31 +39,6 @@ void DHCPServer::release_ip(uint8_t mac[6]) {
             memset(ip_pool[i].mac, 0, 6);
         }
     }
-}
-
-std::string DHCPServer::macStr(uint8_t mac[6]) {
-    if (!mac) { // Check for a null pointer
-        return "<null>";
-    }
-
-    std::ostringstream oss;
-    for (size_t i = 0; i < 6; ++i) {
-        oss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(mac[i]);
-        if (i < 5) {
-            oss << ':'; // Add colon separator except for the last byte
-        }
-    }
-
-    uint8_t const ghostMac[6] =         {0x5e, 0x04, 0xc0, 0x31, 0x61, 0x36};
-    uint8_t const purplePhoenixMac[6] = {0xa2, 0x32, 0xc1, 0xfa, 0x01, 0x70};
-
-    if (memcmp(mac, ghostMac, 6) == 0) {
-        oss << " (Ghost)";
-    } else if (memcmp(mac, purplePhoenixMac, 6) == 0) {
-        oss << " (PurplePhoenix)";
-    }
-
-    return oss.str();
 }
 
 uint8_t DHCPServer::get_dhcp_message_type(uint8_t *payload, uint16_t len) {
@@ -98,7 +74,7 @@ bool DHCPServer::handleDHCPDiscover(struct udp_pcb *pcb, const ip_addr_t *addr, 
     logger << "DHCP type DISCOVER" << std::endl;
     Lease const *lease = allocate_ip(mac);
     if (!lease) {
-        logger << "No IP available for " << macStr(mac) << std::endl << std::endl;
+        logger << "No IP available for " << macAddrToString(mac) << std::endl << std::endl;
         return true;
     }
 
@@ -158,7 +134,7 @@ bool DHCPServer::handleDHCPDiscover(struct udp_pcb *pcb, const ip_addr_t *addr, 
 
     pbuf_free(response);
 
-    logger << "DHCP Offered IP " << ip4addr_ntoa(&lease->ip) << " to MAC " << macStr(mac) << std::endl;
+    logger << "DHCP Offered IP " << ip4addr_ntoa(&lease->ip) << " to MAC " << macAddrToString(mac) << std::endl;
 
     return false;
 }
@@ -195,7 +171,7 @@ void DHCPServer::handleDHCPRequest(struct udp_pcb *pcb, const ip_addr_t *addr, u
     }
 
     if (!valid_ip) {
-        logger << "DHCP Invalid IP " << ip4addr_ntoa(reinterpret_cast<ip4_addr_t *>(&requested_ip)) << " requested by MAC " << macStr(mac) << std::endl;
+        logger << "DHCP Invalid IP " << ip4addr_ntoa(reinterpret_cast<ip4_addr_t *>(&requested_ip)) << " requested by MAC " << macAddrToString(mac) << std::endl;
         return;
     }
 
@@ -272,7 +248,7 @@ void DHCPServer::handleDHCPRequest(struct udp_pcb *pcb, const ip_addr_t *addr, u
 
     pbuf_free(response);
 
-    logger << "DHCP Acknowledged IP " << ip4addr_ntoa(reinterpret_cast<ip4_addr_t *>(&requested_ip)) << " for MAC " << macStr(mac) << std::endl;
+    logger << "DHCP Acknowledged IP " << ip4addr_ntoa(reinterpret_cast<ip4_addr_t *>(&requested_ip)) << " for MAC " << macAddrToString(mac) << std::endl;
 }
 
 void DHCPServer::handleDHCPRelease(uint8_t mac[6]) {
@@ -280,7 +256,7 @@ void DHCPServer::handleDHCPRelease(uint8_t mac[6]) {
 
     // Free the IP address
     release_ip(mac);
-    logger << "DHCP Freed IP for MAC " << macStr(mac) << std::endl;
+    logger << "DHCP Freed IP for MAC " << macAddrToString(mac) << std::endl;
 }
 
 // Handle incoming DHCP requests

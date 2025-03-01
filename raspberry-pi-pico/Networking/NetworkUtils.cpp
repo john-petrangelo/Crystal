@@ -4,16 +4,20 @@
 
 #include "Networking/NetworkUtils.h"
 
-std::string ipAddrToString(u32_t ip) {
+std::string ipAddrToString(u32_t const ipAddr) {
   std::ostringstream oss;
-  oss << (ip & 0xFF) << '.'
-      << ((ip >> 8) & 0xFF) << '.'
-      << ((ip >> 16) & 0xFF) << '.'
-      << ((ip >> 24) & 0xFF);
+  oss << (ipAddr & 0xFF) << '.'
+      << ((ipAddr >> 8) & 0xFF) << '.'
+      << ((ipAddr >> 16) & 0xFF) << '.'
+      << ((ipAddr >> 24) & 0xFF);
   return oss.str();
 }
 
-std::string macAddrToString(const uint8_t* mac) {
+std::string macAddrToString(uint8_t const mac[6]) {
+  if (!mac) { // Check for a null pointer
+    return "<null>";
+  }
+
   std::ostringstream oss;
   for (size_t i = 0; i < 6; ++i) {
     oss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(mac[i]);
