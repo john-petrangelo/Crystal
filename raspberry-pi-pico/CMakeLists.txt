@@ -45,6 +45,8 @@ target_sources(crystal-pi-pico PRIVATE
 
 # Add Networking classes to the target
 target_sources(crystal-pi-pico PRIVATE
+        Networking/DHCPLeasePool.h
+        Networking/DHCPLeasePool.cpp
         Networking/DHCPServer.h
         Networking/DHCPServer.cpp
         Networking/MDNS.h
