@@ -133,19 +133,12 @@ void DHCPServer::handleDHCPRequest(struct udp_pcb *pcb, const ip_addr_t *addr, u
     }
 
     // Validate the requested IP
-    bool valid_ip = false;
-    logger << "JHP DHCP pool size = " << std::size(leasePool.ip_pool) << std::endl;
     logger << "JHP DHCP requested IP = " << ip4addr_ntoa(reinterpret_cast<ip4_addr_t *>(&requested_ip)) << std::endl;
     logger << "JHP DHCP requested MAC = " << macAddrToString(mac) << std::endl;
 
-    for (int i = 0; i < std::size(leasePool.ip_pool); i++) {
-        // logger << "JHP DHCP pool[" << i << "] = {" << ip4addr_ntoa(reinterpret_cast<ip4_addr_t *>(&leasePool.ip_pool[i].ip.addr))
-        //     << ", " << macAddrToString(leasePool.ip_pool[i].mac) << ", " << (leasePool.ip_pool[i].active ? "active" : "inactive") << "}" << std::endl;
-        if (leasePool.ip_pool[i].active && leasePool.ip_pool[i].ip.addr == requested_ip && memcmp(leasePool.ip_pool[i].mac, mac, 6) == 0) {
-            valid_ip = true;
-            break;
-        }
-    }
+    leasePool.dump();
+
+    auto const valid_ip = leasePool.findIP(requested_ip, mac);
 
     if (!valid_ip) {
         logger << "DHCP Invalid IP " << ip4addr_ntoa(reinterpret_cast<ip4_addr_t *>(&requested_ip)) << " requested by MAC " << macAddrToString(mac) << std::endl;
@@ -233,7 +226,7 @@ void DHCPServer::handleDHCPRelease(uint8_t mac[6]) {
 
     // Free the IP address
     leasePool.release_ip(mac);
-    logger << "DHCP Freed IP for MAC " << macAddrToString(mac) << std::endl;
+    logger << "DHCP Freed IP (MAC " << macAddrToString(mac) << ")" << std::endl;
 }
 
 // Handle incoming DHCP requests

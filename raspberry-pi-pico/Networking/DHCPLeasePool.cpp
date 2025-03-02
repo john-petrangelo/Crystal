@@ -1,6 +1,12 @@
+#include <algorithm>
 #include <iterator>
+#include <ostream>
+
+#include <lumos-arduino/Logger.h>
 
 #include "DHCPLeasePool.h"
+
+#include "NetworkUtils.h"
 
 // Allocate an IP address from the pool
 std::optional<ip4_addr_t> DHCPLeasePool::allocate_ip(uint8_t mac[6]) {
@@ -21,6 +27,37 @@ std::optional<ip4_addr_t> DHCPLeasePool::allocate_ip(uint8_t mac[6]) {
   }
   return std::nullopt; // No available IPs
 }
+
+bool DHCPLeasePool::findIP(uint32_t const requestedIP, uint8_t const requestedMAC[6]) {
+  for (auto &[ip, mac, active]: ip_pool) {
+    if (ip.addr != requestedIP) {
+      // IP doesn't match, continue
+      continue;
+    }
+
+    if (std::equal(mac, mac+6, requestedMAC)) {
+      // IP and MAC address match, ensure the lease is active and return success
+      active = true;
+      return true;
+    }
+
+    if (std::all_of(mac, mac+6, [](uint8_t const byte) { return byte == 0; })) {
+      // IP matches, but no MAC address assigned, assign the MAC address and return success
+      std::copy_n(requestedMAC, 6, mac);
+      active = true;
+      return true;
+    }
+  }
+  return false;
+}
+
+void DHCPLeasePool::dump() {
+  logger << "DHCP Lease Pool:" << std::endl;
+  for (auto const &[ip, mac, active]: ip_pool) {
+    logger << "  IP: " << ip4addr_ntoa(&ip) << ", MAC: " << macAddrToString(mac) << ", " << (active ? "Active" : "Inactive") << std::endl;
+  }
+}
+
 
 // Release an IP address back to the pool
 void DHCPLeasePool::release_ip(uint8_t mac[6]) {

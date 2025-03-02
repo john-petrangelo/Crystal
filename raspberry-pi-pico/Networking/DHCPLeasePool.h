@@ -7,7 +7,9 @@
 class DHCPLeasePool {
 public:
   std::optional<ip4_addr_t> allocate_ip(uint8_t mac[6]);
+  bool findIP(uint32_t requestedIP, uint8_t const requestedMAC[6]);
   void release_ip(uint8_t mac[6]);
+  void dump();
 
 private:
   // DHCP IP lease record
@@ -18,7 +20,6 @@ private:
   };
 
   // DHCP IP lease pool for DHCP server
-public:
   Lease ip_pool[4] = {
     {IPADDR4_INIT_BYTES(192, 168, 27, 11), {0}, false},
     {IPADDR4_INIT_BYTES(192, 168, 27, 12), {0}, false},
