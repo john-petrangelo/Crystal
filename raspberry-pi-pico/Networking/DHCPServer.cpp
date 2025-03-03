@@ -9,23 +9,87 @@
 #include <lumos-arduino/Logger.h>
 
 #include "DHCPServer.h"
+
 #include "NetworkUtils.h"
 
-uint8_t DHCPServer::get_dhcp_message_type(uint8_t *payload, uint16_t len) {
-    // DHCP options start at offset 240 in the packet
-    uint16_t options_offset = 240;
+void DHCPServer::parseDHCPOptions(uint8_t const *payload, uint16_t const len) {
+    uint16_t constexpr DHCP_OPTIONS_START = 240;
+
+    // Check minimum packet length
+    if (len < DHCP_OPTIONS_START) {
+        logger << "DHCP packet too short, skipping options parsing" << std::endl;
+        return;
+    }
+
+    uint16_t options_offset = DHCP_OPTIONS_START;
+
     while (options_offset < len) {
         uint8_t const option = payload[options_offset];
-        if (option == 255) { // End of options
+        if (option == DHCP_OPTION_END) { // End of options
             break;
         }
-        if (option == DHCP_OPTION_MESSAGE_TYPE) {
-            return payload[options_offset + 2]; // Value is at offset +2
+        if (option == DHCP_OPTION_PAD) {
+            // Skip the pad option
+            options_offset++;
+            continue;
         }
-        options_offset += 2 + payload[options_offset + 1]; // Skip to the next option
+        if (options_offset + 1 >= len) {
+            // Option is out-of-bounds of payload, break to avoid buffer overflow
+            logger << "DHCP option out-of-bounds (offset: " << options_offset
+                   << ", len: " << len << "), skipping" << std::endl;
+            break;
+        }
+
+        uint8_t const option_len = payload[options_offset + 1];
+        if (options_offset + 2 + option_len > len) {
+            // Option is out-of-bounds of payload, break to avoid buffer overflow
+            logger << "DHCP option " << static_cast<int>(option) << "(len: " << option_len
+                   << ") exceeds packet bounds (offset: " << options_offset
+                   << ", len: " << len << "), skipping" << std::endl;
+            break;
+        }
+
+        uint8_t const *option_data = payload + options_offset + 2;
+
+        switch (option) {
+            case DHCP_OPTION_REQUESTED_IP:
+                if (option_len == sizeof(options.requestedIP)) {
+                    std::memcpy(&options.requestedIP, option_data, sizeof(options.requestedIP));
+                    options.requestedIP = ntohl(options.requestedIP);
+                }
+            break;
+            case DHCP_OPTION_MESSAGE_TYPE:
+                if (option_len == DHCP_OPTION_MESSAGE_TYPE_LEN) {
+                    options.messageType = *option_data;
+                }
+                break;
+            case DHCP_OPTION_PARAMETER_REQUEST_LIST:
+                if (option_len > 0) {
+                    options.parameterRequestList.assign(option_data, option_data + option_len);
+                }
+                break;
+            case DHCP_OPTION_MAX_MSG_SIZE:
+                if (option_len == DHCP_OPTION_MAX_MSG_SIZE_LEN) {
+                    std::memcpy(&options.maxMessageSize, option_data, sizeof(options.maxMessageSize));
+                    options.maxMessageSize = ntohs(options.maxMessageSize);
+                }
+                break;
+            case DHCP_OPTION_LEASE_TIME:
+            case DHCP_OPTION_CLIENT_ID:
+                // Silently ignoring these options
+                break;
+            default:
+                logger << "DHCP encountered unrecognized option: " << static_cast<int>(option) << std::endl;
+                break;
+        }
+
+        // Move on to the next option
+        options_offset += 2 + option_len;
     }
-    return 0; // Return 0 if no valid message type is found
 }
+
+// TODO I should send SERVER_ID with OFFER and ACK messages
+// #define DHCP_OPTION_SERVER_ID       54 /* RFC 2132 9.7, server IP address */
 
 void DHCPServer::appendDHCPOption(uint8_t const code, uint8_t const length, uint8_t *payload, uint16_t &offset, const uint8_t *data) {
     payload[offset++] = code;
@@ -111,14 +175,13 @@ bool DHCPServer::handleDHCPDiscover(struct udp_pcb *pcb, const ip_addr_t *addr, 
 }
 
 void DHCPServer::handleDHCPRequest(struct udp_pcb *pcb, const ip_addr_t *addr, uint8_t *payload, uint32_t xid, uint8_t mac[6]) {
-    // Handle DHCP REQUEST
     logger << "DHCP type REQUEST" << std::endl;
 
     // Extract requested IP from Option 50
     uint32_t requested_ip = 0;
     uint16_t options_offset = 240; // Start of DHCP options
     while (options_offset < 300) {
-        uint8_t option = payload[options_offset];
+        uint8_t const option = payload[options_offset];
         if (option == 50) { // Requested IP Address
             memcpy(&requested_ip, &payload[options_offset + 2], sizeof(requested_ip));
             break;
@@ -133,11 +196,6 @@ void DHCPServer::handleDHCPRequest(struct udp_pcb *pcb, const ip_addr_t *addr, u
     }
 
     // Validate the requested IP
-    logger << "JHP DHCP requested IP = " << ip4addr_ntoa(reinterpret_cast<ip4_addr_t *>(&requested_ip)) << std::endl;
-    logger << "JHP DHCP requested MAC = " << macAddrToString(mac) << std::endl;
-
-    leasePool.dump();
-
     auto const valid_ip = leasePool.findIP(requested_ip, mac);
 
     if (!valid_ip) {
@@ -221,6 +279,15 @@ void DHCPServer::handleDHCPRequest(struct udp_pcb *pcb, const ip_addr_t *addr, u
     logger << "DHCP Acknowledged IP " << ip4addr_ntoa(reinterpret_cast<ip4_addr_t *>(&requested_ip)) << " for MAC " << macAddrToString(mac) << std::endl;
 }
 
+void DHCPServer::handleDHCPDecline(uint8_t mac[6]) {
+    if (options.requestedIP == 0) {
+        logger << "DHCP DECLINE received, but no requested IP found." << std::endl;
+        return;
+    }
+
+    logger << "DHCP type DECLINE (IP " << ipAddrToString(options.requestedIP) << ", MAC " << macAddrToString(mac) << ")" << std::endl;
+}
+
 void DHCPServer::handleDHCPRelease(uint8_t mac[6]) {
     logger << "DHCP type RELEASE" << std::endl;
 
@@ -242,18 +309,25 @@ void DHCPServer::dhcp_server_callback(void *arg, udp_pcb *pcb, pbuf *p, const ip
     uint8_t mac[6];
     memcpy(mac, &payload[28], 6); // Client MAC address
 
-    switch (uint8_t dhcp_message_type = get_dhcp_message_type(payload, p->len)) {
+    dhcpServer->parseDHCPOptions(payload, p->len);
+    auto const &options = dhcpServer->options;
+
+    // switch (uint8_t const dhcp_message_type = get_dhcp_message_type(payload, p->len)) {
+    switch (options.messageType) {
         case DHCP_DISCOVER:
             dhcpServer->handleDHCPDiscover(pcb, addr, xid, mac);
             break;
         case DHCP_REQUEST:
             dhcpServer->handleDHCPRequest(pcb, addr, payload, xid, mac);
             break;
+        case DHCP_DECLINE:
+            dhcpServer->handleDHCPDecline(mac);
+            break;
         case DHCP_RELEASE:
             dhcpServer->handleDHCPRelease(mac);
             break;
         default:
-            logger << "DHCP Unknown request type " << static_cast<int>(dhcp_message_type) << std::endl;
+            logger << "DHCP Unknown request type " << static_cast<int>(options.messageType) << std::endl;
     }
 
     pbuf_free(p);
