@@ -19,10 +19,10 @@ using HTTPHandler = std::function<HTTPResponse(const HTTPRequest&)>;
 
 class HTTPServer {
 public:
-    HTTPServer() = default;
+    explicit HTTPServer(uint16_t const port = 80) : port(port) {};
     ~HTTPServer() = default;
 
-    bool init(uint16_t port = 80);
+    void start();
 
     // Add handlers to the handler list
     void onGet(std::string path, HTTPHandler func) { onMethod("GET", std::move(path), std::move(func)); }
@@ -58,6 +58,11 @@ private:
 
     std::map<uint32_t, HTTPConnectionContext const *> activeConnections;
     std::unordered_map<std::string, HTTPHandler> handlers;
+
+    /**
+     * The port number on which the HTTP server listens for incoming connections.
+     */
+    uint16_t port = 80;
 
     /**
      * Maximum number of active connections allowed by the HTTP server.

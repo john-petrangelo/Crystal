@@ -23,22 +23,22 @@ auto constexpr DEBUG_ALL = DEBUG_CONNECTION | DEBUG_REQUEST | DEBUG_REQUEST_DETA
 // auto constexpr HTTP_DEBUG = DEBUG_CONNECTION | DEBUG_REQUEST | DEBUG_RESPONSE;
 auto constexpr HTTP_DEBUG = 0;
 
-bool HTTPServer::init(uint16_t const port) {
+void HTTPServer::start() {
   if (port == 0 || port > 0xFFFF) {
     logger << "Cannot start HTTP server, invalid port: " << port << std::endl;
-    return false;
+    return;
   }
 
   auto const pcb = tcp_new();
   if (pcb == nullptr) {
     logger << "Cannot start HTTP server, error calling tcp_new" << std::endl;
-    return false;
+    return;
   }
 
   if (err_t const err = tcp_bind(pcb, IP_ADDR_ANY, port); err != ERR_OK) {
     logger << "Cannot start HTTP server, error calling tcp_bind (" << port << "): " << errToString(err) << std::endl;
     tcp_abort(pcb);
-    return false;
+    return;
   }
 
   constexpr uint8_t backlog = 3;
@@ -46,14 +46,12 @@ bool HTTPServer::init(uint16_t const port) {
   if (listenPcb == nullptr) {
     logger << "Cannot start HTTP server, error calling tcp_listen" << std::endl;
     tcp_abort(pcb);
-    return false;
+    return;
   }
 
   tcp_arg(listenPcb, this);
   tcp_accept(listenPcb, onAccept);
   logger << "HTTP server listening on port " << port << std::endl;
-
-  return true;
 }
 
 err_t HTTPServer::onAccept(void *arg, tcp_pcb *newpcb, err_t const err) {

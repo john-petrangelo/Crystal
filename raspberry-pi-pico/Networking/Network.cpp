@@ -176,12 +176,9 @@ bool Network::setupWiFiSoftAP(std::string const &ssid, std::string const &passwo
 
 // Set up the web server and handlers
 void Network::setupHTTP() {
-  if (!httpServer.init()) {
-    // HTTP server failed to initialize. Abort.
-    return;
-  }
-
   HTTPHandlers::setup(httpServer);
+
+  httpServer.start();
 }
 
 //// Server used for logging.
