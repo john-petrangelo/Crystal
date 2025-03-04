@@ -43,22 +43,12 @@ target_sources(crystal-pi-pico PRIVATE
         Logging/NetworkLogger.h
 )
 
-# Add Networking classes to the target
+# Add DHCP classes to the target
 target_sources(crystal-pi-pico PRIVATE
-        Networking/DHCPLeasePool.h
-        Networking/DHCPLeasePool.cpp
-        Networking/DHCPServer.h
-        Networking/DHCPServer.cpp
-        Networking/MDNS.h
-        Networking/MDNS.cpp
-        Networking/Network.h
-        Networking/Network.cpp
-        Networking/NetworkUtils.h
-        Networking/NetworkUtils.cpp
-        Networking/WiFiScanner.h
-        Networking/WiFiScanner.cpp
-        Networking/WiFiScanResult.h
-        Networking/WiFiScanResult.cpp
+        DHCP/DHCPLeasePool.h
+        DHCP/DHCPLeasePool.cpp
+        DHCP/DHCPServer.h
+        DHCP/DHCPServer.cpp
 )
 
 # Add HTTPServer classes to the target
@@ -74,6 +64,20 @@ target_sources(crystal-pi-pico PRIVATE
         HTTP/HTTPResponse.h
         HTTP/HTTPServer.h
         HTTP/HTTPServer.cpp
+)
+
+# Add Networking classes to the target
+target_sources(crystal-pi-pico PRIVATE
+        Networking/MDNS.h
+        Networking/MDNS.cpp
+        Networking/Network.h
+        Networking/Network.cpp
+        Networking/NetworkUtils.h
+        Networking/NetworkUtils.cpp
+        Networking/WiFiScanner.h
+        Networking/WiFiScanner.cpp
+        Networking/WiFiScanResult.h
+        Networking/WiFiScanResult.cpp
 )
 
 # Add model classes to the target

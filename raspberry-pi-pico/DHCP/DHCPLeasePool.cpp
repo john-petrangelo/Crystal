@@ -4,9 +4,9 @@
 
 #include <lumos-arduino/Logger.h>
 
-#include "DHCPLeasePool.h"
+#include <Networking/NetworkUtils.h>
 
-#include "NetworkUtils.h"
+#include "DHCPLeasePool.h"
 
 // Allocate an IP address from the pool
 std::optional<ip4_addr_t> DHCPLeasePool::allocate_ip(uint8_t mac[6]) {

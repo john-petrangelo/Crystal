@@ -8,9 +8,10 @@
 
 #include <lumos-arduino/Logger.h>
 
+#include <Networking/NetworkUtils.h>
+
 #include "DHCPServer.h"
 
-#include "NetworkUtils.h"
 
 void DHCPServer::parseDHCPOptions(uint8_t const *payload, uint16_t const len) {
     uint16_t constexpr DHCP_OPTIONS_START = 240;
@@ -75,6 +76,7 @@ void DHCPServer::parseDHCPOptions(uint8_t const *payload, uint16_t const len) {
                 }
                 break;
             case DHCP_OPTION_LEASE_TIME:
+            case DHCP_OPTION_SERVER_ID:
             case DHCP_OPTION_CLIENT_ID:
                 // Silently ignoring these options
                 break;
@@ -87,9 +89,6 @@ void DHCPServer::parseDHCPOptions(uint8_t const *payload, uint16_t const len) {
         options_offset += 2 + option_len;
     }
 }
-
-// TODO I should send SERVER_ID with OFFER and ACK messages
-// #define DHCP_OPTION_SERVER_ID       54 /* RFC 2132 9.7, server IP address */
 
 void DHCPServer::appendDHCPOption(uint8_t const code, uint8_t const length, uint8_t *payload, uint16_t &offset, const uint8_t *data) {
     payload[offset++] = code;

@@ -2,8 +2,6 @@
 
 #include <string>
 
-#include <pico/cyw43_arch.h>
-
 #include "Renderer.h"
 #include "WiFiScanner.h"
 

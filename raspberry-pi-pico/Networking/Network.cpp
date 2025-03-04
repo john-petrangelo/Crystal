@@ -2,12 +2,13 @@
 #include <iomanip>
 #include <iostream>
 
-#include "lumos-arduino/Logger.h"
+#include <lumos-arduino/Logger.h>
 
-#include "DHCPServer.h"
-#include "HTTP/HTTPServer.h"
-#include "HTTPHandlers.h"
-#include "Logging/LogServer.h"
+#include <DHCP/DHCPServer.h>
+#include <HTTP/HTTPServer.h>
+#include <HTTPHandlers.h>
+#include <Logging/LogServer.h>
+
 #include "MDNS.h"
 #include "Network.h"
 #include "NetworkUtils.h"
