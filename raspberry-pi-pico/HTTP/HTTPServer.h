@@ -57,8 +57,6 @@ private:
     static std::string makeHandlersKey(std::string_view const &method, std::string_view const &path);
     [[maybe_unused]] void logHandlers() const;
 
-    static std::string errToString(err_t err);
-
     std::map<uint32_t, HTTPConnectionContext const *> activeConnections;
     std::unordered_map<std::string, HTTPHandler> handlers;
 

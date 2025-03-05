@@ -42,3 +42,14 @@ std::string cyw43ErrStr(int const err) {
       return "Connection failed: " + err;
   }
 }
+
+std::string errToString(err_t const err) {
+  switch (err) {
+    case ERR_OK: return "No error";
+    case ERR_MEM: return "Out of memory";
+    case ERR_ABRT: return "Connection aborted";
+    case ERR_RST: return "Connection reset";
+    case ERR_CLSD: return "Connection closed";
+    default: return "Unknown error (" + std::to_string(err) + ")";
+  }
+}

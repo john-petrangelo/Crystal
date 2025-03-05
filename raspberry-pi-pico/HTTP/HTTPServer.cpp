@@ -7,6 +7,8 @@
 
 #include <lumos-arduino/Logger.h>
 
+#include <Networking/NetworkUtils.h>
+
 #include "HTTPConnectionContext.h"
 #include "HTTPRequestParser.h"
 #include "HTTPServer.h"
@@ -383,17 +385,6 @@ std::string HTTPServer::makeHandlersKey(std::string_view const &method, std::str
     for (const auto& [path, handler] : handlers) {
       logger << "Path: " << path << ", Handler address: " << &handler << std::endl;
     }
-  }
-}
-
-std::string HTTPServer::errToString(err_t const err) {
-  switch (err) {
-    case ERR_OK: return "No error";
-    case ERR_MEM: return "Out of memory";
-    case ERR_ABRT: return "Connection aborted";
-    case ERR_RST: return "Connection reset";
-    case ERR_CLSD: return "Connection closed";
-    default: return "Unknown error (" + std::to_string(err) + ")";
   }
 }
 
