@@ -25,6 +25,11 @@ auto constexpr DEBUG_ALL = DEBUG_CONNECTION | DEBUG_REQUEST | DEBUG_REQUEST_DETA
 auto constexpr HTTP_DEBUG = 0;
 
 void HTTPServer::start() {
+  if (listenPcb) {
+    logger << "Cannot start HTTP server, already running" << std::endl;
+    return;
+  }
+
   if (port == 0 || port > 0xFFFF) {
     logger << "Cannot start HTTP server, invalid port: " << port << std::endl;
     return;
@@ -56,6 +61,11 @@ void HTTPServer::start() {
 }
 
 void HTTPServer::stop() {
+  if (!listenPcb) {
+    logger << "Cannot stop HTTP server, not running" << std::endl;
+    return;
+  }
+
   closeAllActiveConnections();
 
   if (listenPcb) {
