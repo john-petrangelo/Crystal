@@ -51,14 +51,6 @@ bool DHCPLeasePool::findIP(uint32_t const requestedIP, uint8_t const requestedMA
   return false;
 }
 
-void DHCPLeasePool::dump() {
-  logger << "DHCP Lease Pool:" << std::endl;
-  for (auto const &[ip, mac, active]: ip_pool) {
-    logger << "  IP: " << ip4addr_ntoa(&ip) << ", MAC: " << macAddrToString(mac) << ", " << (active ? "Active" : "Inactive") << std::endl;
-  }
-}
-
-
 // Release an IP address back to the pool
 void DHCPLeasePool::release_ip(uint8_t mac[6]) {
   for (int i = 0; i < std::size(ip_pool); i++) {
@@ -68,3 +60,27 @@ void DHCPLeasePool::release_ip(uint8_t mac[6]) {
     }
   }
 }
+
+/**
+ * @brief Clears all active DHCP leases.
+ *
+ * This function resets the lease pool by marking all leases as inactive
+ * and clearing the associated MAC addresses. This ensures that no stale
+ * leases remain when restarting the DHCP server or resetting the lease pool.
+ *
+ * Note: This function does not reset the fixed list of IP addresses.
+ */
+void DHCPLeasePool::clear() {
+  for (auto &[ip, mac, active]: ip_pool) {
+    active = false;
+    memset(mac, 0, 6);
+  }
+}
+
+void DHCPLeasePool::dump() {
+  logger << "DHCP Lease Pool:" << std::endl;
+  for (auto const &[ip, mac, active]: ip_pool) {
+    logger << "  IP: " << ip4addr_ntoa(&ip) << ", MAC: " << macAddrToString(mac) << ", " << (active ? "Active" : "Inactive") << std::endl;
+  }
+}
+

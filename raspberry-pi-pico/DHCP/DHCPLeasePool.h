@@ -9,6 +9,9 @@ public:
   std::optional<ip4_addr_t> allocate_ip(uint8_t mac[6]);
   bool findIP(uint32_t requestedIP, uint8_t const requestedMAC[6]);
   void release_ip(uint8_t mac[6]);
+
+  void clear();
+
   void dump();
 
 private:
