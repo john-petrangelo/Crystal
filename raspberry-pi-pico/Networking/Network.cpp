@@ -1,4 +1,3 @@
-#include <format>
 #include <iomanip>
 #include <iostream>
 
@@ -40,6 +39,34 @@ HTTPServer Network::httpServer;
 LogServer Network::logServer;
 
 //Renderer* Network::networkRenderer = nullptr;
+
+/**
+ * @brief Starts the HTTP server.
+ *
+ * This function starts the HTTP server, allowing it to accept incoming requests.
+ */
+void Network::startHTTPServer() {
+  httpServer.start();
+}
+
+/**
+ * @brief Stops the HTTP server.
+ *
+ * This function stops the HTTP server, closing any active connections and
+ * preventing new requests from being processed.
+ */
+void Network::stopHTTPServer() {
+  httpServer.stop();
+}
+
+/**
+ * @brief Checks if the HTTP server is running.
+ *
+ * @return true if the HTTP server is currently running, false otherwise.
+ */
+bool Network::httpServerIsRunning() {
+  return httpServer.isRunning();
+}
 
 void Network::setupHostname(const std::string &baseName) {
   hostname = baseName;

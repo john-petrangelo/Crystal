@@ -1,4 +1,3 @@
-#include <format>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -42,7 +41,7 @@ void HTTPServer::start() {
   }
 
   constexpr uint8_t backlog = 3;
-  auto const listenPcb = tcp_listen_with_backlog(pcb, backlog);
+  listenPcb = tcp_listen_with_backlog(pcb, backlog);
   if (listenPcb == nullptr) {
     logger << "Cannot start HTTP server, error calling tcp_listen" << std::endl;
     tcp_abort(pcb);
@@ -51,7 +50,21 @@ void HTTPServer::start() {
 
   tcp_arg(listenPcb, this);
   tcp_accept(listenPcb, onAccept);
-  logger << "HTTP server listening on port " << port << std::endl;
+  logger << "HTTP server started, listening on port " << port << std::endl;
+}
+
+void HTTPServer::stop() {
+  closeAllActiveConnections();
+
+  if (listenPcb) {
+    if (tcp_close(listenPcb) != ERR_OK) {
+      logger << "Error closing HTTP listening socket, using tcp_abort" << std::endl;
+      tcp_abort(listenPcb);
+    }
+    listenPcb = nullptr;
+  }
+
+  logger << "HTTP server stopped" << std::endl;
 }
 
 err_t HTTPServer::onAccept(void *arg, tcp_pcb *newpcb, err_t const err) {
@@ -132,8 +145,10 @@ err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t const err) 
   auto const max = context->server()->MAX_REQUEST_LEN;
   auto const actual = context->requestData().length() + p->len;
   if (actual > max) {
-    std::string const message = std::format(
-        "Request too large (max {} bytes but request is at least {} bytes), closing connection", max, actual);
+    char message[128];
+    snprintf(message, sizeof(message),
+        "Request too large (max %d bytes but request is at least %d bytes), closing connection",
+        max, actual);
 
     logger << *context << message << std::endl;
     context->server()->sendResponseAndClose(context, {400, "text/plain", message});
@@ -403,6 +418,23 @@ void HTTPServer::removeActiveConnection(HTTPConnectionContext const *context) {
   if (!activeConnections.erase(context->id())) {
     logger << *context << "Cannot remove Connection ID " << context->id() << ", not found" << std::endl;
   }
+}
+
+void HTTPServer::closeAllActiveConnections() {
+  logger << "Closing all active HTTP connections" << std::endl;
+
+  std::vector<uint32_t> keys;
+  keys.reserve(activeConnections.size());
+
+  for (auto const & [key, _] : activeConnections) {
+    keys.push_back(key);
+  }
+
+  for (uint32_t key: keys) {
+    closeConnection(activeConnections[key]);  // Free the connection context
+    activeConnections.erase(key); // Now it's safe to erase
+  }
+  activeConnections.clear();  // Now it's safe to clear
 }
 
 std::optional<HTTPConnectionContext const *> HTTPServer::getLRUConnection() const {

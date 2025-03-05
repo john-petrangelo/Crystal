@@ -27,6 +27,10 @@ public:
     static bool setupWiFiStation(char const *ssid, char const *password);
     static bool setupWiFiSoftAP(std::string const &ssid, std::string const &password);
 
+    static void startHTTPServer();
+    static void stopHTTPServer();
+    static bool httpServerIsRunning();
+
 private:
 
     static void setupHTTP();

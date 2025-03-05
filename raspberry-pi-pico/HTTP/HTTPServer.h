@@ -23,6 +23,8 @@ public:
     ~HTTPServer() = default;
 
     void start();
+    void stop();
+    bool isRunning() const { return listenPcb != nullptr; }
 
     // Add handlers to the handler list
     void onGet(std::string path, HTTPHandler func) { onMethod("GET", std::move(path), std::move(func)); }
@@ -30,6 +32,7 @@ public:
 
     void addActiveConnection(HTTPConnectionContext const *context);
     void removeActiveConnection(HTTPConnectionContext const *context);
+    void closeAllActiveConnections();
 
     void getStatus(JsonObject obj) const;
 
@@ -54,7 +57,7 @@ private:
     static std::string makeHandlersKey(std::string_view const &method, std::string_view const &path);
     [[maybe_unused]] void logHandlers() const;
 
-    static std::string errToString(err_t const err);
+    static std::string errToString(err_t err);
 
     std::map<uint32_t, HTTPConnectionContext const *> activeConnections;
     std::unordered_map<std::string, HTTPHandler> handlers;
@@ -63,6 +66,11 @@ private:
      * The port number on which the HTTP server listens for incoming connections.
      */
     uint16_t port = 80;
+
+    /**
+     * The TCP Protocol Control Block (PCB) for the listening connection.
+     */
+    tcp_pcb *listenPcb =  nullptr;
 
     /**
      * Maximum number of active connections allowed by the HTTP server.
