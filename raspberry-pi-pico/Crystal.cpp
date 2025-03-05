@@ -15,9 +15,10 @@ constexpr long logDurationIntervalMS = 60000;
 #define BUTTON_PIN 10  // GPIO pin for the button
 #define DEBOUNCE_TIME_US 100 * 1000  // debounce time in microseconds
 
-volatile bool button_pressed = false;  // Flag for button press
+volatile bool button_event_pending = false;  // Flag for button press
 volatile uint32_t last_press_time_us = 0;  // Last time the button was pressed
 int constexpr IS_PRESSED = 0;
+bool button_held = false;
 
 /**
  * @brief Interrupt callback function for handling button presses.
@@ -36,7 +37,48 @@ void button_callback(uint const gpio, uint32_t events) {
     return;
   }
 
-  button_pressed = true;
+  button_event_pending = true;
+}
+
+/**
+ * @brief Handles debounced button press detection.
+ *
+ * This function checks for button press events and applies debounce logic to
+ * prevent false triggers caused by mechanical bouncing. It ensures that a
+ * button press is only registered once per press-release cycle.
+ *
+ * - If a button event is pending, it proceeds with checking the button state.
+ * - If the button is pressed and wasn't previously held, it verifies that enough
+ *   time has passed since the last press (debounce check) before registering the press.
+ * - If the button was previously held but is now released, it resets the tracking
+ *   to allow detecting the next press.
+ *
+ * This approach ensures that:
+ * - Multiple detections don't occur while holding the button.
+ * - Bounces after release don't trigger additional presses.
+ * - The button must be fully released before another press is detected.
+ */
+void checkButtonPress() {
+  if (!button_event_pending) {
+    return;
+  }
+  button_event_pending = false;
+
+  auto const now_us = time_us_32();
+  bool const is_pressed = gpio_get(BUTTON_PIN) == IS_PRESSED;
+
+  if (is_pressed && !button_held) {
+    // The button is pressed, and it wasn't pressed before (avoiding duplicate presses)
+    if (now_us - last_press_time_us > DEBOUNCE_TIME_US) {
+      last_press_time_us = now_us;
+      button_held = true;  // Mark as held to track release later
+      logger << "Status button was pressed" << std::endl;
+      // logger << getStatus() << std::endl << std::endl;
+    }
+  } else if (!is_pressed && button_held) {
+    // The button was held, but now it's released, reset tracking
+    button_held = false;
+  }
 }
 
 int main() {
@@ -71,17 +113,9 @@ int main() {
 
     Network::loop();
 
-    if (button_pressed) {
-      button_pressed = false;
+    checkButtonPress();
 
-      auto const now_us = time_us_32();
-      if (now_us - last_press_time_us > DEBOUNCE_TIME_US) {
-        last_press_time_us = now_us;
-        logger << "Status button was pressed" << std::endl;
-        logger << getStatus() << std::endl << std::endl;
-      }
-    }
-
+    // Send a period message so we know the system hasn't locked up
     if (now_ms - lastUpdateMS >= logDurationIntervalMS) {
       lastUpdateMS = now_ms;
       // logger << getStatus() << std::endl << std::endl;
