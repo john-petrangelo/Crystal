@@ -1,5 +1,4 @@
 #include <cstring>
-#include <format>
 #include <iomanip>
 
 #include <lwip/prot/dhcp.h>
@@ -12,6 +11,7 @@
 
 #include "DHCPServer.h"
 
+#include <utility>
 
 void DHCPServer::parseDHCPOptions(uint8_t const *payload, uint16_t const len) {
     uint16_t constexpr DHCP_OPTIONS_START = 240;
@@ -122,7 +122,7 @@ bool DHCPServer::handleDHCPDiscover(struct udp_pcb *pcb, const ip_addr_t *addr, 
     resp_payload[1] = 0x01; // Hardware type: Ethernet
     resp_payload[2] = 0x06; // Hardware address length: 6
 
-    *(uint32_t *)&resp_payload[4] = htonl(xid); // Transaction ID
+    *reinterpret_cast<uint32_t *>(&resp_payload[4]) = htonl(xid); // Transaction ID
 
     resp_payload[10] = 0x00; // Unicast
     resp_payload[11] = 0x00;
@@ -304,7 +304,8 @@ void DHCPServer::dhcp_server_callback(void *arg, udp_pcb *pcb, pbuf *p, const ip
     uint32_t xid;
     memcpy(&xid, &payload[4], sizeof(xid)); // Copy xid safely
     xid = ntohl(xid); // Convert to host byte order
-    std::string const xid_hex = std::format("{:08X}", xid);
+    char xid_hex[9];
+    snprintf(xid_hex, sizeof(xid_hex), "%x", xid);
     uint8_t mac[6];
     memcpy(mac, &payload[28], 6); // Client MAC address
 
@@ -334,7 +335,38 @@ void DHCPServer::dhcp_server_callback(void *arg, udp_pcb *pcb, pbuf *p, const ip
 
 // Start the DHCP server
 void DHCPServer::start() {
-    udp_pcb *dhcp_pcb = udp_new();
-    udp_bind(dhcp_pcb, IP_ADDR_ANY, DHCP_SERVER_PORT);
+    if (dhcp_pcb) {
+        logger << "Cannot start DHCP server, already running" << std::endl;
+        return;
+    }
+
+    dhcp_pcb = udp_new();
+    if (!dhcp_pcb) {
+        logger << "Cannot start DHCP server, error calling udp_new" << std::endl;
+        return;
+    }
+
+    auto const bind_err = udp_bind(dhcp_pcb, IP_ADDR_ANY, DHCP_SERVER_PORT);
+    if (bind_err != ERR_OK) {
+        logger << "Cannot start DHCP server, error calling udp_bind: " << errToString(bind_err) << std::endl;
+        udp_remove(std::exchange(dhcp_pcb, nullptr));
+        return;
+    }
+
     udp_recv(dhcp_pcb, dhcp_server_callback, this);
+    logger << "DHCP server started, listening on port " << DHCP_SERVER_PORT << std::endl;
+}
+
+void DHCPServer::stop() {
+    if (!dhcp_pcb) {
+        logger << "Cannot stop DHCP server, not running" << std::endl;
+        return;
+    }
+
+    // Free the UDP PCB and stop receiving packets
+    udp_remove(std::exchange(dhcp_pcb, nullptr));
+
+    leasePool.clear();
+
+    logger << "DHCP server stopped" << std::endl;
 }

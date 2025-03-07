@@ -9,6 +9,8 @@
 class DHCPServer {
 public:
   void start();
+  void stop();
+  bool isRunning() { return dhcp_pcb != nullptr; }
 
 private:
   static void dhcp_server_callback(void *arg, struct udp_pcb *pcb, pbuf *p, const ip_addr_t *addr, u16_t port);
@@ -22,6 +24,8 @@ private:
 
   void appendDHCPOption(uint8_t const code, uint8_t const length, uint8_t *payload, uint16_t &offset, const uint8_t *data);
   void appendDHCPMsgTypeOption(uint8_t *payload, uint16_t &offset, uint8_t msgType);
+
+  udp_pcb *dhcp_pcb = nullptr;
 
   DHCPLeasePool leasePool;
 

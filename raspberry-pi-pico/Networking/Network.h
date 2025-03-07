@@ -31,6 +31,10 @@ public:
     static void stopHTTPServer();
     static bool httpServerIsRunning();
 
+    static void startDHCPServer();
+    static void stopDHCPServer();
+    static bool dhcpServerIsRunning();
+
 private:
 
     static void setupHTTP();

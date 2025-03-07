@@ -68,6 +68,18 @@ bool Network::httpServerIsRunning() {
   return httpServer.isRunning();
 }
 
+void Network::startDHCPServer() {
+  dhcpServer.start();
+}
+
+void Network::stopDHCPServer() {
+  dhcpServer.stop();
+}
+
+bool Network::dhcpServerIsRunning() {
+  return dhcpServer.isRunning();
+}
+
 void Network::setupHostname(const std::string &baseName) {
   hostname = baseName;
 
@@ -184,7 +196,6 @@ bool Network::setupWiFiSoftAP(std::string const &ssid, std::string const &passwo
 
   // Start the dhcp server
   dhcpServer.start();
-  logger << "DHCP server started" << std::endl;
 
 ////  // TODO  Log each time a station connects or disconnects
 ////  WiFi.onSoftAPModeStationDisconnected([](const WiFiEventSoftAPModeStationDisconnected& evt) {
