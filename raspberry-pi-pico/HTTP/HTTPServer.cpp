@@ -13,6 +13,7 @@
 #include "HTTPRequestParser.h"
 #include "HTTPServer.h"
 
+auto constexpr DEBUG_NONE = 0;
 auto constexpr DEBUG_CONNECTION = 1<<0;
 auto constexpr DEBUG_REQUEST = 1<<1;
 auto constexpr DEBUG_REQUEST_DETAILS = 1<<2;
@@ -22,7 +23,7 @@ auto constexpr DEBUG_RESPONSE = 1<<5;
 auto constexpr DEBUG_ALL = DEBUG_CONNECTION | DEBUG_REQUEST | DEBUG_REQUEST_DETAILS | DEBUG_HEADERS | DEBUG_BODY | DEBUG_RESPONSE;
 
 // auto constexpr HTTP_DEBUG = DEBUG_CONNECTION | DEBUG_REQUEST | DEBUG_RESPONSE;
-auto constexpr HTTP_DEBUG = 0;
+auto constexpr HTTP_DEBUG = DEBUG_NONE;
 
 void HTTPServer::start() {
   if (listenPcb) {
