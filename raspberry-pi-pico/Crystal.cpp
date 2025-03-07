@@ -12,13 +12,13 @@
 
 constexpr long logDurationIntervalMS = 60000;
 
-#define BUTTON_PIN 10  // GPIO pin for the button
-#define DEBOUNCE_TIME_US 100 * 1000  // debounce time in microseconds
+int constexpr BUTTON_PIN = 10;  // GPIO pin for the button
+int constexpr DEBOUNCE_TIME_US = 100 * 1000;  // debounce time in microseconds
+int constexpr IS_PRESSED = 0; // the button is pressed when GPIO is low
 
-volatile bool button_event_pending = false;  // Flag for button press
-volatile uint32_t last_press_time_us = 0;  // Last time the button was pressed
-int constexpr IS_PRESSED = 0;
-bool button_held = false;
+volatile bool buttonEventPending = false;  // Flag for button press
+uint32_t lastPressTime_us = 0;  // Last time the button was pressed
+bool buttonIsHeld = false;
 
 /**
  * @brief Interrupt callback function for handling button presses.
@@ -37,7 +37,7 @@ void button_callback(uint const gpio, uint32_t events) {
     return;
   }
 
-  button_event_pending = true;
+  buttonEventPending = true;
 }
 
 /**
@@ -59,26 +59,42 @@ void button_callback(uint const gpio, uint32_t events) {
  * - The button must be fully released before another press is detected.
  */
 void checkButtonPress() {
-  if (!button_event_pending) {
+  if (!buttonEventPending) {
     return;
   }
-  button_event_pending = false;
+  buttonEventPending = false;
 
   auto const now_us = time_us_32();
-  bool const is_pressed = gpio_get(BUTTON_PIN) == IS_PRESSED;
+  bool const isPressed = gpio_get(BUTTON_PIN) == IS_PRESSED;
 
-  if (is_pressed && !button_held) {
-    // The button is pressed, and it wasn't pressed before (avoiding duplicate presses)
-    if (now_us - last_press_time_us > DEBOUNCE_TIME_US) {
-      last_press_time_us = now_us;
-      button_held = true;  // Mark as held to track release later
+  if (isPressed && !buttonIsHeld) {
+    if (now_us - lastPressTime_us > DEBOUNCE_TIME_US) {
+      // The button is pressed, and it wasn't pressed before (avoiding duplicate presses)
+      lastPressTime_us = now_us;
+      buttonIsHeld = true;  // Mark as held to track release later
       logger << "Status button was pressed" << std::endl;
-      // logger << getStatus() << std::endl << std::endl;
+      logger << getStatus() << std::endl << std::endl;
+
+      // if (Network::dhcpServerIsRunning()) {
+      //   Network::stopHTTPServer();
+      //   Network::stopDHCPServer();
+      // } else {
+      //   Network::startDHCPServer();
+      //   Network::startHTTPServer();
+      // }
+
     }
-  } else if (!is_pressed && button_held) {
+  } else if (!isPressed && buttonIsHeld) {
     // The button was held, but now it's released, reset tracking
-    button_held = false;
+    buttonIsHeld = false;
   }
+}
+
+void setupDiagButton() {
+  gpio_init(BUTTON_PIN);
+  gpio_set_dir(BUTTON_PIN, GPIO_IN);
+  gpio_pull_up(BUTTON_PIN);
+  gpio_set_irq_enabled_with_callback(BUTTON_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &button_callback);
 }
 
 int main() {
@@ -91,10 +107,7 @@ int main() {
   }
 
   logger << "Configuring status button" << std::endl;
-  gpio_init(BUTTON_PIN);
-  gpio_set_dir(BUTTON_PIN, GPIO_IN);
-  gpio_pull_up(BUTTON_PIN);
-  gpio_set_irq_enabled_with_callback(BUTTON_PIN, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, &button_callback);
+  setupDiagButton();
 
   logger << "Connecting to network" << std::endl;
   Network::setup();
