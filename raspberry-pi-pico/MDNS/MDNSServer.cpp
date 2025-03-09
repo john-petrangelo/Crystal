@@ -1,7 +1,7 @@
 #include "lumos-arduino/Logger.h"
 #include "MDNSServer.h"
 
-#include "NetworkUtils.h"
+#include <Networking/NetworkUtils.h>
 
 void MDNSServer::mdnsAddServiceTextItemCallback(mdns_service *service, void * /*txt_userdata*/) {
   if (err_t const res = mdns_resp_add_service_txtitem(service, "path=/", 6); res != ERR_OK) {

@@ -7,8 +7,8 @@
 #include <HTTP/HTTPServer.h>
 #include <HTTPHandlers.h>
 #include <Logging/LogServer.h>
+#include <MDNS/MDNSServer.h>
 
-#include "MDNSServer.h"
 #include "Network.h"
 #include "NetworkUtils.h"
 #include "WiFiScanner.h"

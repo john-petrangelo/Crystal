@@ -51,7 +51,7 @@ target_sources(crystal-pi-pico PRIVATE
         DHCP/DHCPServer.cpp
 )
 
-# Add HTTPServer classes to the target
+# Add HTTP classes to the target
 target_sources(crystal-pi-pico PRIVATE
         HTTP/HTTPConnectionContext.h
         HTTP/HTTPConnectionContext.cpp
@@ -66,10 +66,14 @@ target_sources(crystal-pi-pico PRIVATE
         HTTP/HTTPServer.cpp
 )
 
+# Add MDNS classes to the target
+target_sources(crystal-pi-pico PRIVATE
+        MDNS/MDNSServer.h
+        MDNS/MDNSServer.cpp
+)
+
 # Add Networking classes to the target
 target_sources(crystal-pi-pico PRIVATE
-        Networking/MDNSServer.h
-        Networking/MDNSServer.cpp
         Networking/Network.h
         Networking/Network.cpp
         Networking/NetworkUtils.h
