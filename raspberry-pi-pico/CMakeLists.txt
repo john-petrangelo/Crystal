@@ -68,8 +68,8 @@ target_sources(crystal-pi-pico PRIVATE
 
 # Add Networking classes to the target
 target_sources(crystal-pi-pico PRIVATE
-        Networking/MDNS.h
-        Networking/MDNS.cpp
+        Networking/MDNSServer.h
+        Networking/MDNSServer.cpp
         Networking/Network.h
         Networking/Network.cpp
         Networking/NetworkUtils.h

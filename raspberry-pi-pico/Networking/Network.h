@@ -8,7 +8,7 @@
 class DHCPServer;
 class HTTPServer;
 class LogServer;
-class MDNS;
+class MDNSServer;
 class WiFiScanResults;
 
 class Network {
@@ -56,7 +56,7 @@ private:
 
     static DHCPServer dhcpServer;
     static HTTPServer httpServer;
-    static MDNS mdnsServer;
+    static MDNSServer mdnsServer;
     static LogServer logServer;
 
     static Renderer *networkRenderer;

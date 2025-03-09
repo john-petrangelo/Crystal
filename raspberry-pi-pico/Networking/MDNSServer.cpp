@@ -1,9 +1,9 @@
 #include "lumos-arduino/Logger.h"
-#include "MDNS.h"
+#include "MDNSServer.h"
 
 #include "NetworkUtils.h"
 
-void MDNS::mdnsAddServiceTextItemCallback(mdns_service *service, void * /*txt_userdata*/) {
+void MDNSServer::mdnsAddServiceTextItemCallback(mdns_service *service, void * /*txt_userdata*/) {
   if (err_t const res = mdns_resp_add_service_txtitem(service, "path=/", 6); res != ERR_OK) {
     logger << "mDNS Failed to add service TXT record, err=" << res << std::endl;
   } else {
@@ -11,7 +11,7 @@ void MDNS::mdnsAddServiceTextItemCallback(mdns_service *service, void * /*txt_us
   }
 }
 
-void MDNS::mdnsReportCallback(netif * netif, u8_t const result, int8_t const slot) {
+void MDNSServer::mdnsReportCallback(netif * netif, u8_t const result, int8_t const slot) {
   if (result == MDNS_PROBING_SUCCESSFUL) {
     logger << "mDNS name successfully registered on netif " << static_cast<int>(netif->num) << std::endl;
   } else if (result == MDNS_PROBING_CONFLICT) {
@@ -22,7 +22,7 @@ void MDNS::mdnsReportCallback(netif * netif, u8_t const result, int8_t const slo
   }
 }
 
-void MDNS::init(std::string const &hostname) {
+void MDNSServer::init(std::string const &hostname) {
   mdnsHostname = hostname;
 
   // Register the name resolution callback
@@ -34,7 +34,7 @@ void MDNS::init(std::string const &hostname) {
   logger << "mDNS server initialized" << std::endl;
 }
 
-void MDNS::start() {
+void MDNSServer::start() {
   if (mdnsActive) {
     logger << "Cannot start mDNS server, already running" << std::endl;
     return;
@@ -67,7 +67,7 @@ void MDNS::start() {
   mdnsActive = true;
 }
 
-void MDNS::stop() {
+void MDNSServer::stop() {
   if (!mdnsActive) {
     logger << "Cannot stop mDNS server, not running" << std::endl;
     return;

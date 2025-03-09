@@ -4,9 +4,9 @@
 
 struct netif;
 
-class MDNS {
+class MDNSServer {
 public:
-  MDNS() = default;
+  MDNSServer() = default;
 
   /**
    * @brief Initialize mDNS with the given hostname.

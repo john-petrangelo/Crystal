@@ -8,7 +8,7 @@
 #include <HTTPHandlers.h>
 #include <Logging/LogServer.h>
 
-#include "MDNS.h"
+#include "MDNSServer.h"
 #include "Network.h"
 #include "NetworkUtils.h"
 #include "WiFiScanner.h"
@@ -36,7 +36,7 @@ Renderer* Network::networkRenderer;
 
 DHCPServer Network::dhcpServer;
 HTTPServer Network::httpServer;
-MDNS Network::mdnsServer;
+MDNSServer Network::mdnsServer;
 LogServer Network::logServer;
 
 //Renderer* Network::networkRenderer = nullptr;
