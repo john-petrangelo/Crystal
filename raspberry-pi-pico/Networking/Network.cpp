@@ -13,6 +13,7 @@
 #include "NetworkUtils.h"
 #include "WiFiScanner.h"
 #include "WiFiScanResult.h"
+#include "WiFiSoftAP.h"
 
 //#include "lumos-arduino/Colors.h"
 
@@ -176,55 +177,6 @@ bool Network::setupWiFiStation(char const *ssid, char const *password) {
   return true;
 }
 
-// Create our own network using Soft AP mode
-bool Network::setupWiFiSoftAP(std::string const &ssid, std::string const &password) {
-  // We need to pass in NULL for no password
-  auto const pw = password.empty() ? nullptr : password.c_str();
-
-  // Setup Wi-Fi soft AP mode
-  cyw43_arch_enable_ap_mode(ssid.c_str(), pw, CYW43_AUTH_WPA2_AES_PSK);
-
-  // Check if the AP interface is up
-  if (!(cyw43_state.netif[CYW43_ITF_AP].flags & NETIF_FLAG_UP)) {
-    logger << "Failed to bring up the Access Point interface." << std::endl;
-    return false;
-  }
-
-  wifiMode = "softAP";
-
-  // Assign a default IP address to the AP
-  ip4_addr_t ip;
-  IP4_ADDR(&ip, 192, 168, 27, 1);
-  netif_set_ipaddr(&cyw43_state.netif[CYW43_ITF_AP], &ip);
-
-  ipAddress = ipAddrToString(ip.addr);
-  macAddress = macAddrToString(cyw43_state.netif[CYW43_ITF_AP].hwaddr);
-  wifiMode = "access_point";
-
-  logger << "Soft Access Point started: SSID=" << ssid
-    << ", IP=" << ipAddress
-    << ", MAC=" << macAddress
-    << ", flags=0x" << std::hex << static_cast<int>(cyw43_state.netif[CYW43_ITF_AP].flags) << std::dec
-    << std::endl;
-
-  // Start the dhcp server
-  dhcpServer.start();
-
-////  // TODO  Log each time a station connects or disconnects
-////  WiFi.onSoftAPModeStationDisconnected([](const WiFiEventSoftAPModeStationDisconnected& evt) {
-////      logger << "Station disconnected " << macToString(evt.mac) << std::endl;
-////  });
-////
-////  logger << "Soft AP status: " << softAPStarted ? "Ready" : "Failed" << std::endl;
-////  logger << "Soft AP IP address: " << WiFi.softAPIP().toString() << str::endl;
-////  logger << "Soft AP MAC address = " << WiFi.softAPmacAddress() << str::endl
-////  logger << "Soft AP SSID = " << WiFi.softAPSSID() << str::endl
-////  logger << "Soft AP PSK = " << WiFi.softAPPSK() << str::endl
-////  logger << "Soft AP has " << WiFi.softAPgetStationNum() << "stations connected\n" << str::endl
-
-  return true;
-}
-
 // Set up the web server and handlers
 void Network::setupHTTP() {
   HTTPHandlers::setup(httpServer);
@@ -255,14 +207,6 @@ void Network::checkLogger() {
 //  }
 }
 
-std::string_view Network::getSoftAPStatus() {
-  if (cyw43_state.netif[CYW43_ITF_AP].flags & NETIF_FLAG_UP) {
-    return "Soft AP is active";
-  }
-
-  return "Soft AP is NOT active";
-}
-
 std::string_view Network::getStationModeStatus() {
   switch (int const status = cyw43_wifi_link_status(&cyw43_state, CYW43_ITF_STA)) {
     case CYW43_LINK_DOWN:
@@ -291,7 +235,13 @@ void Network::setup() {
 
   // If didn't connect, then start up our own soft access point
   // if (!networkDidConnect) {
-    setupWiFiSoftAP(hostname, "picopico");
+    WiFiSoftAP &softAP = WiFiSoftAP::getInstance();
+    if (softAP.start(hostname, "picopico")) {
+      wifiMode = "soft access point";
+      ipAddress = softAP.getIPAddress();
+      macAddress = softAP.getMacAddress();
+    }
+
   // }
 
   // Set up the hostname for this device

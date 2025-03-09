@@ -26,7 +26,6 @@ public:
     static WiFiScanner::WiFiScanResults const & getScanResults();
 
     static bool setupWiFiStation(char const *ssid, char const *password);
-    static bool setupWiFiSoftAP(std::string const &ssid, std::string const &password);
 
     static void startHTTPServer();
     static void stopHTTPServer();
@@ -46,7 +45,6 @@ private:
 
     static void checkLogger();
 
-    static std::string_view getSoftAPStatus();
     static std::string_view getStationModeStatus();
 
     static std::string hostname;
