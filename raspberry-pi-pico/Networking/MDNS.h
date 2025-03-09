@@ -6,13 +6,16 @@ struct netif;
 
 class MDNS {
 public:
-  MDNS() = delete; // This class should never be instantiated
+  MDNS() = default;
 
   /**
- * @brief Initialize mDNS with the given hostname.
- * @param hostname The hostname to advertise via mDNS.
- */
-  static void setup(std::string const &hostname);
+   * @brief Initialize mDNS with the given hostname.
+   */
+  void init(std::string const &hostname);
+
+  void start();
+  void stop();
+  bool isRunning() const { return mdnsActive; }
 
 private:
   /**
@@ -29,4 +32,8 @@ private:
    * @param slot Service slot index.
    */
   static void mdnsReportCallback(netif *netif, uint8_t result, int8_t slot);
+
+  std::string mdnsHostname;
+  int8_t mdnsSlot = UINT8_MAX;
+  bool mdnsActive = false;
 };

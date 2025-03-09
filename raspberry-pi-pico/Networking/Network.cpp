@@ -36,6 +36,7 @@ Renderer* Network::networkRenderer;
 
 DHCPServer Network::dhcpServer;
 HTTPServer Network::httpServer;
+MDNS Network::mdnsServer;
 LogServer Network::logServer;
 
 //Renderer* Network::networkRenderer = nullptr;
@@ -78,6 +79,18 @@ void Network::stopDHCPServer() {
 
 bool Network::dhcpServerIsRunning() {
   return dhcpServer.isRunning();
+}
+
+void Network::startMDNSServer() {
+  mdnsServer.start();
+}
+
+void Network::stopMDNSServer() {
+  mdnsServer.stop();
+}
+
+bool Network::mdnsServerIsRunning() {
+  return mdnsServer.isRunning();
 }
 
 void Network::setupHostname(const std::string &baseName) {
@@ -285,7 +298,8 @@ void Network::setup() {
   setupHostname("pico");
 
   setupHTTP();
-  MDNS::setup(hostname);
+  mdnsServer.init(hostname);
+  mdnsServer.start();
 
   logServer.init();
   logger << "Network set up complete, host " << hostname << ".local (" << ipAddress << ')' << std::endl;

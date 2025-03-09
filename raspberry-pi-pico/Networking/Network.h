@@ -8,6 +8,7 @@
 class DHCPServer;
 class HTTPServer;
 class LogServer;
+class MDNS;
 class WiFiScanResults;
 
 class Network {
@@ -35,6 +36,10 @@ public:
     static void stopDHCPServer();
     static bool dhcpServerIsRunning();
 
+    static void startMDNSServer();
+    static void stopMDNSServer();
+    static bool mdnsServerIsRunning();
+
 private:
 
     static void setupHTTP();
@@ -51,6 +56,7 @@ private:
 
     static DHCPServer dhcpServer;
     static HTTPServer httpServer;
+    static MDNS mdnsServer;
     static LogServer logServer;
 
     static Renderer *networkRenderer;

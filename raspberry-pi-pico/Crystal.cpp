@@ -75,14 +75,15 @@ void checkButtonPress() {
       logger << "Status button was pressed" << std::endl;
       logger << getStatus() << std::endl << std::endl;
 
-      // if (Network::dhcpServerIsRunning()) {
+      // if (Network::mdnsServerIsRunning()) {
+      //   Network::stopMDNSServer();
       //   Network::stopHTTPServer();
       //   Network::stopDHCPServer();
       // } else {
       //   Network::startDHCPServer();
       //   Network::startHTTPServer();
+      //   Network::startMDNSServer();
       // }
-
     }
   } else if (!isPressed && buttonIsHeld) {
     // The button was held, but now it's released, reset tracking
