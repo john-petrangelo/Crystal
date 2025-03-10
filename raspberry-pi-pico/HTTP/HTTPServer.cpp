@@ -257,7 +257,16 @@ void HTTPServer::onError(void *arg, err_t const err) noexcept {
   }
 
   logger << *context << "Connection error: " << errToString(err) << std::endl;
-  context->server()->abortConnection(context);
+
+  if (!context->server()) {
+    logger << "Error: connection context has no associated server" << std::endl;
+    return;
+  }
+
+  if (err != ERR_ABRT) {
+    // If the error was not due to an abort, then close the connection
+    context->server()->abortConnection(context);
+  }
 }
 
 err_t HTTPServer::sendResponseAndClose(HTTPConnectionContext *context, HTTPResponse const &response) {
