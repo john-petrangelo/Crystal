@@ -3,9 +3,10 @@
 
 #include <pico/cyw43_arch.h>
 
-#include "lumos-arduino/Logger.h"
+#include <lumos-arduino/Logger.h>
 
-#include "NetworkUtils.h"
+#include <Networking/NetworkUtils.h>
+
 #include "WiFiScanner.h"
 #include "WiFiScanResult.h"
 

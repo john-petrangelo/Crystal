@@ -3,9 +3,9 @@
 #include <algorithm>
 #include <string>
 
-#include <ArduinoJson.h>
+#include <ArduinoJson/src/ArduinoJson.h>
 
-#include "NetworkUtils.h"
+#include <Networking/NetworkUtils.h>
 
 /**
  * @class WiFiScanResult

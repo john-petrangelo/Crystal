@@ -1,6 +1,10 @@
 #pragma once
 
+#include <vector>
+
 #include <pico/cyw43_arch.h>
+
+#include "WiFiScanResult.h"
 
 class WiFiScanResult;
 

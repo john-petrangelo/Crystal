@@ -2,9 +2,9 @@
 
 #include <pico/cyw43_arch.h>
 
-#include "lumos-arduino/Logger.h"
+#include <lumos-arduino/Logger.h>
+#include <Networking/NetworkUtils.h>
 
-#include "NetworkUtils.h"
 #include "WiFiSoftAP.h"
 
 WiFiSoftAP &WiFiSoftAP::getInstance() {

@@ -78,12 +78,16 @@ target_sources(crystal-pi-pico PRIVATE
         Networking/Network.cpp
         Networking/NetworkUtils.h
         Networking/NetworkUtils.cpp
-        Networking/WiFiScanner.h
-        Networking/WiFiScanner.cpp
-        Networking/WiFiScanResult.h
-        Networking/WiFiScanResult.cpp
-        Networking/WiFiSoftAP.h
-        Networking/WiFiSoftAP.cpp
+)
+
+# Add Wi-Fi classes to the target
+target_sources(crystal-pi-pico PRIVATE
+        WiFi/WiFiScanner.h
+        WiFi/WiFiScanner.cpp
+        WiFi/WiFiScanResult.h
+        WiFi/WiFiScanResult.cpp
+        WiFi/WiFiSoftAP.h
+        WiFi/WiFiSoftAP.cpp
 )
 
 # Add model classes to the target

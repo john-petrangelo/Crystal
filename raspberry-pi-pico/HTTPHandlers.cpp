@@ -17,7 +17,7 @@
 #include "HTTP/HTTPServer.h"
 
 #include "Networking/Network.h"
-#include "Networking/WiFiScanResult.h"
+#include "WiFi/WiFiScanResult.h"
 
 #include "Demos.h"
 #include "HTTPHandlers.h"

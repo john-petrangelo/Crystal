@@ -2,14 +2,14 @@
 
 #include <string>
 
+#include <WiFi/WiFiScanner.h>
+
 #include "Renderer.h"
-#include "WiFiScanner.h"
 
 class DHCPServer;
 class HTTPServer;
 class LogServer;
 class MDNSServer;
-class WiFiScanResults;
 
 class Network {
 public:

@@ -8,12 +8,11 @@
 #include <HTTPHandlers.h>
 #include <Logging/LogServer.h>
 #include <MDNS/MDNSServer.h>
+#include <WiFi/WiFiScanner.h>
+#include <WiFi/WiFiSoftAP.h>
 
 #include "Network.h"
 #include "NetworkUtils.h"
-#include "WiFiScanner.h"
-#include "WiFiScanResult.h"
-#include "WiFiSoftAP.h"
 
 //#include "lumos-arduino/Colors.h"
 
