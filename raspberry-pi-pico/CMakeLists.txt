@@ -14,8 +14,6 @@ add_executable(crystal-pi-pico
         Crystal.cpp
         Demos.h
         Demos.cpp
-        HTTPHandlers.h
-        HTTPHandlers.cpp
         Renderer.h
         Renderer.cpp
         Status.h
@@ -45,31 +43,31 @@ target_sources(crystal-pi-pico PRIVATE
 
 # Add DHCP classes to the target
 target_sources(crystal-pi-pico PRIVATE
-        DHCP/DHCPLeasePool.h
-        DHCP/DHCPLeasePool.cpp
-        DHCP/DHCPServer.h
-        DHCP/DHCPServer.cpp
+        Networking/DHCP/DHCPLeasePool.h
+        Networking/DHCP/DHCPLeasePool.cpp
+        Networking/DHCP/DHCPServer.h
+        Networking/DHCP/DHCPServer.cpp
 )
 
 # Add HTTP classes to the target
 target_sources(crystal-pi-pico PRIVATE
-        HTTP/HTTPConnectionContext.h
-        HTTP/HTTPConnectionContext.cpp
-        HTTP/HTTPHandlerUtils.h
-        HTTP/HTTPHandlerUtils.cpp
-        HTTP/HTTPRequest.h
-        HTTP/HTTPRequest.cpp
-        HTTP/HTTPRequestParser.h
-        HTTP/HTTPRequestParser.cpp
-        HTTP/HTTPResponse.h
-        HTTP/HTTPServer.h
-        HTTP/HTTPServer.cpp
+        Networking/HTTP/HTTPConnectionContext.h
+        Networking/HTTP/HTTPConnectionContext.cpp
+        Networking/HTTP/HTTPHandlerUtils.h
+        Networking/HTTP/HTTPHandlerUtils.cpp
+        Networking/HTTP/HTTPRequest.h
+        Networking/HTTP/HTTPRequest.cpp
+        Networking/HTTP/HTTPRequestParser.h
+        Networking/HTTP/HTTPRequestParser.cpp
+        Networking/HTTP/HTTPResponse.h
+        Networking/HTTP/HTTPServer.h
+        Networking/HTTP/HTTPServer.cpp
 )
 
 # Add MDNS classes to the target
 target_sources(crystal-pi-pico PRIVATE
-        MDNS/MDNSServer.h
-        MDNS/MDNSServer.cpp
+        Networking/MDNS/MDNSServer.h
+        Networking/MDNS/MDNSServer.cpp
 )
 
 # Add Networking classes to the target
@@ -78,16 +76,18 @@ target_sources(crystal-pi-pico PRIVATE
         Networking/Network.cpp
         Networking/NetworkUtils.h
         Networking/NetworkUtils.cpp
+        Networking/HTTPHandlers.h
+        Networking/HTTPHandlers.cpp
 )
 
 # Add Wi-Fi classes to the target
 target_sources(crystal-pi-pico PRIVATE
-        WiFi/WiFiScanner.h
-        WiFi/WiFiScanner.cpp
-        WiFi/WiFiScanResult.h
-        WiFi/WiFiScanResult.cpp
-        WiFi/WiFiSoftAP.h
-        WiFi/WiFiSoftAP.cpp
+        Networking/WiFi/WiFiScanner.h
+        Networking/WiFi/WiFiScanner.cpp
+        Networking/WiFi/WiFiScanResult.h
+        Networking/WiFi/WiFiScanResult.cpp
+        Networking/WiFi/WiFiSoftAP.h
+        Networking/WiFi/WiFiSoftAP.cpp
 )
 
 # Add model classes to the target

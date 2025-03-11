@@ -3,14 +3,15 @@
 
 #include <lumos-arduino/Logger.h>
 
-#include <DHCP/DHCPServer.h>
-#include <HTTP/HTTPServer.h>
-#include <HTTPHandlers.h>
 #include <Logging/LogServer.h>
-#include <MDNS/MDNSServer.h>
-#include <WiFi/WiFiScanner.h>
-#include <WiFi/WiFiSoftAP.h>
 
+#include "DHCP/DHCPServer.h"
+#include "HTTP/HTTPServer.h"
+#include "MDNS/MDNSServer.h"
+#include "WiFi/WiFiScanner.h"
+#include "WiFi/WiFiSoftAP.h"
+
+#include "HTTPHandlers.h"
 #include "Network.h"
 #include "NetworkUtils.h"
 

@@ -1,29 +1,29 @@
-#include <ArduinoJson.h>
+#include <ArduinoJson/src/ArduinoJson.h>
 
-#include "lumos-arduino/Colors.h"
-#include "lumos-arduino/Logger.h"
-#include "lumos-arduino/Models/ModelUtils.h"
-#include "lumos-arduino/Models/Crystal.h"
-#include "lumos-arduino/Models/Flame.h"
-#include "lumos-arduino/Models/Gradient.h"
-#include "lumos-arduino/Models/JacobsLadder.h"
-#include "lumos-arduino/Models/Rotate.h"
-#include "lumos-arduino/Models/Solid.h"
-#include "lumos-arduino/Models/WarpCore.h"
+#include <lumos-arduino/Colors.h>
+#include <lumos-arduino/Logger.h>
+#include <lumos-arduino/Models/ModelUtils.h>
+#include <lumos-arduino/Models/Crystal.h>
+#include <lumos-arduino/Models/Flame.h>
+#include <lumos-arduino/Models/Gradient.h>
+#include <lumos-arduino/Models/JacobsLadder.h>
+#include <lumos-arduino/Models/Rotate.h>
+#include <lumos-arduino/Models/Solid.h>
+#include <lumos-arduino/Models/WarpCore.h>
 
-#include "HTTP/HTTPHandlerUtils.h"
-#include "HTTP/HTTPRequest.h"
-#include "HTTP/HTTPResponse.h"
-#include "HTTP/HTTPServer.h"
+#include <Networking/HTTP/HTTPHandlerUtils.h>
+#include <Networking/HTTP/HTTPRequest.h>
+#include <Networking/HTTP/HTTPResponse.h>
+#include <Networking/HTTP/HTTPServer.h>
+#include <Networking/WiFi/WiFiScanResult.h>
+#include <Networking/Network.h>
 
-#include "Networking/Network.h"
-#include "WiFi/WiFiScanResult.h"
+#include <Demos.h>
+#include <System.h>
 
-#include "Demos.h"
 #include "HTTPHandlers.h"
-#include "System.h"
 
-#include "../cmake-build-pico-w-debug/raspberry-pi-pico/web_files.h"
+#include "../../cmake-build-pico-w-debug/raspberry-pi-pico/web_files.h"
 
 // Set up the web server and handlers
 void HTTPHandlers::setup(HTTPServer &httpServer) {

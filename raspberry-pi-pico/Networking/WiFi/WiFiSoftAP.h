@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include <DHCP/DHCPServer.h>
+#include <Networking/DHCP/DHCPServer.h>
 
 class WiFiSoftAP {
 public:
