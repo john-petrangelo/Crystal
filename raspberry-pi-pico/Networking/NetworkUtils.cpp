@@ -30,16 +30,11 @@ std::string macAddrToString(uint8_t const mac[6]) {
 
 std::string cyw43ErrStr(int const err) {
   switch (err) {
-    case CYW43_EPERM:
-      return "Operation not permitted";
-    case CYW43_EIO:
-      return "Connection failed: Input/output error";
-    case CYW43_EINVAL:
-      return "Connection failed: Invalid argument";
-    case CYW43_ETIMEDOUT:
-      return "Connection failed: Connection timed out";
-    default:
-      return "Connection failed: " + err;
+    case CYW43_EPERM: return "Operation not permitted";
+    case CYW43_EIO: return "Connection failed: Input/output error";
+    case CYW43_EINVAL: return "Connection failed: Invalid argument";
+    case CYW43_ETIMEDOUT: return "Connection failed: Connection timed out";
+    default: return "Connection failed: " + err;
   }
 }
 
