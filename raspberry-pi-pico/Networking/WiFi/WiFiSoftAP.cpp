@@ -47,18 +47,6 @@ bool WiFiSoftAP::start(std::string const &ssid, std::string const &password) {
   dhcpServer.start();
   logger << "DHCP server started" << std::endl;
 
-  ////  // TODO  Log each time a station connects or disconnects
-  ////  WiFi.onSoftAPModeStationDisconnected([](const WiFiEventSoftAPModeStationDisconnected& evt) {
-  ////      logger << "Station disconnected " << macToString(evt.mac) << std::endl;
-  ////  });
-  ////
-  ////  logger << "Soft AP status: " << softAPStarted ? "Ready" : "Failed" << std::endl;
-  ////  logger << "Soft AP IP address: " << WiFi.softAPIP().toString() << str::endl;
-  ////  logger << "Soft AP MAC address = " << WiFi.softAPmacAddress() << str::endl
-  ////  logger << "Soft AP SSID = " << WiFi.softAPSSID() << str::endl
-  ////  logger << "Soft AP PSK = " << WiFi.softAPPSK() << str::endl
-  ////  logger << "Soft AP has " << WiFi.softAPgetStationNum() << "stations connected\n" << str::endl
-
   return true;
 }
 
