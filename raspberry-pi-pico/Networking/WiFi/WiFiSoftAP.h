@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include <ArduinoJson.h>
+
 #include <Networking/DHCP/DHCPServer.h>
 
 class WiFiSoftAP {
@@ -19,9 +21,11 @@ public:
   /// @return A string view representing the MAC address.
   std::string_view getMacAddress() const { return macAddress; }
 
-  std::string_view getSoftAPStatus() const;
+  void getStatus(JsonObject obj) const;
 
 private:
+  std::vector<std::array<uint8_t, 6>> getConnectedStations() const;
+
   std::string ipAddress = "undefined";
   std::string macAddress = "undefined";
 

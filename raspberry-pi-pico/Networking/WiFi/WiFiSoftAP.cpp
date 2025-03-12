@@ -7,6 +7,9 @@
 
 #include "WiFiSoftAP.h"
 
+#include <algorithm>
+#include <span>
+
 WiFiSoftAP &WiFiSoftAP::getInstance() {
   static WiFiSoftAP instance;
   return instance;
@@ -84,15 +87,43 @@ bool WiFiSoftAP::stop() {
   return true;
 }
 
-// TODO Log connect and disconnect events, track connected stations
-
-// TODO Add status function
-
-// TODO Needs better interface
-std::string_view WiFiSoftAP::getSoftAPStatus() const {
-  if (cyw43_state.netif[CYW43_ITF_AP].flags & NETIF_FLAG_UP) {
-    return "Soft AP is active";
+std::vector<std::array<uint8_t, 6>> WiFiSoftAP::getConnectedStations() const {
+  // Find out how many stations are connected
+  int numStations = 0;
+  cyw43_wifi_ap_get_stas(&cyw43_state, &numStations, nullptr);
+  if (numStations == 0) {
+    // No stations connected, return empty vector
+    return {};
   }
 
-  return "Soft AP is NOT active";
+  // Allocate space for the station MAC addresses
+  std::vector<std::array<uint8_t, 6>> stations(numStations);
+
+  // Get the list of the connected station MAC addresses
+  cyw43_wifi_ap_get_stas(&cyw43_state, &numStations, reinterpret_cast<uint8_t *>(stations.front().data()));
+
+  if (numStations == 0) {
+    stations.clear();
+    return stations;
+  }
+
+  // Remove any zeroed out MAC addresses
+  std::erase_if(stations, [](std::array<uint8_t, 6> const &station) {
+    return std::all_of(station.begin(), station.end(), [](uint8_t byte) { return byte == 0; });
+  });
+
+  return stations;
+}
+
+void WiFiSoftAP::getStatus(JsonObject const obj) const {
+  obj["ipAddress"] = ipAddress;
+  obj["macAddress"] = macAddress;
+  obj["status"] = (cyw43_state.netif[CYW43_ITF_AP].flags & NETIF_FLAG_UP) ? "up": "down";
+
+  auto const stations = getConnectedStations();
+
+  auto const connectedStationsArray = obj["connectedStations"].to<JsonArray>();
+  for (auto const &station : stations) {
+    connectedStationsArray.add(macAddrToString(station.data()));
+  }
 }

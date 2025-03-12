@@ -103,7 +103,7 @@ void Network::setupHostname(const std::string &baseName) {
   //
   // // Every segment must be two characters long and be a valid hex number
   // while (std::getline(macStream, segment, ':')) {
-  //   if (segment.size() != 2 || !std::ranges::all_of(segment, ::isxdigit)) {
+  //   if (segment.size() != 2 || !std::all_of(segment.begin(), segment.end(), ::isxdigit)) {
   //     hostname = baseName + "-0000";
   //   }
   //   parts.push_back(segment);
@@ -141,6 +141,7 @@ void Network::getStatus(JsonObject obj) {
   obj["pollDuration"] = pollDuration;
   obj["checkLoggerDuration"] = checkLoggerDuration;
   httpServer.getStatus(obj["httpServer"].to<JsonObject>());
+  WiFiSoftAP::getInstance().getStatus(obj["softAP"].to<JsonObject>());
 }
 
 // Connect to an existing access point. Returns true on success, false if did not connect.

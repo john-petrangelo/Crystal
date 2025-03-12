@@ -17,7 +17,7 @@ WiFiScanner &WiFiScanner::getInstance() {
 
 void WiFiScanner::addScanResult(WiFiScanResult const &scanResult) {
   // Find the existing entry for this SSID
-  auto const it = std::ranges::find_if(scanResults, [&](WiFiScanResult const &entry) {
+  auto const it = std::find_if(scanResults.begin(), scanResults.end(), [&](WiFiScanResult const &entry) {
     return entry.ssid == scanResult.ssid;
   });
 
@@ -31,7 +31,7 @@ void WiFiScanner::addScanResult(WiFiScanResult const &scanResult) {
 
   // Remove the weakest signal if we have more than 10 results
   if (scanResults.size() > MAX_RESULTS) {
-    std::ranges::sort(scanResults, [](WiFiScanResult const &a, WiFiScanResult const &b) { return a.rssi < b.rssi; });
+    std::sort(scanResults.begin(), scanResults.end(), [](WiFiScanResult const &a, WiFiScanResult const &b) { return a.rssi < b.rssi; });
     scanResults.pop_back();
   }
 }
@@ -106,7 +106,7 @@ void WiFiScanner::scanWiFi() {
   }
 
   // Sort scan results by RSSI (strongest signal first)
-  std::ranges::sort(scanResults,
+  std::sort(scanResults.begin(), scanResults.end(),
       [](WiFiScanResult const &a, WiFiScanResult const &b) { return a.rssi > b.rssi; });
 
   logger << "Finished Wi-Fi scan" << std::endl;
