@@ -13,7 +13,7 @@ class MDNSServer;
 
 class Network {
 public:
-    static void setup();
+    static void setup(std::string_view newHostname);
     static void loop();
     static void getStatus(JsonObject obj);
 
@@ -21,7 +21,6 @@ public:
     static void setRenderer(Renderer* renderer) { networkRenderer = renderer; }
 
     static std::string const &getHostname() { return hostname; }
-    static void setupHostname(std::string const &baseName);
 
     static WiFiScanner::WiFiScanResults const & getScanResults();
 

@@ -111,7 +111,7 @@ int main() {
   setupDiagButton();
 
   logger << "Connecting to network" << std::endl;
-  Network::setup();
+  Network::setup("pico");
 
   // Initialize the renderer
   Renderer *renderer = new RaspberryPiPico_Renderer(64);

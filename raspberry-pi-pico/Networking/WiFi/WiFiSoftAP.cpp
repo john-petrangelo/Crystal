@@ -15,10 +15,46 @@ WiFiSoftAP &WiFiSoftAP::getInstance() {
   return instance;
 }
 
-// Create our own network using Soft AP mode
-bool WiFiSoftAP::start(std::string const &ssid, std::string const &password) {
+bool WiFiSoftAP::isUp() const {
+  return cyw43_state.netif[CYW43_ITF_AP].flags & NETIF_FLAG_UP;
+}
+
+std::string WiFiSoftAP::generateSSID(std::string const &baseSSID, bool appendMac) const {
+  if (!appendMac || macAddress.length() < 17) {
+    // Return the base SSID if we don't need to append the MAC address
+    return baseSSID;
+  }
+
+  // Add the suffix to the SSID
+  std::string newSSID;
+  newSSID.reserve(baseSSID.length() + 5);
+  newSSID = baseSSID;
+  newSSID += '-';
+  newSSID += macAddress[12];
+  newSSID += macAddress[13];
+  newSSID += macAddress[15];
+  newSSID += macAddress[16];
+
+  return newSSID;
+}
+
+bool WiFiSoftAP::start(std::string const &baseSSID, std::string const &password, bool const appendMac) {
+  // If the AP is already up, then fail
+  if (isUp()) {
+    logger << "Failed to start Soft AP mode, already up" << std::endl;
+    return false;
+  }
+
   // We need to pass in NULL for no password
   auto const pw = password.empty() ? nullptr : password.c_str();
+
+  // Get the MAC address of the AP
+  uint8_t ma[6];
+  cyw43_wifi_get_mac(&cyw43_state, CYW43_ITF_AP, ma);
+  macAddress = macAddrToString(ma);
+
+  // Generate the SSID, appending the last four digits of the MAC address is optional
+  ssid = generateSSID(baseSSID, appendMac);
 
   // Setup Wi-Fi soft AP mode
   cyw43_arch_enable_ap_mode(ssid.c_str(), pw, CYW43_AUTH_WPA2_AES_PSK);
@@ -33,9 +69,7 @@ bool WiFiSoftAP::start(std::string const &ssid, std::string const &password) {
   ip4_addr_t ip;
   IP4_ADDR(&ip, 192, 168, 27, 1);
   netif_set_ipaddr(&cyw43_state.netif[CYW43_ITF_AP], &ip);
-
   ipAddress = ipAddrToString(ip.addr);
-  macAddress = macAddrToString(cyw43_state.netif[CYW43_ITF_AP].hwaddr);
 
   logger << "Soft Access Point started: SSID=" << ssid
     << ", IP=" << ipAddress
@@ -51,16 +85,20 @@ bool WiFiSoftAP::start(std::string const &ssid, std::string const &password) {
 }
 
 bool WiFiSoftAP::stop() {
-  logger << "Stopping Soft Access Point..." << std::endl;
+  // If the AP is already down, then fail
+  if (!isUp()) {
+    logger << "Failed to stop Soft AP mode, already down" << std::endl;
+    return false;
+  }
 
   // Stop the DHCP server
   dhcpServer.stop();
-  logger << "Can't stop the DHCP server yet" << std::endl;
 
   // Disable the AP mode
   cyw43_arch_disable_ap_mode();
 
   // Clear the stored IP address and MAC address
+  ssid = "undefined";
   ipAddress = "undefined";
   macAddress = "undefined";
 
@@ -104,6 +142,7 @@ std::vector<std::array<uint8_t, 6>> WiFiSoftAP::getConnectedStations() const {
 }
 
 void WiFiSoftAP::getStatus(JsonObject const obj) const {
+  obj["ssid"] = ssid;
   obj["ipAddress"] = ipAddress;
   obj["macAddress"] = macAddress;
   obj["status"] = (cyw43_state.netif[CYW43_ITF_AP].flags & NETIF_FLAG_UP) ? "up": "down";

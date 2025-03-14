@@ -94,35 +94,6 @@ bool Network::mdnsServerIsRunning() {
   return mdnsServer.isRunning();
 }
 
-void Network::setupHostname(const std::string &baseName) {
-  hostname = baseName;
-
-  // std::istringstream macStream(macAddress);
-  // std::vector<std::string> parts;
-  // std::string segment;
-  //
-  // // Every segment must be two characters long and be a valid hex number
-  // while (std::getline(macStream, segment, ':')) {
-  //   if (segment.size() != 2 || !std::all_of(segment.begin(), segment.end(), ::isxdigit)) {
-  //     hostname = baseName + "-0000";
-  //   }
-  //   parts.push_back(segment);
-  // }
-  //
-  // // There must be exactly six parts
-  // if (parts.size() != 6) {
-  //   hostname = baseName + "-0000";
-  // }
-  //
-  // // Construct the hostname using the basename and the fifth and sixth parts
-  // hostname.reserve(baseName.size() + 4);
-  // hostname += '-';
-  // hostname += parts[4][0];
-  // hostname += parts[4][1];
-  // hostname += parts[5][0];
-  // hostname += parts[5][1];
-}
-
 WiFiScanner::WiFiScanResults const & Network::getScanResults() {
   return WiFiScanner::getInstance().getScanResults();
 }
@@ -225,7 +196,7 @@ std::string_view Network::getStationModeStatus() {
 
 // One-stop to set up all the network components
 //void Network::setup(Renderer *renderer) {
-void Network::setup() {
+void Network::setup(std::string_view newHostname) {
   WiFiScanner::getInstance().scanWiFi();
 
   // Use this renderer if we ever want to use the LEDs for network status
@@ -242,11 +213,10 @@ void Network::setup() {
       ipAddress = softAP.getIPAddress();
       macAddress = softAP.getMacAddress();
     }
-
   // }
 
   // Set up the hostname for this device
-  setupHostname("pico");
+  hostname = "pico";
 
   setupHTTP();
   mdnsServer.init(hostname);
