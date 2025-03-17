@@ -13,7 +13,7 @@
 
 #include "HTTPHandlers.h"
 #include "Network.h"
-#include "NetworkUtils.h"
+#include "WiFi/WiFIStation.h"
 
 //#include "lumos-arduino/Colors.h"
 
@@ -117,31 +117,14 @@ void Network::getStatus(JsonObject obj) {
 
 // Connect to an existing access point. Returns true on success, false if did not connect.
 bool Network::setupWiFiStation(char const *ssid, char const *password) {
-//  // Set up the renderer with a strobing model for while we connect
-//  Color c = Colors::makeColor(127, 127, 255);
-//  ModelPtr triangle = std::make_shared<Triangle>(0.4, 1.0, c);
-//  ModelPtr pulsate = std::make_shared<Pulsate>(0.2, 1.0, 0.1, 0.9, triangle);
-//  networkRenderer->setModel(pulsate);
-
-  // Connect to an access point in station mode
-  cyw43_arch_enable_sta_mode();
-  logger << "Enabled Wi-Fi station mode" << std::endl;
-
-  // Setup Wi-Fi station mode
-  logger << "Connecting to " << ssid << "..." << std::endl;
-  auto const connect_error = cyw43_arch_wifi_connect_timeout_ms(
-    ssid, password, CYW43_AUTH_WPA2_AES_PSK, 15000);
-  if (connect_error) {
-    logger << "Connection failed: " << cyw43ErrStr(connect_error) << std::endl;
+  WiFiStation &station = WiFiStation::getInstance();
+  if (!station.start(ssid, password)) {
     return false;
   }
 
-  // Success
-  logger << "Connected to " << ssid << std::endl;
-
   // Save the network properties so we can report them later
-  ipAddress = ipAddrToString(cyw43_state.netif[CYW43_ITF_STA].ip_addr.addr);
-  macAddress = macAddrToString(cyw43_state.netif[CYW43_ITF_STA].hwaddr);
+  ipAddress = station.getIPAddress();
+  macAddress = station.getMacAddress();
 
   // Save the Wi-Fi mode
   wifiMode = "station";
@@ -200,20 +183,20 @@ void Network::setup(std::string_view newHostname) {
   WiFiScanner::getInstance().scanWiFi();
 
   // Use this renderer if we ever want to use the LEDs for network status
-//  networkRenderer = renderer;
+  //  networkRenderer = renderer;
 
   // First try to connect to a known base station
-  // bool networkDidConnect = setupWiFiStation(SECRET_SSID, SECRET_PASSWORD);
+  bool const networkDidConnect = setupWiFiStation(SECRET_SSID, SECRET_PASSWORD);
 
   // If didn't connect, then start up our own soft access point
-  // if (!networkDidConnect) {
+  if (!networkDidConnect) {
     WiFiSoftAP &softAP = WiFiSoftAP::getInstance();
     if (softAP.start(hostname, "picopico")) {
       wifiMode = "soft access point";
       ipAddress = softAP.getIPAddress();
       macAddress = softAP.getMacAddress();
     }
-  // }
+  }
 
   // Set up the hostname for this device
   hostname = "pico";

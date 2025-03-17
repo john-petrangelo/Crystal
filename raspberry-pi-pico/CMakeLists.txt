@@ -88,6 +88,8 @@ target_sources(crystal-pi-pico PRIVATE
         Networking/WiFi/WiFiScanResult.cpp
         Networking/WiFi/WiFiSoftAP.h
         Networking/WiFi/WiFiSoftAP.cpp
+        Networking/WiFi/WiFIStation.h
+        Networking/WiFi/WiFIStation.cpp
 )
 
 # Add model classes to the target

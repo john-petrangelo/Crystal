@@ -60,7 +60,7 @@ bool WiFiSoftAP::start(std::string const &baseSSID, std::string const &password,
   cyw43_arch_enable_ap_mode(ssid.c_str(), pw, CYW43_AUTH_WPA2_AES_PSK);
 
   // Check if the AP interface is up
-  if (!(cyw43_state.netif[CYW43_ITF_AP].flags & NETIF_FLAG_UP)) {
+  if (!isUp()) {
     logger << "Failed to bring up the Access Point interface." << std::endl;
     return false;
   }
@@ -103,8 +103,8 @@ bool WiFiSoftAP::stop() {
   macAddress = "undefined";
 
   // Confirm that the Soft AP mode is disabled
-  if (cyw43_state.netif[CYW43_ITF_AP].flags & NETIF_FLAG_UP) {
-    logger << "Failed to stop Soft AP mode." << std::endl;
+  if (isUp()) {
+    logger << "Failed to stop Soft AP mode" << std::endl;
     return false;
   }
 
