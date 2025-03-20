@@ -30,7 +30,7 @@ public:
     static void stopHTTPServer();
     static bool httpServerIsRunning();
 
-    static void startDHCPServer();
+    static void startDHCPServer(ip4_addr_t const &ipAddr);
     static void stopDHCPServer();
     static bool dhcpServerIsRunning();
 
@@ -44,12 +44,7 @@ private:
 
     static void checkLogger();
 
-    static std::string_view getStationModeStatus();
-
     static std::string hostname;
-    static std::string ipAddress;
-    static std::string macAddress;
-    static std::string wifiMode;
 
     static DHCPServer dhcpServer;
     static HTTPServer httpServer;

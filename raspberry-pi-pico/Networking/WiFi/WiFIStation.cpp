@@ -19,7 +19,7 @@ bool WiFiStation::isConnected() const {
   return cyw43_tcpip_link_status(&cyw43_state, CYW43_ITF_STA) == CYW43_LINK_UP;
 }
 
-bool WiFiStation::start(char const *ssid, char const *password) {
+bool WiFiStation::start(char const *ssidToConnect, char const *password) {
   if (!isUp()) {
     // Enable the Wi-Fi station mode
     cyw43_arch_enable_sta_mode();
@@ -34,9 +34,9 @@ bool WiFiStation::start(char const *ssid, char const *password) {
 
 
   // Connect to an access point in station mode
-  logger << "Wi-Fi station connecting to " << ssid << "..." << std::endl;
+  logger << "Wi-Fi station connecting to " << ssidToConnect << "..." << std::endl;
   auto const connect_error = cyw43_arch_wifi_connect_timeout_ms(
-    ssid, password, CYW43_AUTH_WPA2_AES_PSK, 15000);
+    ssidToConnect, password, CYW43_AUTH_WPA2_AES_PSK, 15000);
   if (connect_error) {
     logger << "Wi-Fi station connection failed: " << cyw43ErrStr(connect_error) << std::endl;
     return false;
@@ -48,9 +48,10 @@ bool WiFiStation::start(char const *ssid, char const *password) {
   }
 
   // Success
-  logger << "Wi-Fi station connected to " << ssid << std::endl;
+  logger << "Wi-Fi station connected to " << ssidToConnect << std::endl;
 
   // Save the network properties so we can report them later
+  ssid = ssidToConnect;
   ipAddress = ipAddrToString(cyw43_state.netif[CYW43_ITF_STA].ip_addr.addr);
   macAddress = macAddrToString(cyw43_state.netif[CYW43_ITF_STA].hwaddr);
 
@@ -69,6 +70,7 @@ bool WiFiStation::stop() {
   // Clear the stored IP address and MAC address
   ipAddress = "undefined";
   macAddress = "undefined";
+  ssid = "undefined";
 
   // Confirm that station mode is actually stopped
   if (isUp()) {
@@ -79,4 +81,65 @@ bool WiFiStation::stop() {
   logger << "Wi-Fi station mode stopped" << std::endl;
 
   return true;
+}
+
+/*
+ * The following constants are copied from the LWIP library.
+ * Bits 0-3 are an enumeration, while bits 8-11 are flags.
+ */
+uint16_t constexpr WIFI_JOIN_STATE_KIND_MASK = (0x000f); // 0b0000'0000'0000'1111
+uint16_t constexpr WIFI_JOIN_STATE_ACTIVE    = (0x0001); // 0b0000'0000'0000'0001
+uint16_t constexpr WIFI_JOIN_STATE_FAIL      = (0x0002); // 0b0000'0000'0000'0010
+uint16_t constexpr WIFI_JOIN_STATE_NONET     = (0x0003); // 0b0000'0000'0000'0011
+uint16_t constexpr WIFI_JOIN_STATE_BADAUTH   = (0x0004); // 0b0000'0000'0000'0100
+uint16_t constexpr WIFI_JOIN_STATE_AUTH      = (0x0200); // 0b0000'0010'0000'0000
+uint16_t constexpr WIFI_JOIN_STATE_LINK      = (0x0400); // 0b0000'0100'0000'0000
+uint16_t constexpr WIFI_JOIN_STATE_KEYED     = (0x0800); // 0b0000'1000'0000'0000
+uint16_t constexpr WIFI_JOIN_STATE_ALL       = (0x0e01); // 0b0000'1111'0000'0001
+
+std::string_view WiFiStation::getStateStr() {
+  int const joinState = cyw43_state.wifi_join_state & WIFI_JOIN_STATE_KIND_MASK;
+  bool const hasLink = cyw43_state.wifi_join_state & WIFI_JOIN_STATE_LINK;
+  bool const hasKey = cyw43_state.wifi_join_state & WIFI_JOIN_STATE_KEYED;
+
+  if (joinState == WIFI_JOIN_STATE_ACTIVE) {
+    if (hasLink) {
+      return "connected";
+    }
+    if (hasKey) {
+      return "waiting for IP";
+    }
+      return "joining";
+  }
+  if (joinState == WIFI_JOIN_STATE_FAIL) {
+    return "connection failed";
+  }
+  if (joinState == WIFI_JOIN_STATE_NONET) {
+    return "network not found";
+  }
+  if (joinState == WIFI_JOIN_STATE_BADAUTH) {
+    return "authentication failure";
+  }
+  return "not connected";
+}
+
+void WiFiStation::getStatus(JsonObject const obj) const {
+  obj["state"] = getStateStr();
+  obj["stateCode"] = cyw43_state.wifi_join_state;
+  if (isUp()) {
+    obj["ssid"] = ssid;
+
+    uint8_t bssid[6];
+    if (cyw43_wifi_get_bssid(&cyw43_state, bssid) == 0) {
+      obj["bssid"] = macAddrToString(bssid);
+    }
+
+    int32_t rssi;
+    if (cyw43_wifi_get_rssi(&cyw43_state, &rssi) == 0) {
+      obj["rssi"] = rssi;
+    }
+
+      obj["macAddress"] = macAddress;
+      obj["ip"] = ipAddress;
+  }
 }

@@ -334,7 +334,7 @@ void DHCPServer::dhcp_server_callback(void *arg, udp_pcb *pcb, pbuf *p, const ip
 }
 
 // Start the DHCP server
-void DHCPServer::start() {
+void DHCPServer::start(ip4_addr_t const &ipAddr) {
     if (dhcp_pcb) {
         logger << "Cannot start DHCP server, already running" << std::endl;
         return;
@@ -346,7 +346,7 @@ void DHCPServer::start() {
         return;
     }
 
-    auto const bind_err = udp_bind(dhcp_pcb, IP_ADDR_ANY, DHCP_SERVER_PORT);
+    auto const bind_err = udp_bind(dhcp_pcb, &ipAddr, DHCP_SERVER_PORT);
     if (bind_err != ERR_OK) {
         logger << "Cannot start DHCP server, error calling udp_bind: " << errToString(bind_err) << std::endl;
         udp_remove(std::exchange(dhcp_pcb, nullptr));

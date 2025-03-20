@@ -109,7 +109,7 @@ private:
    * This value is set when the SoftAP starts and may include a MAC address suffix
    * if configured to do so. It is reset to `"undefined"` when the AP is stopped.
    */
-  std::string ssid;
+  std::string ssid = "undefined";
 
   /**
    * @brief Holds the SoftAP's assigned IP address.
@@ -117,7 +117,7 @@ private:
    * The IP address is assigned when the SoftAP starts and is typically a static
    * address (e.g., 192.168.27.1). It is reset to `"undefined"` when the AP is stopped.
    */
-  std::string ipAddress;
+  std::string ipAddress = "undefined";
 
   /**
    * @brief Stores the MAC address of the SoftAP interface.
@@ -125,7 +125,7 @@ private:
    * The MAC address is retrieved when the SoftAP starts. This value remains constant
    * for a given device but is reset to `"undefined"` when the AP is stopped.
    */
-  std::string macAddress;
+  std::string macAddress = "undefined";
 
   /**
    * @brief Manages DHCP functionality for the SoftAP.

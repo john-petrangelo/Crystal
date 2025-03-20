@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include <ArduinoJson.h>
+
 class WiFiStation {
 public:
   /**
@@ -56,6 +58,23 @@ public:
   bool stop();
 
   /**
+   * @brief Retrieves a human-readable string the state of the Wi-Fi station connection.
+   *
+   * @return A string describing the current state, such as "connected", "joining", or "failed".
+   */
+  static std::string_view getStateStr();
+
+  /**
+   * @brief Populates a JSON object with the current status of the Soft AP.
+   *
+   * @param obj The JSON object to populate with status information.
+   *
+   * This function adds details such as the SSID, IP address, MAC address,
+   * network status, and a list of connected stations.
+   */
+  void getStatus(JsonObject obj) const;
+
+  /**
    * @brief Retrieves the current IP address assigned to the SoftAP.
    * @return A constant reference to the IP address string.
    *
@@ -73,6 +92,14 @@ public:
   std::string const & getMacAddress() const { return macAddress; }
 
 private:
+  /**
+   * @brief Stores the current SSID of the SoftAP.
+   *
+   * This value is set when the SoftAP starts and may include a MAC address suffix
+   * if configured to do so. It is reset to `"undefined"` when the AP is stopped.
+   */
+  std::string ssid = "undefined";
+
   /**
    * @brief Holds the stations assigned IP address.
    *

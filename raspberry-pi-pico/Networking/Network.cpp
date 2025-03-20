@@ -28,9 +28,6 @@
 #include "../secrets.h"
 
 std::string Network::hostname = "pico";
-std::string Network::ipAddress = "undefined";
-std::string Network::macAddress = "undefined";
-std::string Network::wifiMode = "undefined";
 float Network::pollDuration = 0.0;
 float Network::checkLoggerDuration = 0.0;
 Renderer* Network::networkRenderer;
@@ -70,8 +67,8 @@ bool Network::httpServerIsRunning() {
   return httpServer.isRunning();
 }
 
-void Network::startDHCPServer() {
-  dhcpServer.start();
+void Network::startDHCPServer(ip4_addr_t const &ipAddr) {
+  dhcpServer.start(ipAddr);
 }
 
 void Network::stopDHCPServer() {
@@ -100,19 +97,17 @@ WiFiScanner::WiFiScanResults const & Network::getScanResults() {
 
 void Network::getStatus(JsonObject obj) {
   obj["hostname"] = hostname;
-  obj["ipAddress"] = ipAddress;
-  obj["macAddress"] = macAddress;
-
-  obj["wiFiMode"] = wifiMode;
-  auto const scanResultsArray = obj["wiFiScanResults"].to<JsonArray>();
-  for (const auto &scanResult : WiFiScanner::getInstance().getScanResults()) {
-    scanResult.asJson(scanResultsArray.add<JsonObject>());
-  }
 
   obj["pollDuration"] = pollDuration;
   obj["checkLoggerDuration"] = checkLoggerDuration;
   httpServer.getStatus(obj["httpServer"].to<JsonObject>());
   WiFiSoftAP::getInstance().getStatus(obj["softAP"].to<JsonObject>());
+  WiFiStation::getInstance().getStatus(obj["station"].to<JsonObject>());
+
+  auto const scanResultsArray = obj["wiFiScanResults"].to<JsonArray>();
+  for (const auto &scanResult : WiFiScanner::getInstance().getScanResults()) {
+    scanResult.asJson(scanResultsArray.add<JsonObject>());
+  }
 }
 
 // Connect to an existing access point. Returns true on success, false if did not connect.
@@ -121,13 +116,6 @@ bool Network::setupWiFiStation(char const *ssid, char const *password) {
   if (!station.start(ssid, password)) {
     return false;
   }
-
-  // Save the network properties so we can report them later
-  ipAddress = station.getIPAddress();
-  macAddress = station.getMacAddress();
-
-  // Save the Wi-Fi mode
-  wifiMode = "station";
 
   return true;
 }
@@ -162,24 +150,13 @@ void Network::checkLogger() {
 //  }
 }
 
-std::string_view Network::getStationModeStatus() {
-  switch (int const status = cyw43_wifi_link_status(&cyw43_state, CYW43_ITF_STA)) {
-    case CYW43_LINK_DOWN:
-      return "WiFi is in station mode but NOT connected";
-    case CYW43_LINK_JOIN:
-      return "WiFi is in the process of joining an access point";
-    case CYW43_LINK_NOIP:
-      return "WiFi is connected but does NOT have an IP address yet";
-    case CYW43_LINK_UP:
-      return "WiFi is fully connected with an IP address";
-    default:
-      return "Unknown WiFi state: " + status;
-  }
-}
-
 // One-stop to set up all the network components
 //void Network::setup(Renderer *renderer) {
 void Network::setup(std::string_view newHostname) {
+  // Set up the hostname for this device
+  hostname = newHostname;
+
+  // Scan for nearby Wi-Fi networks
   WiFiScanner::getInstance().scanWiFi();
 
   // Use this renderer if we ever want to use the LEDs for network status
@@ -191,22 +168,15 @@ void Network::setup(std::string_view newHostname) {
   // If didn't connect, then start up our own soft access point
   if (!networkDidConnect) {
     WiFiSoftAP &softAP = WiFiSoftAP::getInstance();
-    if (softAP.start(hostname, "picopico")) {
-      wifiMode = "soft access point";
-      ipAddress = softAP.getIPAddress();
-      macAddress = softAP.getMacAddress();
-    }
+    softAP.start(hostname, "picopico");
   }
-
-  // Set up the hostname for this device
-  hostname = "pico";
 
   setupHTTP();
   mdnsServer.init(hostname);
   mdnsServer.start();
 
   logServer.init();
-  logger << "Network set up complete, host " << hostname << ".local (" << ipAddress << ')' << std::endl;
+  logger << "Network set up complete, host " << hostname << ".local" << std::endl;
 }
 
 void Network::loop() {

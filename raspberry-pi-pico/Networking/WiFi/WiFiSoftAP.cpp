@@ -78,7 +78,7 @@ bool WiFiSoftAP::start(std::string const &baseSSID, std::string const &password,
     << std::endl;
 
   // Start the dhcp server
-  dhcpServer.start();
+  dhcpServer.start(ip);
   logger << "DHCP server started" << std::endl;
 
   return true;
@@ -142,15 +142,17 @@ std::vector<std::array<uint8_t, 6>> WiFiSoftAP::getConnectedStations() const {
 }
 
 void WiFiSoftAP::getStatus(JsonObject const obj) const {
-  obj["ssid"] = ssid;
-  obj["ipAddress"] = ipAddress;
-  obj["macAddress"] = macAddress;
   obj["status"] = (cyw43_state.netif[CYW43_ITF_AP].flags & NETIF_FLAG_UP) ? "up": "down";
+  if (isUp()) {
+    obj["ssid"] = ssid;
+    obj["ipAddress"] = ipAddress;
+    obj["macAddress"] = macAddress;
 
-  auto const stations = getConnectedStations();
+    auto const stations = getConnectedStations();
 
-  auto const connectedStationsArray = obj["connectedStations"].to<JsonArray>();
-  for (auto const &station : stations) {
-    connectedStationsArray.add(macAddrToString(station.data()));
+    auto const connectedStationsArray = obj["connectedStations"].to<JsonArray>();
+    for (auto const &station : stations) {
+      connectedStationsArray.add(macAddrToString(station.data()));
+    }
   }
 }

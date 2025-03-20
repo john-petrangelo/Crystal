@@ -8,7 +8,7 @@
 
 class DHCPServer {
 public:
-  void start();
+  void start(ip4_addr_t const &ipAddr);
   void stop();
   bool isRunning() { return dhcp_pcb != nullptr; }
 
