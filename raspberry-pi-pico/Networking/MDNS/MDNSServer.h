@@ -33,6 +33,8 @@ private:
    */
   static void mdnsReportCallback(netif *netif, uint8_t result, int8_t slot);
 
+  int8_t startInterface(netif *interface);
+
   std::string mdnsHostname;
   int8_t mdnsSlot = UINT8_MAX;
   bool mdnsActive = false;

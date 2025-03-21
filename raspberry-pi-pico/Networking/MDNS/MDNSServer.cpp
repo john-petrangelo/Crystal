@@ -34,38 +34,49 @@ void MDNSServer::init(std::string const &hostname) {
   logger << "mDNS server initialized" << std::endl;
 }
 
-void MDNSServer::start() {
-  if (mdnsActive) {
-    logger << "Cannot start mDNS server, already running" << std::endl;
-    return;
-  }
-
+int8_t MDNSServer::startInterface(netif *interface ) {
   // Add network interface
-  if (err_t const err = mdns_resp_add_netif(netif_default, mdnsHostname.c_str()); err != ERR_OK) {
+  if (err_t const err = mdns_resp_add_netif(interface, mdnsHostname.c_str()); err != ERR_OK) {
     logger << "Cannot start mDNS server, failed to add netif to mDNS, err=" << err << std::endl;
-    return;
+    return err;
   }
 
   // Add the Luminarium service
-  auto const slotOrErr = mdns_resp_add_service(netif_default, "Luminarium", "_http",
-        DNSSD_PROTO_TCP, 80, mdnsAddServiceTextItemCallback, nullptr);
+  auto const slotOrErr = mdns_resp_add_service(interface, "Luminarium", "_http",
+                                               DNSSD_PROTO_TCP, 80, mdnsAddServiceTextItemCallback, nullptr);
 
   // If it's negative, then it's an error
   if (slotOrErr < 0) {
     logger << "Cannot start mDNS server, failed to add mDNS service, error " << errToString(slotOrErr) << std::endl;
-    mdns_resp_remove_netif(netif_default);
-    return;
+    mdns_resp_remove_netif(interface);
+    return slotOrErr;
   }
 
   // Not negative, so it's the slot
   mdnsSlot = slotOrErr;
 
   // Announce the service
-  mdns_resp_announce(netif_default);
-  logger << "mDNS server started with hostname " << mdnsHostname << std::endl;
+  mdns_resp_announce(interface);
+
+  // Success
+  return mdnsSlot;
+}
+
+void MDNSServer::start() {
+  if (mdnsActive) {
+    logger << "Cannot start mDNS server, already running" << std::endl;
+    return;
+  }
+
+  if (!startInterface(netif_default)) {
+    return;
+  }
 
   mdnsActive = true;
+
+  logger << "mDNS server started with hostname " << mdnsHostname << std::endl;
 }
+
 
 void MDNSServer::stop() {
   if (!mdnsActive) {
