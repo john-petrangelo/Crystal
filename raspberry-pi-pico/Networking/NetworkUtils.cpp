@@ -1,6 +1,6 @@
 #include <iomanip>
 
-#include <pico/cyw43_arch.h>
+#include <cyw43.h>
 
 #include "Networking/NetworkUtils.h"
 
@@ -46,5 +46,20 @@ std::string errToString(err_t const err) {
     case ERR_RST: return "Connection reset";
     case ERR_CLSD: return "Connection closed";
     default: return "Unknown error (" + std::to_string(err) + ")";
+  }
+}
+
+std::string_view netifToString(netif const *interface) {
+  if (!interface) {
+    return "<null>";
+  }
+
+  switch (interface->num) {
+    case CYW43_ITF_AP:
+      return "SoftAP";
+    case CYW43_ITF_STA:
+      return "Station";
+    default:
+      return "Unknown interface";
   }
 }
