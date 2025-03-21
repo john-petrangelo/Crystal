@@ -91,4 +91,4 @@
 #define LWIP_NUM_NETIF_CLIENT_DATA 1
 #define LWIP_MDNS_RESPONDER        1
 #define LWIP_IGMP                  1
-#define MEMP_NUM_SYS_TIMEOUT       12 // Default was 7
+#define MEMP_NUM_SYS_TIMEOUT       15 // Default was 7
