@@ -87,7 +87,7 @@ err_t HTTPServer::onAccept(void *arg, tcp_pcb *newpcb, err_t const err) {
   }
 
   if (newpcb == nullptr) {
-    logger << "Error accepting new connection, pcb is null, aborting" << std::endl;
+    logger << "Error accepting new HTTP connection, pcb is null, aborting" << std::endl;
     return ERR_ABRT;
   }
 
@@ -98,7 +98,7 @@ err_t HTTPServer::onAccept(void *arg, tcp_pcb *newpcb, err_t const err) {
   if (server->activeConnections.size() >= MAX_CONNECTIONS) {
     auto const lruContext = server->getLRUConnection();
     if (!lruContext.has_value()) {
-      logger << now << " Error finding least recently used connection" << std::endl;
+      logger << now << " Error finding least recently used HTTP connection" << std::endl;
       tcp_abort(newpcb);
       return ERR_ABRT;
     }
@@ -132,7 +132,7 @@ err_t HTTPServer::onReceive(void *arg, tcp_pcb *tpcb, pbuf *p, err_t const err) 
 
   // If there was an error, then abort the connection
   if (err != ERR_OK) {
-    logger << *context << "Error in onReceive: " <<  errToString(err) << std::endl;
+    logger << *context << "Error in HTTP onReceive: " <<  errToString(err) << std::endl;
     context->server()->abortConnection(context);
     return ERR_OK;
   }
@@ -252,14 +252,14 @@ void HTTPServer::onError(void *arg, err_t const err) noexcept {
   auto const context = static_cast<HTTPConnectionContext*>(arg);
 
   if (!context) {
-    logger << "Error: null connection context in onError. Error: " << errToString(err) << std::endl;
+    logger << "Error: null HTTP connection context in onError. Error: " << errToString(err) << std::endl;
     return;
   }
 
-  logger << *context << "Connection error: " << errToString(err) << std::endl;
+  logger << *context << "HTTP connection error: " << errToString(err) << std::endl;
 
   if (!context->server()) {
-    logger << "Error: connection context has no associated server" << std::endl;
+    logger << "Error: HTTP connection context has no associated server" << std::endl;
     return;
   }
 
@@ -426,8 +426,8 @@ void HTTPServer::removeActiveConnection(HTTPConnectionContext const *context) {
   if (context == nullptr) {
     return;
   }
-  if (!activeConnections.erase(context->id())) {
-    logger << *context << "Cannot remove Connection ID " << context->id() << ", not found" << std::endl;
+  if (activeConnections.erase(context->id()) == 0) {
+    logger << *context << "Cannot remove HTTP connection ID " << context->id() << ", not found" << std::endl;
   }
 }
 
