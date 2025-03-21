@@ -56,6 +56,12 @@ public:
    */
   std::string const & getMacAddress() const { return macAddress; }
 
+  /**
+   * @brief Checks if the SoftAP is currently active.
+   *
+   * @return true if the SoftAP is active, false otherwise.
+   */
+  bool isUp() const;
 
   /**
    * @brief Populates a JSON object with the current status of the Soft AP.
@@ -68,15 +74,6 @@ public:
   void getStatus(JsonObject obj) const;
 
 private:
-  /**
-   * @brief Checks if the SoftAP is currently active.
-   *
-   * Queries the network stack to determine if the SoftAP is running.
-   *
-   * @return true if the SoftAP is active, false otherwise.
-   */
-  bool isUp() const;
-
   /**
    * @brief Generates an SSID based on the base name, optionally appending a unique MAC address suffix.
    *
