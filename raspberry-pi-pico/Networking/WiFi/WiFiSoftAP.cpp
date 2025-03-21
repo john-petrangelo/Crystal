@@ -71,11 +71,7 @@ bool WiFiSoftAP::start(std::string const &baseSSID, std::string const &password,
   netif_set_ipaddr(&cyw43_state.netif[CYW43_ITF_AP], &ip);
   ipAddress = ipAddrToString(ip.addr);
 
-  logger << "Soft Access Point started: SSID=" << ssid
-    << ", IP=" << ipAddress
-    << ", MAC=" << macAddress
-    << ", flags=0x" << std::hex << static_cast<int>(cyw43_state.netif[CYW43_ITF_AP].flags) << std::dec
-    << std::endl;
+  logger << "Soft Access Point started with SSID=" << ssid << ", IP=" << ipAddress << std::endl;
 
   // Start the dhcp server
   dhcpServer.start(ip);

@@ -47,13 +47,13 @@ bool WiFiStation::start(char const *ssidToConnect, char const *password) {
     return false;
   }
 
-  // Success
-  logger << "Wi-Fi station connected to " << ssidToConnect << std::endl;
-
   // Save the network properties so we can report them later
   ssid = ssidToConnect;
   ipAddress = ipAddrToString(cyw43_state.netif[CYW43_ITF_STA].ip_addr.addr);
   macAddress = macAddrToString(cyw43_state.netif[CYW43_ITF_STA].hwaddr);
+
+  // Success
+  logger << "Wi-Fi station connected to " << ssid  << " with IP " << ipAddress << std::endl;
 
   return true;
 }
