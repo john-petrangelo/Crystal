@@ -6,8 +6,8 @@
 
 std::string ipAddrToString(uint32_t ipAddr);
 std::string macAddrToString(uint8_t const mac[6]);
-std::string cyw43ErrStr(int err);
-std::string errToString(err_t const err);
+std::string picoErrStr(int err);
+std::string errToString(err_t err);
 
 /**
  * @brief Converts a network interface pointer to a human-readable string.

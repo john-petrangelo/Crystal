@@ -28,13 +28,31 @@ std::string macAddrToString(uint8_t const mac[6]) {
   return oss.str();
 }
 
-std::string cyw43ErrStr(int const err) {
+std::string picoErrStr(/*pico_error_codes*/ int const err) {
   switch (err) {
-    case CYW43_EPERM: return "Operation not permitted";
-    case CYW43_EIO: return "Connection failed: Input/output error";
-    case CYW43_EINVAL: return "Connection failed: Invalid argument";
-    case CYW43_ETIMEDOUT: return "Connection failed: Connection timed out";
-    default: return "Connection failed: " + err;
+    case PICO_OK: return "No error";
+    case PICO_ERROR_GENERIC: return "Generic error";
+    case PICO_ERROR_TIMEOUT: return "Timeout error";
+    case PICO_ERROR_NO_DATA: return "No data error";
+    case PICO_ERROR_NOT_PERMITTED: return "Not permitted error";
+    case PICO_ERROR_INVALID_ARG: return "Invalid argument error";
+    case PICO_ERROR_IO: return "I/O error";
+    case PICO_ERROR_BADAUTH: return "Bad authentication error";
+    case PICO_ERROR_CONNECT_FAILED: return "Connection failed error";
+    case PICO_ERROR_INSUFFICIENT_RESOURCES: return "Insufficient resources error";
+    case PICO_ERROR_INVALID_ADDRESS: return "Invalid address error";
+    case PICO_ERROR_BAD_ALIGNMENT: return "Bad alignment error";
+    case PICO_ERROR_INVALID_STATE: return "Invalid state error";
+    case PICO_ERROR_BUFFER_TOO_SMALL: return "Buffer too small error";
+    case PICO_ERROR_PRECONDITION_NOT_MET: return "Precondition not met error";
+    case PICO_ERROR_MODIFIED_DATA: return "Modified data error";
+    case PICO_ERROR_INVALID_DATA: return "Invalid data error";
+    case PICO_ERROR_NOT_FOUND: return "Not found error";
+    case PICO_ERROR_UNSUPPORTED_MODIFICATION: return "Unsupported modification error";
+    case PICO_ERROR_LOCK_REQUIRED: return "Lock required error";
+    case PICO_ERROR_VERSION_MISMATCH: return "Version mismatch error";
+    case PICO_ERROR_RESOURCE_IN_USE: return "Resource in use error";
+    default: return "Unknown error (" + std::to_string(err) + ")";
   }
 }
 

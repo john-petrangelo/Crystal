@@ -38,12 +38,14 @@ bool WiFiStation::start(char const *ssidToConnect, char const *password) {
   auto const connect_error = cyw43_arch_wifi_connect_timeout_ms(
     ssidToConnect, password, CYW43_AUTH_WPA2_AES_PSK, 15000);
   if (connect_error) {
-    logger << "Wi-Fi station connection failed: " << cyw43ErrStr(connect_error) << std::endl;
+    logger << "Wi-Fi station connection failed: " << picoErrStr(connect_error) << std::endl;
+    cyw43_arch_disable_sta_mode();
     return false;
   }
 
   if (!isUp()) {
     logger << "Wi-Fi station mode is not up after connection" << std::endl;
+    cyw43_arch_disable_sta_mode();
     return false;
   }
 

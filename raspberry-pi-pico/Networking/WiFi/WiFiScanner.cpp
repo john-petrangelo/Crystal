@@ -79,7 +79,7 @@ void WiFiScanner::scanWiFi() {
   scan_options.scan_type = 0; /*active*/
   auto const err = cyw43_wifi_scan(&cyw43_state, &scan_options, this, scanWiFiCallback);
   if (err) {
-    logger << "Wi-Fi scan failed: " << cyw43ErrStr(err) << std::endl;
+    logger << "Wi-Fi scan failed: " << picoErrStr(err) << std::endl;
     return;
   }
 
