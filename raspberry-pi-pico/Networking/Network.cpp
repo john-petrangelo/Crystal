@@ -110,16 +110,6 @@ void Network::getStatus(JsonObject obj) {
   }
 }
 
-// Connect to an existing access point. Returns true on success, false if did not connect.
-bool Network::setupWiFiStation(char const *ssid, char const *password) {
-  WiFiStation &station = WiFiStation::getInstance();
-  if (!station.start(ssid, password)) {
-    return false;
-  }
-
-  return true;
-}
-
 // Set up the web server and handlers
 void Network::setupHTTP() {
   HTTPHandlers::setup(httpServer);
@@ -150,32 +140,48 @@ void Network::checkLogger() {
 //  }
 }
 
+constexpr bool Network::hasStationMode(WiFiMode wifiMode) {
+  switch (wifiMode) {
+    case WiFiMode::StationOnly:
+    case WiFiMode::StationAndAP:
+    case WiFiMode::StationFallbackAP:
+      return true;
+    default:
+      return false;
+  }
+}
+
 // One-stop to set up all the network components
 //void Network::setup(Renderer *renderer) {
-void Network::setup(std::string_view newHostname) {
-  // Set up the hostname for this device
-  hostname = newHostname;
+void Network::setup(std::string_view const newHostname, WiFiMode wifiMode) {
+  // Use this renderer if we ever want to use the LEDs for network status
+  //  networkRenderer = renderer;
 
   // Scan for nearby Wi-Fi networks
   WiFiScanner::getInstance().scanWiFi();
 
-  // Use this renderer if we ever want to use the LEDs for network status
-  //  networkRenderer = renderer;
+ // Set up the hostname for this device
+  hostname = newHostname;
 
-  // First try to connect to a known base station
-  bool const networkDidConnect = setupWiFiStation(SECRET_SSID, SECRET_PASSWORD);
-
-  // If didn't connect, then start up our own soft access point
-  if (!networkDidConnect) {
-    WiFiSoftAP &softAP = WiFiSoftAP::getInstance();
-    softAP.start(hostname, "picopico");
+  // Setup Wi-Fi station mode if needed
+  bool networkDidConnect = false;
+  if (hasStationMode(wifiMode)) {
+    networkDidConnect = WiFiStation::getInstance().start(SECRET_SSID, SECRET_PASSWORD);
   }
 
+  // Setup Wi-Fi soft AP mode if needed
+  if (wifiMode == WiFiMode::APOnly || wifiMode == WiFiMode::StationAndAP ||
+    (wifiMode == WiFiMode::StationFallbackAP && !networkDidConnect)) {
+    WiFiSoftAP::getInstance().start(hostname, "picopico");
+  }
+
+  // Start the HTTP server and mDNS server
   setupHTTP();
   mdnsServer.init(hostname);
   mdnsServer.start();
 
   logServer.init();
+
   logger << "Network set up complete, host " << hostname << ".local" << std::endl;
 }
 

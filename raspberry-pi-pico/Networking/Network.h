@@ -13,8 +13,22 @@ class MDNSServer;
 
 class Network {
 public:
-    static void setup(std::string_view newHostname);
+    /**
+     * @brief Enumeration representing the various operational modes for the Wi-Fi interfaces.
+     *
+     * This enum class defines the possible modes in which the device can operate:
+     * - StationOnly: The device operates solely as a Wi-Fi station, connecting to an external network.
+     * - APOnly: The device operates solely as a Soft Access Point (AP).
+     * - StationAndAP: The device simultaneously runs in both station and AP modes.
+     * - StationFallbackAP: The device primarily functions in station mode, but will fall back to AP mode if the station connection fails.
+     */
+    enum class WiFiMode : uint8_t {
+        StationOnly, APOnly, StationAndAP, StationFallbackAP
+    };
+
+    static void setup(std::string_view newHostname, WiFiMode wifiMode);
     static void loop();
+
     static void getStatus(JsonObject obj);
 
     static Renderer* getRenderer() { return networkRenderer; }
@@ -23,8 +37,6 @@ public:
     static std::string const &getHostname() { return hostname; }
 
     static WiFiScanner::WiFiScanResults const & getScanResults();
-
-    static bool setupWiFiStation(char const *ssid, char const *password);
 
     static void startHTTPServer();
     static void stopHTTPServer();
@@ -43,6 +55,8 @@ private:
     static void setupHTTP();
 
     static void checkLogger();
+
+    static constexpr bool hasStationMode(WiFiMode wifiMode);
 
     static std::string hostname;
 

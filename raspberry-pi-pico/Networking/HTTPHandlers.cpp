@@ -15,8 +15,9 @@
 #include <Networking/HTTP/HTTPRequest.h>
 #include <Networking/HTTP/HTTPResponse.h>
 #include <Networking/HTTP/HTTPServer.h>
-#include <Networking/WiFi/WiFiScanResult.h>
 #include <Networking/Network.h>
+#include <Networking/WiFi/WiFiScanResult.h>
+#include <Networking/WiFi/WiFIStation.h>
 
 #include <Demos.h>
 #include <System.h>
@@ -111,7 +112,8 @@ HTTPResponse HTTPHandlers::handleConnect(HTTPRequest const &request) {
 
     logger << "handleConnect ssid=" << ssid << " password=" << password << std::endl;
 
-    Network::setupWiFiStation(ssid.c_str(), password.c_str());
+    WiFiStation::getInstance().stop();
+    WiFiStation::getInstance().start(ssid.c_str(), password.c_str());
 
     return {200, "text/plain"};
 }
